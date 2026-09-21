@@ -1,0 +1,230 @@
+@use "../abstract" as *;
+
+.partnerit-pricing {
+  overflow: hidden;
+  background:
+    url('/resource/images/main/pricing/background-glow.svg') left -30.6rem top -11.2rem / 103rem 96rem no-repeat,
+    url('/resource/images/main/pricing/background-glow.svg') right -41.1rem top -24rem / 103rem 96rem no-repeat,
+    linear-gradient(180deg, var(--clr-ui-white) 0%, #e6f0ff 100%);
+  color: #1e1d2d;
+
+
+  &.no-section-lg { padding-block: fluid(96, 120); }
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: fluid(32, 48);
+  }
+
+  &__header { max-width: 66rem; }
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    line-height: 1.41;
+  }
+
+  &__plans,
+  &__addon-grid {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__plans {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.4rem;
+  }
+
+  &__plan-card,
+  &__addon {
+    box-sizing: border-box;
+    background: var(--clr-ui-white);
+  }
+
+  &__plan-card {
+    display: flex;
+    min-height: 69.9rem;
+    flex-direction: column;
+    padding: 3.2rem 3.6rem;
+    border: 2px solid #eee;
+    border-radius: 1.6rem;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.12);
+  }
+
+  &__plan--growth &__plan-card { border-color: #3c82f6; }
+  &__plan--pro &__plan-card { border-color: #6051f0; }
+
+  &__plan-head {
+    display: flex;
+    min-height: 20.6rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-bottom: 2.4rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  &__badge,
+  &__perk {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 3.4rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #f8f9fa;
+    color: #555;
+  }
+
+  &__badge { padding-inline: 1rem; }
+  &__plan--starter &__badge { background: #ffe9ec; color: #f73d76; }
+  &__plan--growth &__badge { background: #ecf3ff; color: #3c82f6; }
+  &__plan--pro &__badge { background: #f3edf7; color: #554781; }
+
+  &__plan-title {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    line-height: 1.41;
+
+    span:first-child { color: #555; }
+  }
+
+  &__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+    color: inherit;
+
+    small { color: #555; }
+  }
+
+  &__plan-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    padding-block: 2.4rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  &__feature-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__group-title { color: #555; line-height: 1.618; }
+
+  &__feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__feature {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    color: #555;
+    line-height: 1.618;
+    word-break: keep-all;
+  }
+
+  &__check,
+  &__check img {
+    display: block;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: 0 0 auto;
+    object-fit: contain;
+  }
+
+  &__perks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 2.4rem 0 0;
+    list-style: none;
+  }
+
+  &__perk { gap: 0.6rem; padding: 0.5rem 0.8rem; }
+
+  &__perk-icon,
+  &__perk-icon img {
+    display: block;
+    width: 2.4rem;
+    height: 2.4rem;
+    flex: 0 0 2.4rem;
+    object-fit: contain;
+  }
+
+  &__addons {
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+  }
+
+  &__addon-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2.4rem;
+  }
+
+  &__addon {
+    display: flex;
+    min-height: 26.2rem;
+    flex-direction: column;
+    padding: 2rem 2.4rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.08);
+  }
+
+  &__addon-icon,
+  &__addon-icon img {
+    display: block;
+    width: 6.4rem;
+    height: 6.4rem;
+    object-fit: contain;
+  }
+
+  &__addon-title {
+    margin-top: 3.8rem;
+    color: inherit;
+    line-height: 1.41;
+  }
+
+  &__addon-desc {
+    margin-top: 0.8rem;
+    color: #555;
+    line-height: 1.618;
+    word-break: keep-all;
+  }
+
+  @include mq(lg) {
+    &__plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    &__plan--pro { grid-column: 1 / -1; }
+    &__addon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @include mq(sm) {
+    &.no-section-lg { padding-block: fluid(64, 80); }
+
+    &__plans,
+    &__addon-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.6rem;
+    }
+
+    &__plan--pro { grid-column: auto; }
+    &__plan-card { min-height: 0; padding: 2.8rem 2.4rem; }
+    &__plan-head { min-height: 0; }
+    &__addon { min-height: 0; }
+  }
+}

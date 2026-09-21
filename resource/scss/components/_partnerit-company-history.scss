@@ -1,0 +1,73 @@
+@use "../abstract" as *;
+
+.partnerit-company-history {
+  background: #fff;
+
+  &__inner { width: min(132rem, calc(100% - 4.8rem)); padding-block: 14rem; padding-inline: 0; }
+  &__title { max-width: 72rem; margin: 0 0 5.6rem; color: #1e1d2d; }
+  &__years { display: flex; flex-direction: column; }
+
+  &__year {
+    display: grid;
+    grid-template-columns: 18rem minmax(0, 1fr);
+    gap: 6.4rem;
+    padding: 4.8rem 0 3.2rem;
+    border-top: 0.1rem solid #e2e8f0;
+  }
+
+  &__year-label {
+    margin: 0;
+    color: #3c82f6;
+    font-size: clamp(3.6rem, 4.4vw, 6.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    position: relative;
+    min-height: 0;
+    padding: 2.2rem 0 2.2rem 2.4rem;
+    border-bottom: 0.1rem solid #e2e8f0;
+    color: #374456;
+    font-size: clamp(1.6rem, 1.3vw, 2rem);
+    font-weight: 500;
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+
+  &__item:last-child {
+    min-height: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  &__item:last-child::before { top: calc(2.2rem + 0.8em); }
+
+  &__item::before {
+    position: absolute;
+    top: calc(2.2rem + 0.8em);
+    left: 0;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: #3c82f6;
+    content: "";
+    transform: translateY(-50%);
+  }
+
+  @media (max-width: 760px) {
+    &__inner { padding-block: 8rem; }
+    &__title { margin-bottom: 3.6rem; }
+    &__year { grid-template-columns: 1fr; gap: 1.6rem; padding: 3.2rem 0 2.4rem; }
+    &__year-label { font-size: 3.6rem; }
+    &__item { padding: 1.6rem 0 1.6rem 2rem; font-size: 1.6rem; }
+    &__item::before,
+    &__item:last-child::before { top: calc(1.6rem + 0.8em); }
+  }
+}

@@ -1,0 +1,5 @@
+@use "./base";
+@use "./layouts";
+// 페이지를 컴포넌트보다 먼저: 번들·소스맵에서 규칙 순서가 앞으로 가 DevTools 출처가 어긋나는 현상 완화
+@use "./pages";
+@use "./components";

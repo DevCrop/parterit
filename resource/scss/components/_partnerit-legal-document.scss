@@ -1,0 +1,37 @@
+.partnerit-legal {
+  --legal-space: 2.4rem;
+  --legal-border: #e3e9f1;
+  padding-block: calc(var(--header-height) + 8rem) 10rem;
+  background: #fff;
+  color: var(--clr-text-body);
+  &__inner.no-container-xl { max-width: 104rem; }
+  &__header { display: grid; gap: var(--legal-space); margin-bottom: 4.8rem; color: var(--clr-text-title); }
+  &__eyebrow { color: var(--clr-primary-def); }
+  &__date { color: var(--clr-text-body); }
+  &__tabs { display: flex; gap: var(--legal-space); border-bottom: 1px solid var(--legal-border); margin-bottom: var(--legal-space); }
+  &__tabs a { padding-block: 1.6rem; border-bottom: 2px solid transparent; transition: color .2s, background-color .2s; }
+  &__tabs a[aria-current] { color: var(--clr-primary-def); border-color: currentColor; }
+  &__tabs a:hover, &__toc a:hover { color: var(--clr-primary-def); }
+  &__toc { padding: var(--legal-space); background: #f5f8fd; border-radius: 1.2rem; margin-bottom: 4.8rem; }
+  &__toc summary { cursor: pointer; color: var(--clr-text-title); }
+  &__toc ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem var(--legal-space); margin-top: var(--legal-space); list-style: none; padding: 0; }
+  &__article { padding-block: 3.2rem; border-bottom: 1px solid var(--legal-border); }
+  &__article:first-child { padding-top: 0; }
+  &__article:last-child { border-bottom: 0; padding-bottom: 0; }
+  &__article-title { color: var(--clr-text-title); margin-bottom: var(--legal-space); scroll-margin-top: calc(var(--header-height) + 2.4rem); }
+  &__body { display: grid; gap: 1.6rem; overflow-wrap: anywhere; word-break: keep-all; }
+  &__paragraph { margin: 0; }
+  &__paragraph--bullet, &__paragraph--subitem { margin-left: var(--legal-space); }
+  &__table { width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; }
+  &__table th, &__table td { padding: 1.6rem; border: 1px solid var(--legal-border); vertical-align: top; }
+  &__table th { background: #f5f8fd; color: var(--clr-text-title); }
+  &__table-caption { text-align: left; margin-bottom: 1.2rem; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--clr-primary-def); outline-offset: 4px; }
+  @media (max-width: 767px) {
+    --legal-space: 1.6rem;
+    padding-block: calc(var(--header-height) + 4.8rem) 6.4rem;
+    &__header { margin-bottom: 3.2rem; }
+    &__toc ol { grid-template-columns: 1fr; }
+    &__table th, &__table td { padding: 1.2rem .8rem; }
+  }
+}

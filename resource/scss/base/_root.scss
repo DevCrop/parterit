@@ -1,0 +1,172 @@
+@use "sass:map";
+@use "../abstract" as *;
+
+$theme-colors: $theme-colors-light;
+
+:root {
+  --base-font-size: #{fluid(12, 16)};
+
+  --base-line-height: 1.618;
+
+  // 본문 기본 자간(상속) — 전 폰트 공통 -2%. f-* 유틸도 동일 값(headings $letter-spacing)
+  --base-letter-spacing: -0.02em;
+
+  --header-height: #{fluid(72, 80)};
+
+  // 헤더 아래 sticky 등: calc(var(--header-height) + var(--header-sticky-gap))
+  --header-sticky-gap: #{fluid(8, 24)};
+
+  // Z-Index 계층 구조
+  --z-index-backdrop: 9998;
+  --z-index-header: 10000;
+  --z-index-drawer: 10001;
+  --z-index-search: 10001;
+  --z-index-modal: 10002;
+  --z-index-floating-button: 999;
+  --z-index-button-floating: 1000000;
+
+  --gutter-lg: #{fluid(36, 72)};
+  --gutter-md: #{fluid(20, 48)};
+  --gutter-sm: #{fluid(12, 24)};
+
+  --input-height: #{fluid(40, 54)};
+
+  --z-index-backdrop: 10;
+  --z-index-bg: -1;
+
+  // Motion: 빠르고 정돈된 감각 (과한 스프링·지연 지양)
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-micro: 0.12s;
+  --duration-fast: 0.18s;
+  --duration-base: 0.28s;
+  --duration-emphasis: 0.42s;
+
+  --transition-fast: all var(--duration-fast) var(--ease-out);
+  --transition-default: all var(--duration-base) var(--ease-standard);
+  --transition-slow: all var(--duration-emphasis) var(--ease-standard);
+  --transition-header: all var(--duration-fast) var(--ease-out);
+
+  @each $key, $val in $font-familys {
+    --family-#{'#{$key}'}: "#{$val}", sans-serif;
+  }
+
+  @each $key, $val in $theme-colors {
+    --clr-#{'#{$key}'}: #{$val};
+  }
+
+  // intl-tel-input 플러그인용 (마크업/클래스에 두지 않고 루트만 사용)
+  --iti-border-color: transparent;
+  --iti-hover-color: rgba(37, 99, 235, 0.08);
+  --iti-icon-color: var(--clr-text-body);
+}
+
+// 테마모드 미사용 — 단일 라이트 테마. (다크 오버라이드 블록 제거)
+
+// set colors ====================
+
+@each $key, $val in $theme-colors {
+  .clr-#{"#{$key}"} {
+    color: var(--clr-#{"#{$key}"});
+  }
+  .bdr-#{"#{$key}"} {
+    border-color: var(--clr-#{"#{$key}"});
+  }
+
+  .bg-#{"#{$key}"} {
+    background: var(--clr-#{"#{$key}"});
+  }
+}
+
+// set font familys ====================
+
+@each $key, $val in $font-familys {
+  .no-family-#{"#{$key}"} {
+    font-family: "#{$val}", sans-serif;
+  }
+}
+
+// set container =======================
+
+@each $key, $val in $containers {
+  .no-container-#{"#{$key}"} {
+    max-width: #{$val}px;
+
+    margin-left: auto;
+    width: 100%;
+    margin-right: auto;
+
+    padding-left: fluid(20, 24);
+
+    padding-right: fluid(20, 24);
+  }
+}
+
+// set section ==========================
+.no-container-xl {
+  width: min(132rem, calc(100% - 4.8rem));
+  padding-inline: 0;
+}
+
+
+@each $key, $val in $sections {
+  .no-section-#{"#{$key}"} {
+    @include section-fluid-by-map($val);
+  }
+}
+
+// set custom ==========================
+
+@each $key, $val in $fluid-customs {
+  .#{"#{$key}"} {
+    @include set-fluid($val);
+  }
+}
+
+// set heaidngs ========================
+
+@each $key, $val in $fluid-headings {
+  .f-heading-#{$key} {
+    @include fs-fluid-by-map($val);
+  }
+}
+
+@each $key, $val in $fluid-displays {
+  .f-display-#{$key} {
+    @include fs-fluid-by-map($val);
+  }
+}
+
+@each $key, $val in $fluid-bodys {
+  .f-body-#{$key} {
+    @include fs-fluid-by-map($val);
+  }
+}
+
+// (NOTE) s-heading / s-body 계열은 현재 사용하지 않아 생성 생략
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent-wheel],
+.lenis.lenis-smooth [data-lenis-prevent-touch] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}

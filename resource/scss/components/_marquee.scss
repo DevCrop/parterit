@@ -1,0 +1,32 @@
+@use "../abstract" as *;
+
+.no-marquee {
+  overflow: hidden;
+  width: 100%;
+
+  &__track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+
+  &__list {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  &__text {
+    color: var(--clr-text-body);
+    opacity: 0.64;
+    padding-inline: fluid(20, 36);
+    letter-spacing: -0.2rem;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+}

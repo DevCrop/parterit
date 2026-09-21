@@ -1,0 +1,542 @@
+@use "../abstract" as *;
+
+// 전체 너비 일자형 헤더 (높이: --header-height, 배경: --clr-background-header-default)
+.no-header {
+  $root: &;
+  --header-nav-extra-height: 0px;
+  --header-surface-opacity: 0.06;
+  --header-surface-blur: 24px;
+  --header-shadow-opacity: 0.08;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  height: var(--header-height);
+  // 항상 솔리드 화이트 배경 (글래스/반투명 미사용)
+  background: var(--clr-background-header-default);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, var(--header-shadow-opacity));
+  backdrop-filter: blur(var(--header-surface-blur));
+  -webkit-backdrop-filter: blur(var(--header-surface-blur));
+  z-index: var(--z-index-header);
+  overflow: visible;
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+  border-bottom: 1px solid var(--clr-border-default);
+  border-radius: 0;
+  will-change: height, transform;
+  &::before {
+    content: none;
+  }
+
+  &__inner {
+    @include flex-center();
+    height: var(--header-height);
+    border-bottom: 1px solid transparent;
+  }
+
+  &__wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--gutter-sm);
+    height: var(--header-height);
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  &-right {
+    display: flex;
+    align-items: center;
+    gap: var(--gutter-sm);
+    // 콘텐츠 폭만 차지 — 빈 공간을 먹지 않게 해 nav 가 우측 끝으로 정렬되도록.
+    // (데스크톱: 비어 있음 → nav 우측 정렬 / 모바일: 햄버거 → 우측 끝)
+    flex: 0 0 auto;
+    align-self: flex-start;
+    min-height: var(--header-height);
+    min-width: 0;
+    justify-content: flex-end;
+
+    .no-header-lang {
+      display: flex;
+      align-items: center;
+      gap: fluid(8, 16);
+
+      @include mq(md) {
+        display: none;
+      }
+
+      &__item {
+        @include font("f-body-3");
+        font-weight: 500;
+        color: var(--clr-text-body-invert);
+        text-decoration: none;
+        opacity: 0.64;
+        transition: opacity var(--duration-fast) var(--ease-out);
+
+        &.is-active,
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  // 헤더 바 = 범용 컨테이너(no-container-xl)로 폭 정렬 + flex 레이아웃만 담당
+  &__bar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: var(--header-height);
+  }
+
+  &__logo {
+    @include flex-center();
+    width: fluid(120, 160);
+
+    img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .no-header__wordmark {
+      @include font("f-heading-4");
+      color: var(--clr-text-title);
+      white-space: nowrap;
+    }
+  }
+
+  &__action {
+    @include flex-center();
+    display: none;
+    gap: 0.8rem;
+
+    @include mq(lg) {
+      display: flex;
+    }
+  }
+
+  &__icons {
+    align-items: center;
+    gap: fluid(6, 12);
+  }
+
+  &__icon-btn {
+    @include flex-center();
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: var(--clr-background-button-default);
+    color: var(--clr-text-title);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-header);
+    position: relative;
+
+    &:hover {
+      background: var(--clr-background-button-hover);
+      color: var(--clr-primary-def);
+    }
+
+    &:active {
+      background: var(--clr-background-button-active);
+    }
+
+    i {
+      font-size: 1.6rem;
+    }
+
+    &--sitemap {
+      background: var(--clr-background-button-default);
+      color: var(--clr-text-title);
+
+      &:hover {
+        background: var(--clr-background-button-hover);
+        color: var(--clr-primary-def);
+      }
+
+      &:active {
+        background: var(--clr-background-button-active);
+      }
+    }
+
+    @include mq(sm) {
+      width: 3.6rem;
+      height: 3.6rem;
+
+      i {
+        font-size: 1.4rem;
+      }
+    }
+  }
+
+  &__theme-toggle {
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    width: 4.4rem;
+    height: 2.2rem;
+    padding: 0;
+    border-radius: 999px;
+    overflow: hidden;
+    // 글래스 트랙: solid 컬러 대신 흑 알파 + backdrop-blur로 처리 — 라이트
+    // 모드에서는 어두운 글래스가 어떤 배경 위에서도 윤곽을 잡아주고, 다크
+    // 모드에서는 아래 [data-theme="dark"] 오버라이드에서 화이트 알파로 플립.
+    background: rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    &__thumb {
+      position: absolute;
+      top: 50%;
+      left: 0.3rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      background: #fff;
+      // 내부 원은 트랙 위에 떠 보이도록 분명한 드롭 섀도. 라이트 thumb이
+      // 글래스 트랙과 동화되지 않게 두 단계 그림자를 겹친다.
+      box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.25),
+        0 1px 2px rgba(0, 0, 0, 0.18);
+      transform: translateY(-50%);
+      transition:
+        transform var(--duration-base) var(--ease-out),
+        background var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
+    }
+
+    // Light 상태: 흰 원이 왼쪽 (현재 테마 = 라이트)
+    &[aria-pressed="false"] {
+      .no-header__theme-toggle__thumb {
+        background: #fff;
+      }
+    }
+
+    // Dark 상태: 검은 원이 오른쪽 (현재 테마 = 다크)
+    &[aria-pressed="true"] {
+      .no-header__theme-toggle__thumb {
+        transform: translate(2.2rem, -50%);
+        background: #000;
+        box-shadow: none;
+      }
+    }
+  }
+
+  &__nav {
+    align-self: flex-start;
+
+    flex: 0 0 auto;
+    align-self: center;
+    position: relative;
+    @include mq(lg) {
+      display: none;
+    }
+  }
+
+  &__gnb {
+    display: flex;
+    align-items: stretch;
+    align-items: flex-start;
+  }
+
+  &__gnb-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  &__submenu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    z-index: 2;
+    width: max-content;
+    min-width: 18rem;
+    margin-top: fluid(6, 12);
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, -0.6rem);
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      visibility var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+    will-change: opacity, transform;
+  }
+
+  &__nav[data-expanded="true"],
+  &__nav.is-submenu-active {
+    #{$root}__submenu {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  &__nav[data-expanded="true"] {
+    #{$root}__submenu {
+      pointer-events: auto;
+    }
+  }
+
+  &__gnb-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: fluid(8, 12) fluid(14, 28);
+    min-height: var(--header-height);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    width: 100%;
+    text-decoration: none;
+
+    // 호버 시 아래에서 위로 자라 가득 채워지는 브랜드 컬러 배경 (nav가 "길어지며" 채워지는 연출).
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--clr-primary-def);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform var(--duration-base) var(--ease-out);
+      z-index: 0;
+    }
+
+    #{$root}__gnb-label {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      color: var(--clr-text-title);
+      transition: color var(--duration-base) var(--ease-out);
+    }
+
+    &.is-active #{$root}__gnb-label {
+      color: var(--clr-primary-def);
+    }
+
+    // 호버/포커스: 브랜드 배경이 가득 차고 글씨는 반전(흰색).
+    // 마우스 호버 지원 기기(데스크톱)에서만 — 모바일/터치에서는 연출 없음.
+    @media (hover: hover) {
+      &:hover::before,
+      &:focus-visible::before {
+        transform: scaleY(1);
+      }
+
+      &:hover #{$root}__gnb-label,
+      &:focus-visible #{$root}__gnb-label {
+        color: var(--clr-text-title-invert);
+      }
+    }
+  }
+
+  &__gnb-char-text {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__gnb-char-cell {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    height: 1.2em;
+    line-height: 1.2;
+    vertical-align: top;
+  }
+
+  &__gnb-char {
+    display: block;
+    transition: none;
+    will-change: transform;
+
+    &--orig {
+      transform: translateY(0%);
+    }
+
+    &--clone {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translateY(100%);
+    }
+  }
+
+  &__lnb {
+    text-align: center;
+    padding-top: 1.2rem;
+    padding-bottom: 0.8rem;
+  }
+
+  &__lnb-item {
+    overflow: visible;
+    opacity: 0;
+    transform: translateY(1rem);
+    transition:
+      opacity var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+    will-change: opacity, transform;
+  }
+
+  &__lnb-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: fluid(8, 10) fluid(14, 28);
+    width: 100%;
+    border-radius: fluid(20, 28);
+    text-decoration: none;
+
+    #{$root}__lnb-label {
+      color: var(--clr-text-body);
+      transition: color var(--duration-fast) var(--ease-out);
+    }
+
+    &:hover #{$root}__lnb-label,
+    &:focus-visible #{$root}__lnb-label {
+      color: var(--clr-text-title);
+    }
+  }
+
+  // 새창으로 열리는 외부 링크 인디케이터 (메뉴 항목의 isBlank=true일 때 노출)
+  // 라벨과 동일한 흰색 톤 — opacity 깎지 않음.
+  &__lnb-external {
+    font-size: 0.78em;
+    color: var(--clr-text-body-invert);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  &__lnb-link:hover #{$root}__lnb-external,
+  &__lnb-link:focus-visible #{$root}__lnb-external {
+    color: var(--clr-text-title-invert);
+  }
+
+  // 뒷배경이 밝은 섹션(no-sub-media--light 등) 위에 위치할 때 다크 계열로 전환
+  &.is-on-light-section {
+    background: rgba(14, 14, 14, 0.82);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  // 서브 페이지: 어두운 텍스트 + 검정 로고
+  &.--color {
+    #{$root}__logo img {
+      filter: invert(1);
+      transition: filter var(--duration-base) var(--ease-out);
+    }
+
+    .clr-text-title-invert,
+    .clr-text-body-invert,
+    .no-header-lang__item {
+      transition: color var(--duration-base) var(--ease-out);
+    }
+
+    .clr-text-title-invert {
+      color: var(--clr-text-title);
+    }
+    .clr-text-body-invert {
+      color: var(--clr-text-body);
+    }
+
+    .no-header-lang__item {
+      color: var(--clr-text-body);
+    }
+
+    #{$root}__gnb-indicator {
+      background: rgba(0, 0, 0, 0.72);
+    }
+  }
+
+  // 헤더 스크롤 hide/show 제거 — 스크롤에 따라 사라지지 않는다.
+  // (구 `&.is-hidden { transform: translateY(-100%) }` 제거됨)
+
+  &.is-drawer-open {
+    z-index: calc(var(--z-index-drawer) + 1);
+    transform: translateY(0);
+  }
+}
+
+html[data-theme="dark"] .no-header {
+  background: rgba(3, 7, 18, var(--header-surface-opacity));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, var(--header-shadow-opacity));
+
+  .clr-text-title-invert {
+    color: rgba(255, 255, 255, 1);
+  }
+  .clr-text-body-invert {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .no-header-lang__item {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  // 외부 링크 아이콘은 다크 드롭다운 위에 항상 노출되므로 invert 토큰의
+  // 자동 플립(→ 검정)을 막고 라벨과 동일한 화이트 톤을 유지한다.
+  .no-header__lnb-external {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .no-header__lnb-link:hover .no-header__lnb-external,
+  .no-header__lnb-link:focus-visible .no-header__lnb-external {
+    color: rgba(255, 255, 255, 1);
+  }
+
+  &.--color {
+    .no-header__logo img {
+      filter: none;
+    }
+
+    .no-header__gnb-indicator {
+      background: rgba(255, 255, 255, 0.92);
+    }
+  }
+
+  // 다크 모드: 트랙을 화이트 계열로 — thumb이 검정으로 플립되므로 트랙은
+  // 명확한 화이트 pill로 만들어 검정 thumb이 또렷하게 떠 보이도록 한다.
+  .no-header__theme-toggle {
+    background: rgba(255, 255, 255, 0.9);
+
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+    }
+  }
+}
+
+// Light 테마: desktop nav를 펼치면 backdrop이 페이지를 어둡게 가린다.
+// --color 모드의 dark 텍스트는 가독성을 잃으므로 invert(white)로 되돌린다.
+// dark 테마는 backdrop이 어두워져도 기존 흰색 텍스트가 그대로 가독되어 제외.
+html:not([data-theme="dark"]) .no-header.--color.is-nav-expanded {
+  .no-header__logo img {
+    filter: none;
+  }
+
+  .clr-text-title-invert {
+    color: var(--clr-text-title-invert);
+  }
+  .clr-text-body-invert {
+    color: var(--clr-text-body-invert);
+  }
+  .no-header-lang__item {
+    color: var(--clr-text-body-invert);
+  }
+
+  .no-header__gnb-indicator {
+    background: rgba(255, 255, 255, 0.92);
+  }
+}

@@ -1,0 +1,59 @@
+@use "../abstract" as *;
+
+.no-request-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10003;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: fluid(10, 14);
+  background: rgba(255, 255, 255, 0.24);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    visibility 0s linear var(--duration-base);
+
+  &[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity var(--duration-base) var(--ease-standard),
+      visibility 0s linear 0s;
+  }
+
+  &__spinner-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fluid(72, 96);
+    height: fluid(72, 96);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  &__spinner {
+    width: fluid(40, 56);
+    height: fluid(40, 56);
+    color: var(--clr-primary-def);
+  }
+
+  &__track {
+    fill: currentColor;
+    opacity: 0.18;
+  }
+
+  &__indicator {
+    fill: currentColor;
+  }
+
+  &__text {
+    @include blind();
+  }
+}

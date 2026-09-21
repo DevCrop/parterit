@@ -1,0 +1,107 @@
+@use "sass:map";
+
+// ==============================================
+
+// Font
+
+// ==============================================
+
+// 폰트 단일화: 전 토큰 Pretendard. (코드블록 monospace 만 _prose.scss 에서 별도)
+$font-familys: (
+  base: "Pretendard",
+
+  en-base: "Pretendard",
+  en-title: "Pretendard",
+
+  ko-base: "Pretendard",
+  ko-title: "Pretendard",
+
+  jp-base: "Pretendard",
+
+  num: "Pretendard",
+);
+
+@function font-family($key) {
+  @return #{var(--family-#{$key})}, sans-serif;
+}
+
+// ==============================================
+
+// Container
+
+// ==============================================
+
+$containers: (
+  3xl: 1920,
+
+  2xl: 1664,
+
+  // 콘텐츠 기본 컨테이너 폭 (전역)
+  xl: 1320,
+
+  lg: 980,
+
+  md: 768,
+
+  sm: 544,
+
+  xs: 375,
+);
+
+@function container($key) {
+  @return map-get($containers, $key);
+}
+
+// ==============================================
+
+// Section
+
+// ==============================================
+
+// .no-section-*: padding-top / padding-bottom 동일 값 (section-fluid-by-map)
+// 전역 리듬 — 과한 단절감 줄이기 위해 스케일 소폭 축소 (2026-04)
+
+$sections: (
+  xl: (
+    min: 96,
+    max: 188,
+  ),
+
+  lg: (
+    min: 68,
+    max: 128,
+  ),
+
+  md: (
+    min: 64,
+    max: 108,
+  ),
+
+  sm: (
+    min: 34,
+    max: 68,
+  ),
+
+  footer: (
+    min: 40,
+    max: 56,
+  ),
+);
+
+// ==============================================
+
+// custom fluid
+
+// ==============================================
+
+// .content-module { height: clamp(min, fluid, max) }
+
+$fluid-customs: (
+  content-module: (
+    height: (
+      min: 493,
+
+      max: 692,
+    ),
+  ),
+);

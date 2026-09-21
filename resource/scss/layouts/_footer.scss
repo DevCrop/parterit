@@ -1,0 +1,141 @@
+@use "../abstract" as *;
+
+.no-footer {
+  overflow: hidden;
+  background: #111;
+  color: #fff;
+
+  &__inner {
+    display: flex;
+    min-height: 33rem;
+    flex-direction: column;
+  }
+
+  &__main {
+    display: flex;
+    min-height: 23.2rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 4rem;
+    padding-block: 4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  }
+
+  &__brand {
+    display: flex;
+    width: min(100%, 64rem);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  &__logo {
+    display: inline-flex;
+    width: 17.8rem;
+    height: 3.6rem;
+  }
+
+  &__logo-image,
+  &__logo-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__tagline {
+    width: min(100%, 42rem);
+    color: #fff;
+    line-height: 1.618;
+  }
+
+  &__company {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 2.4rem;
+  }
+
+  &__company span { display: block; }
+
+  &__company a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible { color: #8fbcff; }
+  }
+
+  &__nav { flex: 0 0 auto; }
+
+  &__menu {
+    display: flex;
+    align-items: flex-start;
+    gap: 2.8rem;
+  }
+
+  &__menu-item { flex: 0 0 auto; }
+
+  &__menu-link,
+  &__policy {
+    display: block;
+    color: #fff;
+    line-height: 1.618;
+    transition: color var(--duration-fast) var(--ease-out);
+
+    &:hover,
+    &:focus-visible { color: #8fbcff; }
+
+    &:focus-visible {
+      outline: 0.2rem solid #3c82f6;
+      outline-offset: 0.4rem;
+    }
+  }
+
+  &__bottom {
+    display: flex;
+    min-height: 9.8rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-block: 4rem;
+  }
+
+  &__copyright {
+    color: #fff;
+    line-height: 1.618;
+  }
+
+  &__policies {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+
+  @include mq(md) {
+    &__main {
+      flex-direction: column;
+      gap: 3.2rem;
+    }
+
+    &__menu { flex-wrap: wrap; }
+  }
+
+  @include mq(sm) {
+    &__inner,
+    &__main,
+    &__bottom { min-height: 0; }
+
+    &__main { gap: 3.2rem; padding-block: 3.6rem; }
+    &__brand { width: 100%; }
+    &__nav { width: 100%; }
+    &__menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem 2rem; }
+
+    &__bottom {
+      align-items: flex-start;
+      flex-direction: column-reverse;
+      padding-block: 2.8rem;
+    }
+  }
+}

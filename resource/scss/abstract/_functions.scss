@@ -1,0 +1,87 @@
+@use "sass:math";
+
+@use "./variables" as var;
+
+@function fluid($y1, $y2, $x1: 375, $x2: 1920) {
+  // font-size: clamp([min]rem, [v]vw + [r]rem, [max]rem);
+
+  // font-size: clamp(2.25rem, 2vw + 1.5rem, 3.25rem);
+
+  // y = v / 100 * x + r
+
+  // y1 : 최소글꼴크기 ex) 36px
+
+  // y2 : 최대글꼴크기 ex) 52px
+
+  // x1: 최소화면크기 ex) 600px
+
+  // x2: 최대화면크기 ex) 1400px
+
+  // test
+
+  // $y1: 36;
+
+  // $y2: 52;
+
+  // $x1: 600;
+
+  // $x2: 1400;
+
+  @if ($x1 == null) {
+    $x1: 375;
+  }
+
+  @if ($x2 == null) {
+    $x2: 1920;
+  }
+
+  $v: math.div(($y2 - $y1) * 100, $x2 - $x1);
+
+  $r: math.div(($x1 * $y2) - ($x2 * $y1), ($x1 - $x2));
+
+  $min: $y1 * 0.1rem;
+
+  $base: $r * 0.1rem;
+
+  $max: $y2 * 0.1rem;
+
+  $vw: $v * 1vw;
+
+  @return clamp($min, $vw + $base, $max);
+}
+
+@function minus-fluid($y1, $y2, $x1: 375, $x2: 1920) {
+  @if ($x1 == null) {
+    $x1: 375;
+  }
+
+  @if ($x2 == null) {
+    $x2: 1920;
+  }
+
+  $v: math.div(($y2 - $y1) * 100, $x2 - $x1);
+
+  $r: math.div(($x1 * $y2) - ($x2 * $y1), ($x1 - $x2));
+
+  $min: $y1 * 0.1rem;
+
+  $base: $r * 0.1rem;
+
+  $max: $y2 * 0.1rem;
+
+  $vw: $v * 1vw;
+
+  @return clamp(-#{$max}, -#{$vw} + -#{$base}, -#{$min});
+}
+
+@function rem($px) {
+  // 16 => 0.875rem
+
+  @return #{$px * 1.6}rem;
+}
+
+@function pxToRem($px) {
+  // 35 => 3.5rem
+
+  @return $px * 0.1rem;
+}

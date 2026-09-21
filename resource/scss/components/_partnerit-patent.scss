@@ -1,0 +1,79 @@
+@use "../abstract" as *;
+
+$patent-ink: #1e1d2d;
+$patent-blue: #eaf2ff;
+$patent-blue-deep: #d5e4fa;
+
+.partnerit-patent {
+  position: relative;
+  display: grid;
+  min-height: fluid(260, 331);
+  overflow: hidden;
+  place-items: center;
+  background: $patent-blue;
+  color: $patent-ink;
+  &__background {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
+    pointer-events: none;
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    padding-block: fluid(28, 42);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__logo {
+    display: block;
+    width: 71px;
+    height: auto;
+    margin-bottom: 9px;
+  }
+
+  &__title {
+    margin: 0;
+    color: #000;
+    word-break: keep-all;
+  }
+
+  &__description {
+    margin: 5px 0 0;
+    color: #000;
+    word-break: keep-all;
+  }
+
+  &__application {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin: 24px 0 0;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.24);
+    color: $patent-ink;
+  }
+
+  &__application-label {
+    font-weight: 500;
+  }
+
+  &__application-number {
+    font-variant-numeric: tabular-nums;
+  }
+
+}

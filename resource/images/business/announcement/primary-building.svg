@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Primary / building">
+<path id="Vector" opacity="0.08" d="M20 36.875C26.5584 36.875 31.875 36.0355 31.875 35C31.875 33.9645 26.5584 33.125 20 33.125C13.4416 33.125 8.125 33.9645 8.125 35C8.125 36.0355 13.4416 36.875 20 36.875Z" fill="#3C82F6"/>
+<g id="Group">
+<path id="Vector_2" d="M16.875 14.375H10C8.61929 14.375 7.5 15.4943 7.5 16.875V30C7.5 31.3807 8.61929 32.5 10 32.5H16.875C18.2557 32.5 19.375 31.3807 19.375 30V16.875C19.375 15.4943 18.2557 14.375 16.875 14.375Z" fill="url(#paint0_linear_0_12)" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M30 7.5H20.625C19.2443 7.5 18.125 8.61929 18.125 10V30C18.125 31.3807 19.2443 32.5 20.625 32.5H30C31.3807 32.5 32.5 31.3807 32.5 30V10C32.5 8.61929 31.3807 7.5 30 7.5Z" fill="url(#paint1_linear_0_12)" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M11.875 19.375H14.375M11.875 24.375H14.375M23.125 13.125H27.5M23.125 18.125H27.5M23.125 23.125H27.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_5" d="M23.125 32.5V27.5H27.5V32.5" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_12" x1="7.5" y1="14.375" x2="24.1171" y2="25.2621" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="#DCEBFE"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_12" x1="18.125" y1="7.5" x2="39.7314" y2="19.9237" gradientUnits="userSpaceOnUse">
+<stop stop-color="#ABE5EA"/>
+<stop offset="1" stop-color="#3C82F6"/>
+</linearGradient>
+</defs>
+</svg>

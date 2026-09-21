@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Primary / finance">
+<path id="Vector" opacity="0.08" d="M20 36.875C26.5584 36.875 31.875 36.0355 31.875 35C31.875 33.9645 26.5584 33.125 20 33.125C13.4416 33.125 8.125 33.9645 8.125 35C8.125 36.0355 13.4416 36.875 20 36.875Z" fill="#3C82F6"/>
+<g id="Group">
+<path id="Vector_2" d="M24.375 8.75H11.875C9.80393 8.75 8.125 10.4289 8.125 12.5V28.75C8.125 30.8211 9.80393 32.5 11.875 32.5H24.375C26.4461 32.5 28.125 30.8211 28.125 28.75V12.5C28.125 10.4289 26.4461 8.75 24.375 8.75Z" fill="url(#paint0_linear_0_296)" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M13.75 15H22.5M13.75 20H18.75M13.75 26.25V24.375M18.125 26.25V21.875" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M28.125 33.75C31.922 33.75 35 30.672 35 26.875C35 23.078 31.922 20 28.125 20C24.328 20 21.25 23.078 21.25 26.875C21.25 30.672 24.328 33.75 28.125 33.75Z" fill="url(#paint1_linear_0_296)" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_5" d="M28.125 22.5V31.25M30.625 24.375C30 22.5 25.625 22.5 25.625 25C25.625 27.5 30.625 26.25 30.625 28.75C30.625 31.25 26.25 31.25 25.625 29.375" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_296" x1="8.125" y1="8.75" x2="31.5286" y2="28.4583" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="#DCEBFE"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_296" x1="21.25" y1="20" x2="35" y2="33.75" gradientUnits="userSpaceOnUse">
+<stop stop-color="#ABE5EA"/>
+<stop offset="1" stop-color="#3C82F6"/>
+</linearGradient>
+</defs>
+</svg>

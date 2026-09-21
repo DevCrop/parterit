@@ -1,0 +1,5 @@
+@use "./functions" as *;
+
+// `*__txt` / `*-txt` 섹션 헤더: 키커 span → h2 → 리드 p (메인·서브 공통 간격)
+$section-txt-kicker-mb: fluid(6, 10);
+$section-txt-lead-mt: fluid(10, 20);

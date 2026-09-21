@@ -1,0 +1,272 @@
+@use "../abstract/functions" as func;
+@use "../abstract/mixins" as mixin;
+
+// ============================================
+// .no-prose — SUMMERNOTE 본문 출력 스코프
+// ============================================
+// admin 콘솔의 SUMMERNOTE 에디터로 작성된 raw HTML을 브랜드 톤으로 일관되게 렌더한다.
+// 모든 자식 태그 스타일은 이 스코프 안에서 토큰으로만 정의한다.
+
+.no-prose {
+  color: var(--clr-text-body);
+
+  > * {
+    margin-top: func.fluid(20, 32);
+  }
+
+  > *:first-child {
+    margin-top: 0;
+  }
+
+  // 헤딩
+  h1 {
+    @include mixin.font("f-heading-1");
+    color: var(--clr-text-title);
+  }
+
+  h2 {
+    @include mixin.font("f-heading-2");
+    color: var(--clr-text-title);
+  }
+
+  h3 {
+    @include mixin.font("f-heading-3");
+    color: var(--clr-text-title);
+  }
+
+  h4 {
+    @include mixin.font("f-heading-4");
+    color: var(--clr-text-title);
+  }
+
+  h5 {
+    @include mixin.font("f-heading-5");
+    color: var(--clr-text-title);
+  }
+
+  h6 {
+    @include mixin.font("f-heading-5");
+    color: var(--clr-text-title);
+  }
+
+  h1 + *,
+  h2 + *,
+  h3 + *,
+  h4 + *,
+  h5 + *,
+  h6 + * {
+    margin-top: func.fluid(12, 20);
+  }
+
+  // 본문 단락
+  p {
+  }
+
+  // 인라인 강조
+  strong,
+  b {
+    font-weight: 600;
+    color: var(--clr-text-title);
+  }
+
+  em,
+  i {
+  }
+
+  s,
+  del {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  mark {
+    background: rgba(35, 179, 153, 0.16);
+    color: inherit;
+    padding-inline: 0.2em;
+  }
+
+  small {
+  }
+
+  // 링크
+  a {
+    color: var(--clr-primary-700);
+    transition: color var(--duration-fast) var(--ease-out, ease);
+  }
+
+  a:hover,
+  a:focus-visible {
+    color: var(--clr-primary-800);
+  }
+
+  // 리스트
+  ul,
+  ol {
+    padding-left: func.fluid(20, 28);
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  ul ul,
+  ul ol,
+  ol ul,
+  ol ol {
+    margin-top: func.fluid(8, 12);
+  }
+
+  ul ul {
+    list-style: circle;
+  }
+
+  li {
+  }
+
+  li + li {
+    margin-top: func.fluid(6, 10);
+  }
+
+  // 인용
+  blockquote {
+    border-left: 2px solid var(--clr-primary-def);
+    padding: func.fluid(12, 20) func.fluid(16, 28);
+    color: var(--clr-text-title);
+  }
+
+  blockquote > * {
+    margin-top: func.fluid(8, 12);
+  }
+
+  blockquote > *:first-child {
+    margin-top: 0;
+  }
+
+  // 구분선
+  hr {
+    border: 0;
+    border-top: 1px solid var(--clr-border-default);
+    margin-top: func.fluid(32, 56);
+    margin-bottom: func.fluid(32, 56);
+  }
+
+  // 미디어
+  img,
+  video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: func.fluid(4, 6);
+  }
+
+  figure {
+    margin-inline: 0;
+  }
+
+  figcaption {
+    @include mixin.font("f-body-3");
+    color: var(--clr-text-desc);
+    margin-top: func.fluid(8, 12);
+    text-align: center;
+  }
+
+  // 테이블
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    @include mixin.font("f-body-2");
+  }
+
+  th,
+  td {
+    padding: func.fluid(10, 14) func.fluid(12, 18);
+    border-bottom: 1px solid var(--clr-border-default);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    border-bottom-width: 2px;
+    color: var(--clr-text-title);
+    font-weight: 600;
+  }
+
+  // 코드
+  code,
+  kbd {
+    font-family: "Menlo", "Consolas", monospace;
+    background: var(--clr-background-info-default);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    font-size: 0.9em;
+  }
+
+  pre {
+    font-family: "Menlo", "Consolas", monospace;
+    background: var(--clr-gray-950);
+    color: var(--clr-gray-50);
+    border-radius: func.fluid(4, 6);
+    padding: func.fluid(16, 24);
+    overflow-x: auto;
+  }
+
+  pre code {
+    background: transparent;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  // SUMMERNOTE align/indent 클래스 호환
+  .ql-align-center,
+  [style*="text-align: center"] {
+    text-align: center;
+  }
+
+  .ql-align-right,
+  [style*="text-align: right"] {
+    text-align: right;
+  }
+}
+
+// SUMMERNOTE 가 저장한 인라인 foreground 컬러를
+// 다크모드에서는 본문 토큰으로 강제 치환.
+// (브랜드 가이드: 본문 인라인 색상은 항상 중화 — 강조는 컴포넌트/클래스가 담당)
+html[data-theme="dark"] .no-prose {
+  // Deprecated <font color="..."> — element-level, always overridden
+  font[color] {
+    color: var(--clr-text-body) !important;
+  }
+
+  // Inline style color: — only matches the foreground `color` property,
+  // never `background-color` / `border-color` / `outline-color` etc.
+  // Selector anchors (`^="color:"`, `*=";color:"`) prevent substring
+  // collisions with `background-color:` / `border-color:` / etc.
+  [style^="color:"],
+  [style^="color :"],
+  [style*=";color:"],
+  [style*="; color:"],
+  [style*=";color :"],
+  [style*="; color :"] {
+    color: var(--clr-text-body) !important;
+  }
+
+  [style*="background-color:#fff"],
+  [style*="background-color: #fff"],
+  [style*="background:#fff"],
+  [style*="background: #fff"],
+  [style*="background-color:rgb(255, 255, 255)"],
+  [style*="background-color: rgb(255, 255, 255)"],
+  [style*="background:rgb(255, 255, 255)"],
+  [style*="background: rgb(255, 255, 255)"],
+  [style*="background-color:white"],
+  [style*="background-color: white"],
+  [style*="background:white"],
+  [style*="background: white"] {
+    background-color: transparent !important;
+  }
+}

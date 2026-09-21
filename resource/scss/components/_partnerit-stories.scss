@@ -1,0 +1,37 @@
+.partnerit-stories {
+  color: #0b1040;
+  .no-container-xl { width: min(132rem, calc(100% - 4.8rem)); padding-inline: 0; }
+}
+.partnerit-stories-featured {
+  padding-bottom: 10rem;
+
+  &__swiper { overflow: hidden; border-radius: 2rem; }
+  &__list { margin: 0; padding: 0; list-style: none; }
+  &__slide { height: auto; }
+  &__slide > .partnerit-story-card { height: 100%; }
+  &__controls { margin-top: 3.2rem; }
+}
+.partnerit-stories-gallery {
+  --gallery-gap: 4.8rem;
+  padding-block: 2rem 12rem;
+  &__inner { display: flex; flex-direction: column; gap: var(--gallery-gap); }
+  &__heading { display: grid; gap: 1.6rem; h2, p { color: inherit; } }
+  &__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gallery-gap) 2.4rem; align-items: start; }
+  &__pagination { display: flex; justify-content: center; align-items: center; gap: 1.2rem; padding-top: 1.6rem; }
+  &__page { display: grid; place-items: center; width: 4.4rem; height: 4.4rem; border: 0; border-radius: 1.2rem; color: #0b1040; background: transparent; }
+  &__page:is(a) { text-decoration: none; }
+  &__page[aria-current] { color: #fff; background: #3c82f6; }
+  &__arrow { display: grid; place-items: center; width: 4.8rem; height: 4.8rem; border-radius: 50%; border: 1px solid #e2e8f0; background: #fff; img { width: 2.6rem; height: 2.6rem; } }
+  &__arrow--prev img { transform: rotate(180deg); }
+  &__arrow--next { border-color: #3c82f6; background: #3c82f6; }
+  &__arrow.is-disabled { opacity: .35; pointer-events: none; }
+  button:disabled { cursor: default; }
+  @media (max-width: 1024px) { &__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 767px) {
+    padding-bottom: 6.4rem;
+    &__grid { grid-template-columns: 1fr; }
+    &__pagination { gap: .4rem; }
+  }
+}
+@media (max-width: 767px) { .partnerit-stories-featured { padding-bottom: 6.4rem; } }
+.partnerit-pricing-page .partnerit-pricing__inner.no-container-xl { width: min(132rem, calc(100% - 4.8rem)); padding-inline: 0; }

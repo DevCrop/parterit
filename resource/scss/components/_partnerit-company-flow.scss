@@ -1,0 +1,86 @@
+@use "../abstract" as *;
+
+.partnerit-company-flow {
+  background: linear-gradient(90deg, #fff 0%, #ecf3ff 100%);
+
+  &__inner {
+    display: flex;
+    width: min(132rem, calc(100% - 4.8rem));
+    padding-inline: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 6.4rem;
+    padding-block: 10rem;
+  }
+
+  &__title {
+    width: 100%;
+    margin: 0;
+    color: #1e1d2d;
+    line-height: 1.375;
+    text-align: center;
+  }
+
+  &__title span { display: block; min-width: 0; overflow-wrap: anywhere; white-space: normal; word-break: break-all; }
+
+  &__grid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    display: flex;
+    min-width: 0;
+    min-height: 31rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.8rem;
+    padding: 3.2rem 2.8rem;
+    border-radius: 2rem;
+    background: #fff;
+    box-shadow: 0 1.2rem 3.6rem -0.8rem rgba(11, 16, 64, 0.05);
+  }
+
+  &__icon {
+    width: 6.4rem;
+    height: 6.4rem;
+    flex: 0 0 6.4rem;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 1.6rem;
+    display: grid;
+    place-items: center;
+    background: var(--clr-surface-section);
+  }
+
+  &__icon-image { max-width: 75%; max-height: 75%; }
+
+  &__icon-image,
+  &__icon-image img {
+    object-fit: contain;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__copy { display: flex; flex-direction: column; gap: 1.4rem; }
+  &__card-title,
+  &__description { margin: 0; color: #1e1d2d; }
+  &__description { line-height: 1.667; overflow-wrap: anywhere; word-break: keep-all; }
+
+  @media (max-width: 1024px) {
+    &__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 600px) {
+    &__inner { gap: 4rem; padding-block: 7rem; }
+    &__title span { display: block; }
+    &__grid { grid-template-columns: minmax(0, 1fr); }
+    &__card { min-height: 0; }
+  }
+}

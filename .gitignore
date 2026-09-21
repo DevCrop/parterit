@@ -1,0 +1,26 @@
+node_modules
+vendor/
+
+# Local environment and editor settings
+.env
+.env.*
+!.env.example
+.claude/
+.vscode/
+
+# Source handoff and local reference materials (not runtime assets)
+handoff/
+sources/
+
+# DB dumps and migration scratch files — keep out of repo
+database/*.sql
+database/*.SQL
+
+# Video assets — large, manage outside git
+resource/video/*.mp4
+resource/video/**/*.mp4
+
+# User uploads — runtime content, not source (keep .htaccess for security rules)
+uploads/
+!uploads/.htaccess
+!uploads/**/.htaccess

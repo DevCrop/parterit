@@ -1,0 +1,223 @@
+@use "../abstract" as *;
+
+$consortium-matching-ink: #1e1d2d;
+$consortium-matching-body: #555;
+$consortium-matching-blue: #3c82f6;
+$consortium-matching-chip: #ecf3ff;
+
+.partnerit-consortium-matching {
+  background: #fff;
+  color: $consortium-matching-ink;
+  overflow: hidden;
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 4.8rem;
+    padding-block: 12rem;
+  }
+
+  &__header {
+    display: flex;
+    width: min(100%, 104rem);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.4rem;
+  }
+
+  &__title,
+  &__lead,
+  &__feature-title,
+  &__description {
+    margin: 0;
+  }
+
+  &__title {
+    color: $consortium-matching-ink;
+    line-height: 1.41;
+
+    span {
+      display: block;
+    }
+  }
+
+  &__lead,
+  &__description {
+    color: $consortium-matching-body;
+    line-height: 1.618;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 4.8rem;
+  }
+
+  &__visual {
+    position: relative;
+    min-height: 53rem;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 1.6rem;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(255, 232, 238, 0.76) 0, rgba(255, 241, 245, 0.2) 38%, transparent 58%),
+      radial-gradient(circle at 86% 92%, rgba(72, 189, 255, 0.84) 0, rgba(163, 221, 255, 0.4) 45%, transparent 72%),
+      linear-gradient(145deg, #f8f5f6 0%, #f4f8fb 48%, #d9f0ff 100%);
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.12);
+    isolation: isolate;
+  }
+
+  &__glow {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(110deg, rgba(255, 255, 255, 0.66) 0 18%, transparent 42%),
+      radial-gradient(circle at 50% 100%, rgba(46, 179, 255, 0.34), transparent 55%);
+    opacity: 0.9;
+  }
+
+  &__panel {
+    position: absolute;
+    z-index: 1;
+    bottom: 2.4rem;
+    left: 50%;
+    width: min(63.1%, 40.1rem);
+    transform: translateX(-50%);
+  }
+
+  &__panel-motion {
+    width: 100%;
+    will-change: transform, opacity;
+  }
+
+  &__panel-image,
+  &__panel-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  &__explanation {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.4rem;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  &__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  &__feature-title {
+    color: $consortium-matching-body;
+    line-height: 1.41;
+  }
+
+  &__description {
+    word-break: keep-all;
+
+    strong {
+      color: $consortium-matching-body;
+      font-weight: 700;
+    }
+  }
+
+  &__steps {
+    display: flex;
+    width: min(100%, 42rem);
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__step {
+    display: inline-flex;
+    min-height: 3.5rem;
+    align-items: center;
+    padding: 0.6rem 0.8rem;
+    border-radius: 2rem;
+    background: $consortium-matching-chip;
+    color: $consortium-matching-blue;
+    line-height: 1.618;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    &__inner {
+      min-height: 0;
+      padding-block: 9.6rem;
+    }
+
+    &__content {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__visual {
+      width: 100%;
+      max-width: 63.6rem;
+      justify-self: center;
+    }
+
+    &__explanation {
+      width: 100%;
+      max-width: 63.6rem;
+      justify-self: center;
+    }
+  }
+
+  &__paths { display: grid; width: 100%; grid-template-columns: 1fr; gap: 2rem; }
+  &__path { display: grid; align-content: start; justify-items: start; gap: .8rem; padding-top: 2rem; border-top: 1px solid var(--clr-surface-section); }
+  &__path-label { padding: .4rem 1.2rem; border-radius: 2rem; background: var(--clr-surface-section); color: var(--clr-primary-def); }
+  @media (max-width: 767px) {
+    &__paths { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    &__inner {
+      gap: 3.6rem;
+      padding-block: 7.2rem;
+    }
+
+    &__header {
+      gap: 1.6rem;
+    }
+
+    &__title span {
+      display: inline;
+    }
+
+    &__content {
+      gap: 3.6rem;
+    }
+
+    &__visual {
+      min-height: 0;
+      height: min(46rem, 118vw);
+    }
+
+    &__panel {
+      width: min(75%, 40.1rem);
+    }
+
+    &__explanation {
+      gap: 3.2rem;
+    }
+
+    &__description br {
+      display: none;
+    }
+
+    &__step {
+      white-space: normal;
+    }
+  }
+}

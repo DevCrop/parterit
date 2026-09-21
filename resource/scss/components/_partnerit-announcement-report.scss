@@ -1,0 +1,6 @@
+.partnerit-announcement-report {
+  background: var(--announcement-white);
+  &__inner { display: grid; grid-template-columns: 480fr 760fr; gap: 8rem; align-items: center; }
+  @media (max-width: 1100px) { &__inner { gap: 4rem; } }
+  @media (max-width: 900px) { &__inner { grid-template-columns: 1fr; } }
+}

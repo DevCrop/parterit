@@ -1,0 +1,325 @@
+@use "../abstract" as *;
+
+.no-form-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter-sm);
+}
+
+// 날짜 + 시간 묶음
+.no-form-datetime {
+  display: flex;
+  align-items: center;
+  gap: fluid(24, 32);
+  width: 100%;
+  @include mq(md) {
+    flex-direction: column;
+  }
+
+  .no-form-control {
+    flex: 1;
+  }
+
+  // 캘린더 아이콘 버튼
+  .no-form-control__button {
+    @include flex-center();
+    padding: 0 fluid(8, 10);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    i {
+      font-size: fluid(16, 18);
+      color: var(--clr-text-body);
+    }
+  }
+}
+.ui-selectmenu-button.no-form-select-over {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+// 라디오 그룹 래퍼
+.no-radio-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.6rem;
+  height: var(--input-height);
+  padding: fluid(8, 12) fluid(12, 16);
+  border-radius: fluid(4, 8);
+  border: 1px solid var(--clr-border-input-default);
+  background: var(--clr-background-input-default);
+}
+.no-form-group-radio {
+  display: flex;
+  flex-direction: column;
+}
+// 큰 카드형 라디오 (단일 선택, 세그먼트 UI)
+.no-segment-radio {
+  border: none;
+  min-width: 0;
+
+  &__legend {
+    display: block;
+    width: 100%;
+    font-size: fluid(14, 16);
+    font-weight: 500;
+    color: var(--clr-text-title);
+    margin-bottom: fluid(10, 14);
+  }
+
+  &__req {
+    color: #e4b012;
+    text-decoration: none;
+    margin-left: 0.15em;
+    font-weight: 700;
+  }
+
+  &__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: fluid(8, 12);
+    width: 100%;
+    @include mq(md) {
+      flex-direction: column;
+    }
+  }
+
+  &__option {
+    position: relative;
+    flex: 1;
+    min-width: fluid(160, 220);
+    cursor: pointer;
+    display: block;
+  }
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: fluid(48, 60);
+    padding: fluid(12, 16) fluid(16, 24);
+    border-radius: fluid(6, 8);
+    border: 1px solid rgba(34, 109, 82, 0.14);
+    background: color-mix(in srgb, var(--clr-primary-50) 72%, #fff 28%);
+    color: color-mix(in srgb, var(--clr-primary-900) 82%, var(--clr-text-title) 18%);
+    font-size: fluid(14, 16);
+    font-weight: 700;
+    text-align: center;
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+  }
+
+  &__option:has(&__input:checked) &__label {
+    border-color: transparent;
+    background: var(--clr-primary-def);
+    color: var(--clr-text-title-invert);
+  }
+
+  &__option:focus-within &__label {
+    outline: fluid(2, 2) solid #2a694d;
+    outline-offset: fluid(2, 2);
+  }
+
+  &__option:hover &__label {
+    border-color: rgba(34, 109, 82, 0.22);
+    background: color-mix(in srgb, var(--clr-primary-100) 68%, #fff 32%);
+    color: var(--clr-primary-900);
+  }
+
+  &__option:has(&__input:checked):hover &__label {
+    background: var(--clr-primary-700);
+    color: var(--clr-text-title-invert);
+  }
+
+  &__text {
+    display: block;
+  }
+
+  &--interest {
+    // 레이아웃만 override — 시각 스타일은 부모 .no-segment-radio 그대로 상속
+    .no-segment-radio__options {
+      flex-direction: row; // 부모의 mq(md) column 재정의
+      flex-wrap: wrap;
+      gap: fluid(7, 10);
+
+      @include mq(sm) {
+        flex-direction: column;
+      }
+    }
+
+    .no-segment-radio__option {
+      flex: 1;
+      min-width: fluid(110, 140);
+    }
+
+    .no-segment-radio__label {
+      min-height: fluid(44, 52);
+      padding: fluid(10, 13) fluid(12, 18);
+    }
+
+    .no-segment-radio__text {
+      @include font("f-body-3");
+      font-weight: 600;
+      white-space: nowrap;
+
+      @include mq(sm) {
+        white-space: normal;
+      }
+    }
+  }
+}
+
+// 개별 라디오
+.no-radio {
+  $root: &;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: fluid(14, 16);
+  color: var(--clr-text-title);
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  // 동그라미 UI
+  &__visual {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    box-sizing: border-box;
+    border: 1px solid var(--clr-primary-def);
+    position: relative;
+    flex-shrink: 0;
+    background: transparent;
+    transition:
+      border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    html[data-theme="dark"] & {
+      border-color: #fff;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: fluid(4, 5);
+      border-radius: 50%;
+      background: transparent;
+      transition:
+        background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(0);
+    }
+  }
+
+  // 체크 상태
+  &__input:checked + #{$root}__visual {
+    border-color: var(--clr-primary-def);
+
+    html[data-theme="dark"] & {
+      border-color: #fff;
+    }
+
+    &::after {
+      background: var(--clr-primary-def);
+      transform: scale(1);
+
+      html[data-theme="dark"] & {
+        background: #fff;
+      }
+    }
+  }
+}
+
+.no-form-checkbox {
+  $root: &;
+
+  &__inner {
+    display: inline-flex;
+    align-items: center;
+    gap: fluid(4, 6);
+  }
+
+  input {
+    display: none;
+  }
+
+  input:checked + #{$root}__box {
+    border-color: var(--clr-primary-def);
+    background: var(--clr-primary-def);
+
+    i {
+      visibility: visible;
+      opacity: 1;
+      color: var(--clr-ui-white);
+      transform: scale(1);
+    }
+  }
+
+  &__box {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--clr-gray-300);
+    @include flex-center();
+    background: var(--clr-background-input-default);
+
+    i {
+      color: var(--clr-text-title-invert);
+      visibility: hidden;
+      opacity: 0;
+      font-size: fluid(12, 14);
+      transform: scale(0);
+      transition: var(--transition-default);
+    }
+  }
+
+  &.--invert {
+    .no-form-checkbox__box {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: transparent;
+
+      i {
+        color: var(--clr-text-title-invert);
+        transform: scale(0);
+      }
+    }
+
+    input:checked + .no-form-checkbox__box {
+      border-color: var(--clr-text-title-invert);
+      background: var(--clr-text-title-invert);
+
+      i {
+        color: var(--clr-gray-900);
+        transform: scale(1);
+      }
+    }
+
+    .no-form-checkbox__label {
+      color: var(--clr-text-title-invert);
+    }
+  }
+}
+

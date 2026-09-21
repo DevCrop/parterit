@@ -1,0 +1,51 @@
+/* Temporary grayscale treatment for Partnerit CMS wireframes. */
+html {
+  filter: grayscale(1);
+}
+
+body {
+  background-color: #f4f4f4;
+}
+
+.no-sidebar-logo--wireframe .no-logo--default,
+.no-sidebar-logo--wireframe .no-logo--sm,
+.no-login-wordmark {
+  color: #f5f5f5;
+  font-size: inherit;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.no-sidebar-logo--wireframe .no-logo--sm {
+  font-size: inherit;
+}
+
+.no-login-wordmark {
+  display: inline-block;
+  color: #222;
+}
+
+table th,
+table td,
+.no-box,
+.no-card,
+.no-form-control,
+.no-form-group,
+.no-btn,
+button {
+  box-shadow: none !important;
+}
+
+table th,
+table td {
+  border-color: #bdbdbd !important;
+}
+
+input,
+textarea,
+select {
+  border-color: #aaa !important;
+  border-radius: 0 !important;
+  background-color: #fff !important;
+  box-shadow: none !important;
+}

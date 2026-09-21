@@ -1,0 +1,465 @@
+@use "sass:map";
+@use "sass:math";
+@use "sass:meta";
+@use "sass:string";
+
+@use "./variables" as var;
+
+@use "./functions" as func;
+
+@use "./headings" as headings;
+
+@mixin mq($key-or-size, $direction: "max") {
+  @if (meta.type-of($key-or-size) == "string") {
+    $size: map.get(var.$containers, $key-or-size);
+
+    @media (#{$direction}-width: #{$size}px) {
+      @content;
+    }
+  } @else if (meta.type-of($key-or-size) == "number") {
+    @media (#{$direction}-width: #{$key-or-size}px) {
+      @content;
+    }
+  } @else {
+    @error "No found breakpoint: #{$key-or-size}";
+  }
+}
+
+@mixin pos-full() {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+}
+
+@mixin pos-center() {
+  position: absolute;
+
+  top: 50%;
+
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: 100%;
+
+  height: 100%;
+}
+
+@mixin set-fluid($map) {
+  @each $key, $val in $map {
+    $min: map.get($val, "min");
+    $max: map.get($val, "max");
+
+    #{$key}: func.fluid($min, $max);
+  }
+}
+
+@mixin section-fluid-by-map($map) {
+  $min: map.get($map, "min");
+
+  $max: map.get($map, "max");
+
+  $max-w: map.get($map, "max-width");
+
+  $min-w: map.get($map, "min-width");
+
+  padding-bottom: func.fluid($min, $max, $min-w, $max-w);
+
+  padding-top: func.fluid($min, $max, $min-w, $max-w);
+}
+
+// 사진 배경 서브 히어로 — 풀블리드 이미지 + 좌측 스크림 + 흰 텍스트.
+// 마크업: section > .image(> picture/img) + .no-container-xl > .inner > .--cnt > .txt(.title + .desc)
+// about / business / partners / contact 의 *-visual 공통 정본 (rule #17C 동일 의미 = 동일 구현).
+@mixin sub-visual-photo() {
+  position: relative;
+  overflow: hidden;
+
+  // 풀블리드 배경 이미지
+  > .image {
+    @include pos-full();
+    z-index: 0;
+
+    picture,
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    img {
+      object-fit: cover;
+      object-position: center;
+    }
+
+    // 좌→우 스크림: 좌측 정렬 텍스트 가독성 확보 (밝은 사진에서도 안전하도록 강하게)
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.78) 0%,
+        rgba(0, 0, 0, 0.5) 45%,
+        rgba(0, 0, 0, 0.12) 80%
+      );
+    }
+  }
+
+  // 텍스트 컨테이너는 배경 위로
+  > .no-container-xl {
+    position: relative;
+    z-index: 1;
+  }
+
+  .txt {
+    .title {
+      color: var(--clr-text-title-invert);
+    }
+
+    .desc {
+      margin-top: func.fluid(12, 20);
+      color: var(--clr-text-body-invert);
+    }
+  }
+}
+
+@mixin fs-static-by-map($map) {
+  $base: map.get($map, "base");
+
+  $fw: map.get($map, "fw");
+
+  $lh: map.get($map, "lh");
+
+  $ls: map.get($map, "ls");
+
+  $ff: map.get($map, "ff");
+
+  @if ($base != null) {
+    font-size: func.pxToRem($base);
+  }
+
+  @if ($fw != null) {
+    font-weight: $fw;
+  }
+
+  @if ($lh != null) {
+    line-height: $lh;
+  }
+  @if ($ff != null) {
+    font-family: $ff;
+  }
+
+  @if ($ls != null) {
+    letter-spacing: func.pxToRem($ls);
+  }
+
+  @each $con-key, $con-val in var.$containers {
+    $breakpoint: map.get($map, $con-key);
+
+    @if ($breakpoint != null) {
+      @include mq($con-key) {
+        font-size: func.pxToRem($breakpoint);
+      }
+    }
+  }
+}
+
+// 맵: min/max(+선택 width), lh, fw, ls(선택 → letter-spacing: pxToRem(ls)), ff(선택)
+@mixin fs-fluid-by-map($map) {
+  $min: map.get($map, "min");
+
+  $max: map.get($map, "max");
+
+  $max-w: map.get($map, "max-width");
+
+  $min-w: map.get($map, "min-width");
+
+  $lh: map.get($map, "lh");
+
+  $fw: map.get($map, "fw");
+
+  $ff: map.get($map, "ff");
+
+  font-size: func.fluid($min, $max, $max-w, $min-w);
+
+  // 전 폰트 공통 자간 -2% (heading.scss $letter-spacing)
+  letter-spacing: headings.$letter-spacing;
+
+  @if ($lh != null) {
+    line-height: $lh;
+  }
+
+  @if ($fw != null) {
+    font-weight: $fw;
+  }
+
+  @if ($ff != null) {
+    font-family: $ff;
+  }
+}
+
+/// `_headings.scss` 유틸 이름과 동일한 토큰 문자열 → 해당 맵으로 `fs-fluid-by-map`
+@function -font-str-to-num($s) {
+  $digits: (
+    "0": 0,
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5,
+    "6": 6,
+    "7": 7,
+    "8": 8,
+    "9": 9,
+  );
+  $len: string.length($s);
+  @if $len < 1 {
+    @return null;
+  }
+  @if $len == 1 {
+    @return map.get($digits, $s);
+  }
+  // 두 자리 이상 (예: 10) — 자리별 합성
+  $n: 0;
+  @for $i from 1 through $len {
+    $ch: string.slice($s, $i, $i);
+    $d: map.get($digits, $ch);
+    @if $d == null {
+      @return null;
+    }
+    $n: $n * 10 + $d;
+  }
+  @return $n;
+}
+
+@function -font-token-suffix($token, $prefix) {
+  @return string.slice($token, string.length($prefix) + 1);
+}
+
+/// `abstract/_headings.scss`의 fluid 맵을 한 번에 적용 (size / line-height / weight / letter-spacing)
+/// 마크업 유틸과 같은 이름: `f-body-1`, `f-heading-3`, `f-display-1` …
+/// @example @include font("f-body-1");
+/// @example @include font("f-display-1");
+@mixin font($token) {
+  $map: null;
+  @if string.index($token, "f-body-") == 1 {
+    $k: -font-str-to-num(-font-token-suffix($token, "f-body-"));
+    $map: map.get(headings.$fluid-bodys, $k);
+  } @else if string.index($token, "f-heading-") == 1 {
+    $k: -font-str-to-num(-font-token-suffix($token, "f-heading-"));
+    $map: map.get(headings.$fluid-headings, $k);
+  } @else if string.index($token, "f-display-") == 1 {
+    $k: -font-str-to-num(-font-token-suffix($token, "f-display-"));
+    $map: map.get(headings.$fluid-displays, $k);
+  } @else {
+    @error 'font(): `#{$token}`는 f-body-*, f-heading-*, f-display-* 형식이어야 합니다.';
+  }
+  @if $map == null {
+    @error 'font(): `#{$token}`에 해당하는 맵이 없습니다.';
+  }
+  @include fs-fluid-by-map($map);
+}
+
+@mixin fs-fluid($min, $max, $min-width: null, $max-width: null) {
+  font-size: func.fluid($min, $max, $min-width, $max-width);
+}
+
+@mixin fs-static($fs, $key: "null") {
+  @if ($key == "null") {
+    font-size: $fs;
+  } @else {
+    @include mq($key) {
+      font-size: $fs;
+    }
+  }
+}
+
+@mixin mq-max($key-or-size) {
+  @include mq($key-or-size, "max") {
+    @content;
+  }
+}
+
+@mixin mq-min($key-or-size) {
+  @include mq($key-or-size, "min") {
+    @content;
+  }
+}
+
+@mixin flex-center() {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+@mixin blind() {
+  position: absolute;
+
+  clip: rect(0 0 0 0);
+
+  width: 1px;
+
+  height: 1px;
+
+  margin: -1px;
+
+  overflow: hidden;
+}
+
+@mixin pos-center() {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+}
+
+@mixin line-clamp($line) {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  -webkit-box-orient: vertical;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: $line;
+}
+
+@mixin img-cover() {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+}
+
+@mixin img-auto-cover($percent: 56.25%) {
+  position: relative;
+
+  overflow: hidden;
+
+  height: 0;
+
+  padding-bottom: $percent;
+
+  img {
+    @include pos-center();
+
+    object-fit: cover;
+  }
+}
+
+@mixin backdrop($opacity: 0.45) {
+  @include pos-center();
+
+  background: rgba(0, 0, 0, $opacity);
+}
+
+@mixin accordion-ico($size-min, $size-max, $thickness: 1.5px) {
+  position: relative;
+  flex-shrink: 0;
+  width: func.fluid($size-min, $size-max);
+  height: func.fluid($size-min, $size-max);
+
+  span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: $thickness;
+    background: currentColor;
+    transform-origin: center;
+  }
+
+  span:first-child {
+    transform: translate(-50%, -50%);
+  }
+
+  span:last-child {
+    transform: translate(-50%, -50%) rotate(90deg);
+    transition:
+      transform var(--duration-base) var(--ease-out),
+      opacity var(--duration-fast) var(--ease-out);
+  }
+}
+
+@mixin accordion-ico-open {
+  span:last-child {
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+}
+
+// Horizontal scroll container that keeps its scrollbar visible whenever
+// content overflows — including on iOS Safari, where a default overlay bar
+// would only appear during the scroll gesture and leave users unaware that
+// more content exists offscreen. Used on wide tables, figure rows, and code
+// blocks that get cut off on mobile widths.
+@mixin scroll-x-always {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: var(--clr-text-desc) var(--clr-border-weak);
+
+  // Webkit / Blink — `-webkit-appearance: none` is the property that flips
+  // iOS Safari from its overlay-only bar (visible only during the gesture
+  // and quickly faded out) to a classic always-visible scrollbar that
+  // honors our color/size styles.
+  &::-webkit-scrollbar {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--clr-border-weak);
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--clr-text-desc);
+    border-radius: 999px;
+    border: 2px solid var(--clr-border-weak);
+
+    &:hover {
+      background: var(--clr-text-body);
+    }
+  }
+}
+
+// 이미지 placeholder (회색 박스 + 가운데 마스크 아이콘) — 와이어프레임 단계 공유 정본.
+// (페이지별 로컬 복제 ph-box/about-ph/partners-ph/contact-ph 는 추후 이걸로 통합)
+@mixin placeholder-box($bg: var(--clr-gray-100), $fg: var(--clr-gray-400)) {
+  position: relative;
+  background: $bg;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: func.fluid(28, 48);
+    height: func.fluid(28, 48);
+    background: $fg;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5z'/%3E%3C/svg%3E") no-repeat center / contain;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5z'/%3E%3C/svg%3E") no-repeat center / contain;
+  }
+}

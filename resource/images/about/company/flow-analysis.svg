@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Primary / chart">
+<path id="Vector" opacity="0.08" d="M32 59C42.4934 59 51 57.6569 51 56C51 54.3431 42.4934 53 32 53C21.5066 53 13 54.3431 13 56C13 57.6569 21.5066 59 32 59Z" fill="#3C82F6"/>
+<g id="Group">
+<path id="Vector_2" d="M46 13H18C14.134 13 11 16.134 11 20V45C11 48.866 14.134 52 18 52H46C49.866 52 53 48.866 53 45V20C53 16.134 49.866 13 46 13Z" fill="url(#paint0_linear_0_19)" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M21 42V35M32 42V29M43 42V22" stroke="#3C82F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M19 27L30 20L37 23L46 15" stroke="#3C82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_19" x1="11" y1="13" x2="49.8932" y2="54.8849" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="#DCEBFE"/>
+</linearGradient>
+</defs>
+</svg>

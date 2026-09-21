@@ -1,0 +1,35 @@
+[data-aos="partnerit-heading"],
+[data-aos="partnerit-visual"],
+[data-aos="partnerit-card"] {
+  opacity: 0;
+  transition-property: opacity, transform;
+  will-change: opacity, transform;
+
+  &.aos-animate {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}
+
+[data-aos="partnerit-heading"] {
+  transform: translate3d(0, 32px, 0);
+}
+
+[data-aos="partnerit-visual"] {
+  transform: translate3d(0, 52px, 0) scale(0.972);
+}
+
+[data-aos="partnerit-card"] {
+  transform: translate3d(0, 28px, 0) scale(0.988);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-aos="partnerit-heading"],
+  [data-aos="partnerit-visual"],
+  [data-aos="partnerit-card"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

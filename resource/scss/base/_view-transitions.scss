@@ -1,0 +1,87 @@
+// =============================================================================
+// View Transitions API
+// Cross-document (MPA): Chrome 126+   Same-document (SPA): Chrome 111+
+// Direction is stamped on <html data-vt-dir="fwd|back"> by pageswap/pagereveal.
+// Unsupported browsers: @view-transition ignored → standard navigation.
+// Ref: https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API
+// =============================================================================
+
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+// Named layers — id must match on both old and new page (see views/layouts/main.php)
+#main-header  { view-transition-name: site-header; }
+#main-content { view-transition-name: main-content; }
+#main-footer  { view-transition-name: site-footer; }
+
+// Header / footer: hold position — no cross-fade, no slide
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+// ── Forward navigation (default) ─────────────────────────────────────────────
+// Old page exits upward; new page enters from below.
+::view-transition-old(main-content) {
+  animation: vt-out-fwd var(--duration-base) var(--ease-standard) both;
+}
+
+::view-transition-new(main-content) {
+  animation: vt-in-fwd var(--duration-emphasis) var(--ease-out) both;
+}
+
+// ── Backward navigation ───────────────────────────────────────────────────────
+// Old page exits downward; new page enters from above.
+:root[data-vt-dir="back"]::view-transition-old(main-content) {
+  animation: vt-out-back var(--duration-base) var(--ease-standard) both;
+}
+
+:root[data-vt-dir="back"]::view-transition-new(main-content) {
+  animation: vt-in-back var(--duration-emphasis) var(--ease-out) both;
+}
+
+// ── Keyframes ─────────────────────────────────────────────────────────────────
+@keyframes vt-out-fwd {
+  to {
+    opacity: 0;
+    transform: translateY(-0.8rem);
+  }
+}
+
+@keyframes vt-in-fwd {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
+@keyframes vt-out-back {
+  to {
+    opacity: 0;
+    transform: translateY(0.8rem);
+  }
+}
+
+@keyframes vt-in-back {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+}
+
+// ── Reduced motion override ───────────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(main-content),
+  ::view-transition-new(main-content) {
+    animation: none;
+  }
+}

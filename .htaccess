@@ -1,0 +1,67 @@
+# Apache 모듈 활성화 및 심볼릭 링크 허용
+<FilesMatch "^\.env(?:\..*)?$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    Options +FollowSymLinks
+    RewriteEngine On
+
+    # WebP auto-serve — Accept: image/webp 브라우저에 같은 basename의 .webp가 있으면 자동 송출
+    # 마크업 변경 없이 모든 jpg/png가 webp로 서빙된다 (.webp 부재 시 원본 그대로 서빙).
+    RewriteCond %{HTTP_ACCEPT} image/webp
+    RewriteCond %{REQUEST_FILENAME} (.+)\.(jpe?g|png)$ [NC]
+    RewriteCond %1.webp -f
+    RewriteRule (?i)(.+)\.(jpe?g|png)$ $1.webp [T=image/webp,E=accept:1,L]
+
+    # robots.txt / sitemap.xml 은 동적 라우트(SeoManager / SitemapGenerator) 우선
+    # — 정적 파일이 있더라도 admin에서 편집한 DB 본문이 노출되도록 라우터로 보냄
+    RewriteRule ^robots\.txt$ index.php [L]
+    RewriteRule ^sitemap\.xml$ index.php [L]
+
+    # 실제 존재하는 파일 또는 디렉토리는 그대로 처리
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 나머지는 index.php로 라우팅
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# webp 자동 서빙된 응답에 Vary: Accept 부여 — CDN/프록시 캐시 분리용
+# (mod_headers 미활성 환경에서는 무시되며 동작에는 영향 없음)
+<IfModule mod_headers.c>
+    Header append Vary Accept env=REDIRECT_accept
+
+    # filemtime() 기반 ?v= 캐시버스터가 모든 자산에 부착되므로 immutable + 1년 캐시가 안전.
+    # 파일이 바뀌면 URL 자체가 바뀌어 브라우저가 새 리소스로 인식한다.
+    <FilesMatch "\.(jpe?g|png|webp|js|css|mp4|webm|woff2?|ttf|svg)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+
+# webp MIME 타입이 누락된 환경 대응
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+</IfModule>
+
+# Summernote 본문 같은 대용량 POST 허용 (HTML body ~100KB+ 가능성)
+# - mod_php  환경: php_value 적용
+# - php-fpm  환경: fpm 풀의 php.ini / .user.ini 에 동일 값을 넣어야 한다
+<IfModule mod_php7.c>
+    php_value post_max_size 64M
+    php_value upload_max_filesize 32M
+    php_value memory_limit 256M
+    php_value max_input_vars 5000
+    php_value max_execution_time 300
+</IfModule>
+<IfModule mod_php.c>
+    php_value post_max_size 64M
+    php_value upload_max_filesize 32M
+    php_value memory_limit 256M
+    php_value max_input_vars 5000
+    php_value max_execution_time 300
+</IfModule>
+
+# Apache 자체 body 한계 — 64MB (대용량 첨부 대비)
+LimitRequestBody 67108864

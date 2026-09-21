@@ -1,0 +1,22 @@
+.partnerit-ai-report-hero {
+  --report-section: 12rem;
+  padding-top: calc(var(--header-height) + var(--report-section));
+  background: url("../images/shared/soft-blue-v3/about-soft-gradient.png") center / cover no-repeat;
+  &__inner { display: grid; grid-template-columns: 520fr 760fr; gap: 4rem; align-items: center; }
+  .partnerit-ai-report__browser {
+    border-radius: 1.1875rem;
+    box-shadow: var(--report-browser-shadow);
+  }
+  .partnerit-cta-link {
+    min-height: 5.2rem;
+    padding-inline: 2.4rem;
+    border-radius: 1.2rem;
+    box-shadow: var(--report-shadow);
+  }
+  @media (max-width: 1024px) { --report-section: 8rem; }
+  @media (max-width: 900px) {
+    &__inner { grid-template-columns: 1fr; gap: var(--report-gap); }
+    .partnerit-cta-link { width: 100%; }
+  }
+  @media (max-width: 767px) { --report-section: 5.6rem; }
+}

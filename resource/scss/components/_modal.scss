@@ -1,0 +1,49 @@
+@use "../abstract" as *;
+
+.no-modal {
+  &__close {
+    @include flex-center();
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: var(--clr-background-button-default);
+    color: var(--clr-text-title);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    z-index: var(--z-index-modal);
+    display: none;
+
+    &--container {
+      max-width: 164rem;
+      position: fixed;
+      padding: 0 fluid(20, 24);
+      height: var(--header-height);
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: var(--z-index-button-floating);
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    &:hover {
+      background: var(--clr-background-button-hover);
+      color: var(--clr-primary-def);
+    }
+
+    &:active {
+      background: var(--clr-background-button-active);
+    }
+
+    i {
+      font-size: 2rem;
+    }
+
+    &.is-visible {
+      display: flex;
+    }
+  }
+}

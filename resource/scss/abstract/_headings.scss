@@ -1,0 +1,247 @@
+@use "./functions" as func;
+
+// 전 폰트 공통 자간 — 디자인 스펙 -2% (= -0.02em, 폰트 크기에 비례).
+// mixins/fs-fluid-by-map 에서 모든 f-* 토큰에 일괄 적용.
+$letter-spacing: -0.02em;
+
+// ============================================
+
+// Fluid Heading
+
+// ============================================
+
+// .f-display-<key> / .f-heading-<key> / .f-body-<key>
+// 맵 키: min, max, lh, fw, ff(선택). 자간은 전역 $letter-spacing(-2%) 일괄 적용(맵별 ls 미사용).
+
+$fluid-displays: (
+  metrics: (min: 24, max: 40, lh: 1.2, fw: 500),
+  0: (
+    min: 64,
+    max: 128,
+    lh: 1.08,
+    fw: 500,
+  ),
+
+  1: (
+    min: 36,
+    max: 72,
+    lh: 1.08,
+    fw: 500,
+  ),
+  2: (
+    min: 32,
+    max: 64,
+    lh: 1.08,
+    fw: 600,
+  ),
+  3: (
+    min: 24,
+    max: 58,
+    lh: 1.08,
+    fw: 700,
+  ),
+);
+$fluid-headings: (
+  patent: (min: 24, max: 36, lh: 1.41, fw: 700),
+  pricing-hero: (min: 30, max: 56, lh: 1.357143, fw: 700),
+  stories-hero: (min: 32, max: 64, lh: 1.28125, fw: 700),
+  stories-featured: (min: 24, max: 36, lh: 1.388889, fw: 700),
+  stories-card: (min: 22, max: 26, lh: 1.461538, fw: 700),
+  ai-report-hero: (min: 28, max: 48, lh: 1.333333, fw: 500),
+  ai-report-label: (min: 18, max: 20, lh: 1.5, fw: 700),
+  announcement-kicker: (min: 26, max: 44, lh: 1.955, fw: 800),
+  announcement-hero: (min: 32, max: 64, lh: 1.344, fw: 800),
+  announcement-section: (min: 26, max: 40, lh: 1.4, fw: 700),
+  announcement-card: (min: 18, max: 22, lh: 1.455, fw: 700),
+  announcement-feature: (min: 18, max: 20, lh: 1.41, fw: 700),
+  company-hero-kicker: (
+    min: 24,
+    max: 44,
+    lh: 1.41,
+    fw: 800,
+  ),
+  company-hero-title: (
+    min: 28,
+    max: 88,
+    lh: 1.295,
+    fw: 800,
+  ),
+  company-vision-title: (
+    min: 40,
+    max: 72,
+    lh: 1.305,
+    fw: 700,
+  ),
+  company-flow-title: (
+    min: 24,
+    max: 48,
+    lh: 1.375,
+    fw: 700,
+  ),
+  company-section-title: (
+    min: 30,
+    max: 52,
+    lh: 1.385,
+    fw: 700,
+  ),
+  company-year: (
+    min: 48,
+    max: 88,
+    lh: 1.205,
+    fw: 700,
+  ),
+  company-document-title: (
+    min: 20,
+    max: 24,
+    lh: 1.417,
+    fw: 600,
+  ),
+  consortium-card: (
+    min: 18,
+    max: 20,
+    lh: 1.41,
+    fw: 700,
+  ),
+  consortium-feature: (
+    min: 26,
+    max: 36,
+    lh: 1.41,
+    fw: 700,
+  ),
+  pricing-price: (
+    min: 28,
+    max: 36,
+    lh: 1.41,
+    fw: 700,
+  ),
+  1: (
+    // xl
+    min: 28,
+    max: 48,
+    lh: 1.21,
+    fw: 600,
+  ),
+  2: (
+    // lg
+    min: 24,
+    max: 40,
+    lh: 1.21,
+    fw: 600,
+  ),
+  3: (
+    // md
+    min: 20,
+    max: 32,
+    lh: 1.21,
+    fw: 600,
+  ),
+  4: (
+    // md
+    min: 18,
+    max: 28,
+    lh: 1.21,
+    fw: 600,
+  ),
+  5: (
+    // sm
+    min: 17,
+    max: 24,
+    lh: 1.21,
+    fw: 600,
+  ),
+);
+
+$fluid-bodys: (
+  patent-copy: (min: 14, max: 16, lh: 1.41, fw: 500),
+  patent-number: (min: 16, max: 18, lh: 1.41, fw: 500),
+  pricing-lead: (min: 16, max: 22, lh: 1.636364, fw: 400),
+  stories-eyebrow: (min: 14, max: 16, lh: 2, fw: 700),
+  stories-lead: (min: 16, max: 22, lh: 1.454545, fw: 400),
+  stories-badge: (min: 13, max: 16, lh: 1.5, fw: 600),
+  stories-copy: (min: 16, max: 18, lh: 1.666667, fw: 400),
+  stories-meta: (min: 13, max: 15, lh: 2.133333, fw: 400),
+  ai-report-eyebrow: (min: 16, max: 18, lh: 1.777778, fw: 700),
+  cta-large: (min: 16, max: 20, lh: 1.5, fw: 600),
+  announcement-eyebrow: (min: 16, max: 18, lh: 1.556, fw: 700),
+  announcement-copy: (min: 16, max: 20, lh: 1.6, fw: 400),
+  announcement-detail: (min: 15, max: 18, lh: 1.556, fw: 400),
+  announcement-meta: (min: 14, max: 16, lh: 1.75, fw: 400),
+  company-hero: (
+    min: 16,
+    max: 24,
+    lh: 1.667,
+    fw: 400,
+  ),
+  company-vision-lead: (
+    min: 20,
+    max: 28,
+    lh: 1.571,
+    fw: 400,
+  ),
+  company-history: (
+    min: 16,
+    max: 22,
+    lh: 1.545,
+    fw: 400,
+  ),
+  company-document-meta: (
+    min: 14,
+    max: 16,
+    lh: 1.5,
+    fw: 400,
+  ),
+  button: (
+    min: 14,
+    max: 15,
+    lh: 1.618,
+    fw: 600,
+  ),
+  footer-nav: (
+    min: 11,
+    max: 12,
+    lh: 1.618,
+    fw: 400,
+  ),
+  footer-info: (
+    min: 12,
+    max: 14,
+    lh: 1.714,
+    fw: 400,
+  ),
+  micro: (
+    min: 10,
+    max: 11,
+    lh: 1.618,
+    fw: 500,
+  ),
+  1: (
+    min: 15,
+    max: 20,
+    lh: 1.28,
+    fw: 400,
+  ),
+  2: (
+    min: 14,
+    max: 18,
+    lh: 1.28,
+    fw: 400,
+  ),
+  3: (
+    min: 13,
+    max: 16,
+    lh: 1.28,
+    fw: 400,
+  ),
+  4: (
+    min: 12,
+    max: 14,
+    lh: 1.28,
+    fw: 400,
+  ),
+);
+
+// ============================================
+// Static Heading (legacy)
+// --------------------------------------------
+// s-heading / s-body 유틸 클래스는 현재 마크업에서
+// 사용되지 않아 관련 맵을 제거했습니다.

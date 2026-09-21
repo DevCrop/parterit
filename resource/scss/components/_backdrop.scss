@@ -1,0 +1,29 @@
+@use "../abstract" as *;
+
+// State machine is driven entirely by `.is-active` — opacity, visibility, and
+// pointer-events all flip from a single class toggle. This deliberately avoids
+// JS-set inline styles so a partially-animated backdrop can never persist
+// across page navigations or view-transition snapshots (the historical cause
+// of "invisible but click-blocking" backdrop states).
+.no-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-backdrop);
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    visibility 0s linear var(--duration-base);
+
+  &.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      visibility 0s linear 0s;
+  }
+}

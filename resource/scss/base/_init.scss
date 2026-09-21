@@ -1,0 +1,138 @@
+@use "../abstract" as *;
+
+* {
+  margin: 0;
+
+  padding: 0;
+
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+
+  -webkit-tap-highlight-color: transparent;
+
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
+
+  text-rendering: optimizelegibility;
+
+  font-size: 62.5%;
+}
+
+body {
+  font-size: var(--base-font-size);
+
+  line-height: var(--base-line-height);
+
+  letter-spacing: var(--base-letter-spacing);
+
+  word-break: keep-all;
+
+  overflow-wrap: break-word;
+
+  background: var(--clr-ui-bg);
+
+  color: var(--clr-text-body);
+
+  font-family: var(--family-base);
+
+  font-weight: 400;
+
+  // theater 페이지는 단색 배경
+  &.is-theater-page {
+    background: var(--clr-ui-bg);
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--clr-text-title);
+}
+
+a,
+button,
+select,
+input,
+textarea,
+option {
+  color: var(--clr-text-title);
+
+  font-family: var(--family-base);
+
+  font-size: var(--base-font-size);
+}
+
+[lang="ko-kr"] {
+  body {
+    font-family: var(--family-ko-base);
+  }
+}
+
+[lang|="ja"] {
+  body {
+    font-family: var(--family-jp-base);
+  }
+}
+
+ul,
+ol,
+li {
+  list-style: none;
+}
+
+img {
+  width: 100%;
+  object-fit: cover;
+}
+
+a {
+  text-decoration: none;
+}
+
+em,
+address {
+  font-style: normal;
+}
+
+button {
+  background: none;
+
+  border: none;
+
+  cursor: pointer;
+}
+
+label {
+  cursor: pointer;
+}
+
+textarea {
+  resize: none;
+}
+
+input,
+textarea,
+select,
+option {
+  border: none;
+}
+
+input,
+textarea,
+select {
+  &:focus-visible {
+    outline: 2px solid var(--clr-primary);
+    outline-offset: 2px;
+  }
+}
+
+[hidden] {
+  display: none !important;
+}

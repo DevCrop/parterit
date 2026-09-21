@@ -1,0 +1,175 @@
+@use "../abstract" as *;
+
+$consortium-collaboration-bg: #fbfaff;
+$consortium-collaboration-ink: #1e1d2d;
+$consortium-collaboration-body: #555;
+
+.partnerit-consortium-collaboration {
+  position: relative;
+  background: $consortium-collaboration-bg;
+  color: $consortium-collaboration-ink;
+  overflow: hidden;
+
+  &__glow {
+    position: absolute;
+    width: 78rem;
+    height: 68rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(214, 226, 255, 0.7) 0%, rgba(230, 236, 255, 0.28) 45%, transparent 72%);
+    filter: blur(2rem);
+    pointer-events: none;
+
+    &--top {
+      top: -34rem;
+      right: -21rem;
+    }
+
+    &--bottom {
+      bottom: 17rem;
+      left: -21rem;
+    }
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4.8rem;
+    padding-block: 12rem;
+  }
+
+  &__header {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.4rem;
+    text-align: center;
+  }
+
+  &__title,
+  &__lead,
+  &__card-title,
+  &__description {
+    margin: 0;
+  }
+
+  &__title {
+    color: $consortium-collaboration-ink;
+    line-height: 1.41;
+
+    span {
+      display: block;
+    }
+  }
+
+  &__lead {
+    color: $consortium-collaboration-body;
+    line-height: 1.618;
+
+    span {
+      display: block;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    display: flex;
+    min-width: 0;
+    height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0.8rem;
+    background: #fff;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.08);
+  }
+
+  &__visual {
+    width: 100%;
+    aspect-ratio: 449 / 253;
+    flex: 0 0 auto;
+    margin: 0;
+    overflow: hidden;
+    background: $consortium-collaboration-bg;
+  }
+
+  &__visual-image,
+  &__visual-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__copy {
+    display: flex;
+    min-height: 15.9rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 2rem 2.4rem;
+  }
+
+  &__card-title {
+    color: $consortium-collaboration-ink;
+    line-height: 1.41;
+  }
+
+  &__description {
+    color: $consortium-collaboration-ink;
+    line-height: 1.618;
+    word-break: keep-all;
+  }
+
+  @media (max-width: 760px) {
+    min-height: 0;
+
+    &__inner {
+      min-height: 0;
+      gap: 3.6rem;
+      padding-block: 8rem;
+    }
+
+    &__header {
+      gap: 1.6rem;
+    }
+
+    &__title span,
+    &__lead span {
+      display: inline;
+    }
+
+    &__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__card {
+      height: auto;
+    }
+
+    &__visual {
+      height: auto;
+      aspect-ratio: 449 / 253;
+      flex-basis: auto;
+    }
+
+    &__copy {
+      min-height: 0;
+    }
+
+    &__description br {
+      display: none;
+    }
+  }
+}

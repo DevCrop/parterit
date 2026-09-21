@@ -1,0 +1,175 @@
+@use "../abstract" as *;
+
+br {
+  @include mq(md) {
+    display: none;
+  }
+}
+.--hidden {
+  overflow: hidden;
+}
+
+.--time {
+  @include font("f-body-3");
+  color: var(--clr-text-body-invert);
+}
+.--badge {
+  display: inline-block;
+  padding: fluid(4, 8) fluid(12, 18);
+  border-radius: 5rem;
+  background: var(--clr-primary-def);
+  color: var(--clr-text-title);
+}
+.--warning {
+  color: var(--clr-text-warning);
+}
+html.scroll-lock,
+body.scroll-lock {
+  overflow: hidden;
+}
+.--tal {
+  text-align: left;
+}
+.--tar {
+  text-align: right;
+}
+.--tac {
+  text-align: center;
+}
+.--arrow {
+  @include flex-center();
+  width: fluid(32, 40);
+  height: fluid(32, 40);
+  border-radius: 50%;
+  background: var(--clr-ui-white);
+  color: var(--clr-text-title);
+}
+lord-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+// 리스트 볼릿: 작은 원 — 텍스트 영역을 padding-left로 밀고 점은 텍스트 블록 중앙에 배치
+.--bullet {
+  @include font("f-body-3");
+  font-weight: 400;
+
+  li {
+    position: relative;
+    display: block;
+    padding-left: fluid(12, 16);
+
+    &:not(:first-child) {
+      margin-top: fluid(2, 4);
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: fluid(3, 4);
+      height: fluid(3, 4);
+      margin-top: 0;
+      border-radius: 50%;
+      background: currentColor;
+      transform: translateY(-50%);
+    }
+
+    > p {
+      display: block;
+      margin: 0;
+    }
+  }
+}
+
+// 체크리스트: 녹색 원 + 흰 체크 (pricing 카드 등)
+.--checklist {
+  @include font("f-body-3");
+  font-weight: 400;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: fluid(8, 10);
+
+    &:not(:first-child) {
+      margin-top: fluid(6, 10);
+    }
+  }
+
+  i.fa-check {
+    width: fluid(16, 20);
+    height: fluid(16, 20);
+    border-radius: 50%;
+    background: var(--clr-primary-def);
+    color: var(--clr-text-title);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: fluid(10, 11);
+    flex-shrink: 0;
+    margin-top: fluid(2, 4);
+  }
+
+  p {
+    margin: 0;
+    color: inherit;
+  }
+}
+
+.--fm-ko {
+  font-family: var(--family-ko-base);
+}
+
+.--bold {
+  font-weight: 700;
+}
+
+.--semibold {
+  font-weight: 600;
+}
+
+.--medium {
+  font-weight: 500;
+}
+
+.--regular {
+  font-weight: 400;
+}
+
+.--light {
+  font-weight: 300;
+}
+
+b {
+  font-weight: 700;
+}
+
+.--cnt {
+  margin-top: fluid(30, 48);
+}
+
+.sr-only {
+  @include blind();
+}
+.sr-only--focusable {
+  @include blind();
+  &:focus-visible {
+    position: static;
+    clip: auto;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+  }
+}
+
+.iti--fullscreen-popup.iti--container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.iti--fullscreen-popup .iti__dropdown-content {
+  max-height: 64vh;
+}

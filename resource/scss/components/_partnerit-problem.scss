@@ -1,0 +1,149 @@
+@use "../abstract" as *;
+
+$problem-ink: #1e1d2d;
+$problem-blue: #3c82f6;
+$problem-body: #555;
+$problem-surface: #fff;
+$problem-border: #e2eaf2;
+
+.partnerit-problem {
+  overflow: clip;
+  background: #eef7ff;
+  color: $problem-ink;
+
+  &__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: fluid(24, 24);
+  }
+
+  &__copy {
+    position: sticky;
+    top: calc(var(--header-height) + fluid(20, 32));
+    padding-top: fluid(4, 4);
+  }
+
+  &__title {
+    margin: 0;
+    color: $problem-ink;
+    line-height: 1.41;
+    letter-spacing: -0.03em;
+    word-break: keep-all;
+  }
+
+  &__title-line {
+    display: block;
+  }
+
+  &__title strong {
+    font-weight: 700;
+  }
+
+  &__highlight {
+    color: $problem-blue;
+  }
+
+  &__description {
+    max-width: 59rem;
+    margin: fluid(16, 20) 0 0;
+    color: $problem-body;
+    line-height: 1.62;
+    word-break: keep-all;
+  }
+
+  &__list {
+    display: grid;
+    gap: fluid(16, 24);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    display: flex;
+    min-height: 24.2rem;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2.8rem;
+    border: 1px solid $problem-border;
+    border-radius: 1.8rem;
+    background: $problem-surface;
+    box-shadow: 0 0 0.8rem rgba(17, 17, 17, 0.08);
+  }
+
+  &__icon {
+    display: block;
+    width: 6.4rem;
+    height: 6.4rem;
+    flex: 0 0 auto;
+    object-fit: contain;
+  }
+
+  &__card-content {
+    margin-top: 1.8rem;
+  }
+
+  &__card-title {
+    margin: 0;
+    color: $problem-ink;
+    line-height: 1.41;
+    letter-spacing: -0.02em;
+    word-break: keep-all;
+  }
+
+  &__card-description {
+    max-width: 36.8rem;
+    margin: 1.2rem 0 0;
+    color: $problem-body;
+    line-height: 1.62;
+    word-break: keep-all;
+  }
+
+  &__desktop-break {
+    display: initial;
+  }
+
+  @media (max-width: 900px) {
+    &__inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: fluid(28, 40);
+    }
+
+    &__copy {
+      position: static;
+    }
+
+    &__title {
+      max-width: 70rem;
+    }
+
+    &__description {
+      max-width: 68rem;
+    }
+
+    &__card {
+      min-height: 0;
+      padding: fluid(20, 28);
+      border-radius: 1.4rem;
+    }
+
+    &__card-description {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 560px) {
+    &__title-line {
+      display: inline;
+    }
+
+    &__title-line + &__title-line::before {
+      content: " ";
+    }
+
+    &__desktop-break {
+      display: none;
+    }
+  }
+}

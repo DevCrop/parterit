@@ -1,0 +1,107 @@
+@use "../abstract" as *;
+
+$metrics-ink: #1e1d2d;
+$metrics-border: #e5eaf0;
+$metrics-surface: #f9fcff;
+
+.partnerit-metrics {
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+  background: #fff;
+  color: $metrics-ink;
+
+  &__title {
+    margin: 0 0 fluid(28, 40);
+    color: $metrics-ink;
+    text-align: center;
+    word-break: keep-all;
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: fluid(8, 14);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    display: flex;
+    min-width: 0;
+    min-height: fluid(96, 136);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: fluid(8, 12);
+    padding: fluid(12, 18) fluid(8, 16);
+    border: 1px solid $metrics-border;
+    border-radius: 8px;
+    background: $metrics-surface;
+    box-shadow: 0 2px 8px rgba(25, 45, 77, 0.04);
+    text-align: center;
+  }
+
+  &__value {
+    display: flex;
+    min-height: 1.2em;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.2em;
+    margin: 0;
+    color: #3f3e65;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__number {
+    display: inline-flex;
+    min-height: 1em;
+    align-items: center;
+  }
+
+  &__unit {
+    color: $metrics-ink;
+    font-size: 0.42em;
+  }
+
+  &__digit {
+    display: inline-block;
+    flex: 0 0 auto;
+    height: 1em;
+    overflow: hidden;
+    vertical-align: top;
+  }
+
+  &__reel {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+  }
+
+  &__reel-cell {
+    display: block;
+    flex: 0 0 1em;
+    height: 1em;
+    line-height: 1em;
+  }
+
+  &__caption {
+    margin: 0;
+    color: #626878;
+    line-height: 1.4;
+    word-break: keep-all;
+  }
+
+  @media (max-width: 1024px) {
+    &__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partnerit-metrics__reel {
+    will-change: auto;
+  }
+}

@@ -1,0 +1,19 @@
+.partnerit-ai-report-diagnosis {
+  background: url("../images/shared/soft-blue-v3/about-soft-gradient.png") center / cover no-repeat;
+  &__inner { display: grid; gap: var(--report-space-xl); }
+  &__inner > h2 { text-align: center; }
+  &__visual {
+    width: 100%; aspect-ratio: 1320 / 396.466; overflow: hidden; border-radius: 2rem;
+    border: 1px solid var(--report-border);
+    box-shadow: var(--report-browser-shadow);
+    img { display: block; width: 100%; height: auto; }
+  }
+  &__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--report-space-sm); }
+  &__card {
+    padding: var(--report-space-lg); border: 1px solid var(--report-border); border-radius: 1.6rem; background: var(--report-white); box-shadow: var(--report-shadow);
+    h3 { color: var(--report-point); }
+    p { color: var(--report-title); margin-top: var(--report-space-xs); }
+  }
+  @media (max-width: 1024px) { &__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { &__grid { grid-template-columns: 1fr; } &__visual { border-radius: .8rem; } }
+}

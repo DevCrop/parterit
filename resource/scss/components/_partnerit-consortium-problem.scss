@@ -1,0 +1,189 @@
+@use "../abstract" as *;
+
+$consortium-problem-bg: #eef7ff;
+$consortium-problem-ink: #000;
+$consortium-problem-body: #555;
+
+.partnerit-consortium-problem {
+  min-height: 57.7rem;
+  background: $consortium-problem-bg;
+  color: $consortium-problem-ink;
+
+  &__inner {
+    display: flex;
+    min-height: 57.7rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4.8rem;
+    padding-block: 12rem;
+  }
+
+  &__header {
+    display: grid;
+    grid-template-columns: 43.2rem minmax(0, 1fr);
+    align-items: end;
+    justify-content: space-between;
+    gap: 4.8rem;
+  }
+
+  &__title,
+  &__intro,
+  &__card-title,
+  &__card-description {
+    margin: 0;
+  }
+
+  &__title {
+    color: $consortium-problem-ink;
+    line-height: 1.41;
+
+    span {
+      display: block;
+    }
+  }
+
+  &__intro {
+    justify-self: end;
+    color: $consortium-problem-body;
+    line-height: 1.618;
+
+    span {
+      display: block;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    display: flex;
+    min-height: 18.2rem;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2.4rem 2rem;
+    overflow: hidden;
+    border-radius: 2rem;
+    background: #fff;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.08);
+  }
+
+  &__icon {
+    position: relative;
+    width: 6.4rem;
+    height: 6.4rem;
+    flex: 0 0 6.4rem;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0.8rem;
+    background: #fafdff;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.08);
+  }
+
+  &__icon-image,
+  &__icon-image img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+  }
+
+  &__icon--closed-network .partnerit-consortium-problem__icon-image,
+  &__icon--closed-network .partnerit-consortium-problem__icon-image img {
+    width: 8.2rem;
+    height: 8.2rem;
+  }
+
+  &__icon--network-gap .partnerit-consortium-problem__icon-image,
+  &__icon--network-gap .partnerit-consortium-problem__icon-image img {
+    width: 7.2rem;
+    height: 7.2rem;
+  }
+
+  &__card-copy {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  &__card-title {
+    color: $consortium-problem-ink;
+    line-height: 1.41;
+  }
+
+  &__card-description {
+    color: $consortium-problem-ink;
+    line-height: 1.618;
+  }
+
+  @media (max-width: 1100px) {
+    &__header {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    }
+
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &__card:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 700px) {
+    &__inner {
+      min-height: 0;
+      gap: 3.6rem;
+      padding-block: 7.2rem;
+    }
+
+    &__header,
+    &__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__header {
+      align-items: start;
+      gap: 2.4rem;
+    }
+
+    &__intro {
+      justify-self: start;
+
+      span {
+        display: inline;
+      }
+    }
+
+    &__card,
+    &__card:last-child {
+      grid-column: auto;
+      min-height: 0;
+    }
+  }
+
+  @media (max-width: 430px) {
+    &__card {
+      gap: 1.6rem;
+      padding: 2rem 1.6rem;
+      border-radius: 1.6rem;
+    }
+
+    &__icon {
+      width: 5.6rem;
+      height: 5.6rem;
+      flex-basis: 5.6rem;
+    }
+  }
+}

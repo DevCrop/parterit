@@ -1,0 +1,68 @@
+.partnerit-story-card {
+  --story-navy: #0b1040;
+  --story-gap: 2.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--story-gap);
+  min-width: 0;
+  color: var(--story-navy);
+  &__link { display: contents; color: inherit; text-decoration: none; }
+  &__photo { aspect-ratio: 424 / 282; overflow: hidden; border-radius: 1.6rem; img { display: block; width: 100%; height: 100%; object-fit: cover; } }
+  &__body { display: flex; flex-direction: column; align-items: flex-start; gap: 1.4rem; min-width: 0; }
+  &__badge { max-width: 100%; padding: .6rem 1.2rem; border-radius: .8rem; background: #f3f4f6; color: #374456; }
+  &__title, &__description { color: inherit; }
+  &__title span { display: block; }
+  &__meta { color: rgb(11 16 64 / 65%); }
+  &--featured {
+    display: grid;
+    grid-template-columns: 620fr 700fr;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid #e8ebf0;
+    border-radius: 2rem;
+    background: linear-gradient(135deg, #f8f9fb 0%, #f3f5f8 100%);
+    box-shadow: 0 1.6rem 4rem rgb(15 23 42 / 5%);
+  }
+  &--featured &__photo {
+    height: 100%;
+    min-height: 50rem;
+    aspect-ratio: auto;
+    border-radius: 0;
+
+    picture {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+  &--featured &__body { padding: 5.6rem 5.6rem 5.6rem 4.8rem; gap: var(--story-gap); }
+  &--featured &__title { max-width: 42rem; }
+  &__link:hover &__title { color: #2f72e8; }
+  &__link:focus-visible &__photo { outline: 3px solid rgb(60 130 246 / 45%); outline-offset: 4px; }
+  @media (max-width: 1024px) { &--featured &__body { padding: 3.2rem; } }
+  @media (max-width: 767px) {
+    &--featured { grid-template-columns: 1fr; }
+    &--featured &__photo {
+      height: auto;
+      min-height: 0;
+      aspect-ratio: 620 / 500;
+      border-radius: 0;
+    }
+    &--featured &__body { padding: 2.8rem 2.4rem 3.2rem; }
+  }
+}
+
+.partnerit-story-card:not(.partnerit-story-card--featured) .partnerit-story-card__description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.partnerit-story-card--featured .partnerit-story-card__description {
+  display: -webkit-box;
+  overflow: hidden;
+  max-width: 60rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+}

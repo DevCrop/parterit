@@ -1,0 +1,68 @@
+@use "../abstract" as *;
+
+.no-scroll-down {
+  position: absolute;
+  bottom: fluid(24, 40);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fluid(6, 10);
+
+  &--white {
+    color: var(--clr-ui-white);
+  }
+  &--color {
+    color: var(--clr-gray-950);
+  }
+
+  &__label {
+    @include font("f-body-4");
+    font-weight: 600;
+    opacity: 0.5;
+  }
+
+  &__arrows {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    i {
+      display: block;
+      font-size: fluid(12, 14);
+      animation: scroll-down-wave 1.6s ease-in-out infinite;
+
+      & + i {
+        margin-top: -2px;
+      }
+
+      &:nth-child(1) {
+        --_base-op: 0.2;
+        animation-delay: 0s;
+      }
+      &:nth-child(2) {
+        --_base-op: 0.5;
+        animation-delay: 0.2s;
+      }
+      &:nth-child(3) {
+        --_base-op: 1;
+        animation-delay: 0.4s;
+      }
+    }
+  }
+}
+
+@keyframes scroll-down-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: var(--_base-op, 0.5);
+  }
+
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}

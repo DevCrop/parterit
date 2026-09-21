@@ -1,0 +1,78 @@
+@use "../abstract" as *;
+
+.partnerit-final-cta {
+  position: relative;
+  display: flex;
+  min-height: 45.6rem;
+  align-items: center;
+  overflow: hidden;
+  color: #333;
+
+  &__background,
+  &__background-image,
+  &__background-image img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__background-image,
+  &__background-image img {
+    object-fit: cover;
+    object-position: center top;
+    height: max(100%, 37.5vw);
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__copy {
+    display: flex;
+    max-width: 90rem;
+    flex-direction: column;
+    gap: 4.8rem;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+  }
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    color: #333;
+    line-height: 1.41;
+    letter-spacing: -0.03em;
+  }
+
+  &__description {
+    max-width: 76rem;
+    color: #666;
+    line-height: 1.618;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+  }
+
+  @include mq(sm) {
+    min-height: 42rem;
+
+    &__copy { gap: 3.6rem; }
+    &__heading { gap: 1.6rem; }
+    &__actions { align-items: center; }
+    .partnerit-cta-link {
+      width: auto;
+      min-height: 4.8rem;
+      padding-inline: 1.8rem;
+    }
+  }
+}

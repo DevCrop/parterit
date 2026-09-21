@@ -1,0 +1,32 @@
+.partnerit-announcement-problem {
+  background: linear-gradient(90deg, var(--announcement-white), var(--announcement-surface));
+  &__inner { display: grid; grid-template-columns: 560fr 664fr; gap: 9.6rem; align-items: center; }
+  &__panel {
+    padding: 2.8rem 3.2rem 3.2rem;
+    border-radius: 2.4rem;
+    background: var(--announcement-white);
+    box-shadow: 0 1.2rem 3.6rem -.8rem rgb(11 16 64 / 5%);
+  }
+  &__conditions { display: grid; gap: .8rem; margin-top: 2rem; }
+  &__condition {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    padding: 1.6rem 2rem;
+    border-radius: 1.2rem;
+    background: var(--announcement-blue);
+    dt { display: flex; align-items: center; gap: 1.6rem; flex: 0 0 16.8rem; }
+    img { flex: 0 0 4rem; width: 4rem; height: 4rem; object-fit: contain; }
+    dd { color: rgb(11 16 64 / 65%); }
+  }
+  @media (max-width: 1200px) {
+    &__inner { gap: 4rem; }
+    &__condition dt { flex-basis: 13rem; }
+  }
+  @media (max-width: 900px) { &__inner { grid-template-columns: 1fr; } }
+  @media (max-width: 767px) {
+    &__panel { padding: 2.4rem 1.6rem; }
+    &__condition { padding: 1.2rem; gap: .8rem; }
+    &__condition dt { flex-basis: 11.2rem; gap: .8rem; }
+  }
+}

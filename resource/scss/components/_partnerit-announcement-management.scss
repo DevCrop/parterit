@@ -1,0 +1,28 @@
+.partnerit-announcement-management {
+  background: linear-gradient(180deg, #f5faff, #e8f2ff 55%, #f2f2ff);
+  &__inner > h2 { text-align: center; }
+  &__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.4rem; margin-top: 4.8rem; }
+  &__card {
+    padding: 2.8rem;
+    border-radius: 2rem;
+    background: var(--announcement-white);
+    color: var(--announcement-title);
+    box-shadow: var(--announcement-shadow);
+    h3 { margin-top: 1.4rem; }
+    p { margin-top: .8rem; }
+  }
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 6.4rem;
+    height: 6.4rem;
+    border-radius: 1.4rem;
+    img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  }
+  @media (max-width: 1024px) { &__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 767px) {
+    &__grid { margin-top: 3.2rem; gap: 1.6rem; }
+    &__card { padding: 2rem; }
+  }
+  @media (max-width: 480px) { &__grid { grid-template-columns: 1fr; } }
+}

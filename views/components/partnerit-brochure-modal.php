@@ -1,7 +1,7 @@
 <?php if (project_feature_enabled('content.brochure_request', false)): ?>
 <dialog class="partnerit-brochure" id="partnerit-brochure" aria-labelledby="brochure-title" aria-describedby="brochure-description" data-lenis-prevent>
     <div class="partnerit-brochure__panel">
-        <button class="partnerit-brochure__close" type="button" data-brochure-close aria-label="소개서 신청 닫기"><span aria-hidden="true">×</span></button>
+        <button class="partnerit-brochure__close" type="button" data-brochure-close aria-label="소개서 신청 닫기"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         <header class="partnerit-brochure__heading">
             <span class="partnerit-brochure__badge f-body-4 --semibold">PARTNER IT</span>
             <h2 class="f-heading-4 --bold" id="brochure-title">서비스 소개서 다운로드</h2>
@@ -36,7 +36,7 @@
             <button class="partnerit-cta-link partnerit-cta-link--primary f-body-button --semibold" type="submit"><span class="partnerit-cta-link__label">신청하고 소개서 다운로드</span></button>
         </form>
         <div class="partnerit-brochure__success" hidden>
-            <span class="partnerit-brochure__success-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="m8 16 5.5 5.5L24 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="partnerit-brochure__success-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" focusable="false"><path d="m8 16 5.5 5.5L24 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <div class="partnerit-brochure__success-heading">
                 <h2 class="f-heading-4 --bold" id="brochure-success-title" tabindex="-1">신청이 완료되었습니다.</h2>
                 <p class="f-body-3" id="brochure-success-description">다운로드가 자동으로 시작됩니다.<span class="partnerit-brochure__success-hint">시작되지 않으면 아래 버튼을 눌러주세요.</span></p>

@@ -13,8 +13,10 @@
   &::backdrop { background: rgb(11 16 64 / 42%); }
   &[open] { animation: brochure-enter var(--duration-base) var(--ease-out); }
   &__panel { position: relative; padding: var(--spacing-xl); }
-  &__close { position: absolute; top: var(--spacing-md); right: var(--spacing-md); display: grid; place-items: center; width: max(4rem, var(--spacing-2xl)); height: max(4rem, var(--spacing-2xl)); border: 0; border-radius: 50%; background: var(--clr-gray-50); color: var(--clr-text-title); cursor: pointer; font-size: var(--base-font-size); }
+  &__close { position: absolute; top: var(--spacing-md); right: var(--spacing-md); display: grid; place-items: center; width: max(4rem, var(--spacing-2xl)); height: max(4rem, var(--spacing-2xl)); padding: 0; border: 0; border-radius: 50%; background: var(--clr-gray-50); color: var(--clr-text-title); cursor: pointer; transition: background-color var(--duration-fast); }
+  &__close svg { display: block; width: 2.4rem; height: 2.4rem; pointer-events: none; }
   &__close:hover { background: var(--clr-surface-section); }
+  &__close:focus-visible { outline: 2px solid var(--clr-primary-def); outline-offset: 2px; }
   &__heading { display: grid; gap: var(--spacing-sm); padding-right: var(--spacing-xl); margin-bottom: var(--spacing-lg); }
   &__heading p { color: var(--clr-gray-600); }
   &__badge { color: var(--clr-primary-hover); }

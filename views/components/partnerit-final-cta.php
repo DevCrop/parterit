@@ -41,9 +41,10 @@ if (current_route_is('business.announcement-matching')) {
                     'variant' => 'primary',
                 ]) ?>
                 <?= include_view('components.partnerit-cta-link', [
-                    'href' => base_path('/matching'),
+                    'href' => base_path('/resource/files/partnerit-service-brief.pdf'),
                     'label' => '서비스 소개서 다운로드',
                     'variant' => 'secondary',
+                    'download' => 'partnerit-service-brief.pdf',
                 ]) ?>
             </div>
         </div>

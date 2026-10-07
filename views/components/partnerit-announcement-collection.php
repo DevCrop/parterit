@@ -4,7 +4,6 @@
             <h2 class="f-heading-announcement-section" id="announcement-collection-title">사업공고 수집부터<br> 핵심 조건 분석까지</h2>
             <div>
                 <p class="partnerit-announcement__description f-body-announcement-copy">약 400개 정부·공공기관 채널, 연간 35,000건 이상의 사업공고.<br> 분산된 정보를 수집하고 기업과 비교할 수 있는 데이터로 정리합니다.</p>
-                <p class="partnerit-announcement__note f-body-announcement-meta">※ 고객 제공 서비스 소개서 기재 기준</p>
             </div>
         </header>
         <div class="partnerit-announcement-collection__grid">

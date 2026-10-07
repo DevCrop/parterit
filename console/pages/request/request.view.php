@@ -2,7 +2,8 @@
 
 include_once "../../bootstrap/admin.php";
 
-$NO_STATIC_TITLE = '자산진단 신청 상세';
+if (!$role->in(['superadmin', 'manager'])) { http_response_code(403); exit('접근 권한이 없습니다.'); }
+$NO_STATIC_TITLE = '소개서·도입 문의 상세';
 
 $no = isset($_REQUEST['no']) ? (int) $_REQUEST['no'] : 0;
 $backParams = $_GET;
@@ -25,6 +26,7 @@ if (!$data) {
 
 $request_type_labels = [
     'free_asset_diagnosis' => '무료 자산진단',
+    'brochure_download' => '소개서·도입 문의',
 ];
 $typeKey = (string) ($data['request_type'] ?? '');
 $typeLabel = $request_type_labels[$typeKey] ?? $typeKey;
@@ -61,11 +63,11 @@ if (is_array($codes)) {
                 <div class="no-toolbar">
                     <div class="no-toolbar-container no-flex-stack">
                         <div class="no-page-indicator">
-                            <h1 class="no-page-title">자산진단 신청 상세</h1>
+                            <h1 class="no-page-title">소개서·도입 문의 상세</h1>
                             <div class="no-breadcrumb-container">
                                 <ul class="no-breadcrumb-list">
                                     <li class="no-breadcrumb-item"><span>신청 관리</span></li>
-                                    <li class="no-breadcrumb-item"><span>자산진단 신청</span></li>
+                                    <li class="no-breadcrumb-item"><span>소개서·도입 문의</span></li>
                                     <li class="no-breadcrumb-item"><span>상세</span></li>
                                 </ul>
                             </div>
@@ -83,6 +85,14 @@ if (is_array($codes)) {
                             <h2 class="no-card-title">신청 정보</h2>
                         </div>
                         <div class="no-card-body no-admin-column no-admin-column--detail">
+                            <?php if ($typeKey === 'brochure_download'): ?>
+                                <?php foreach (['company' => '회사명', 'email' => '이메일', 'message' => '문의 내용', 'agreed_at' => '개인정보 동의 일시', 'consent_version' => '동의문 버전'] as $field => $label): ?>
+                                <div class="no-admin-block">
+                                    <h3 class="no-admin-title"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></h3>
+                                    <div class="no-admin-content"><p><?= nl2br(htmlspecialchars((string) ($data[$field] ?? '-'), ENT_QUOTES, 'UTF-8')) ?></p></div>
+                                </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                             <div class="no-admin-block">
                                 <h3 class="no-admin-title">접수 번호</h3>
                                 <div class="no-admin-content">
@@ -107,6 +117,7 @@ if (is_array($codes)) {
                                     <p><?= htmlspecialchars((string) $data['phone'], ENT_QUOTES, 'UTF-8') ?></p>
                                 </div>
                             </div>
+                            <?php if ($typeKey !== 'brochure_download'): ?>
                             <div class="no-admin-block">
                                 <h3 class="no-admin-title">성별</h3>
                                 <div class="no-admin-content">
@@ -133,6 +144,7 @@ if (is_array($codes)) {
                                     <?php } ?>
                                 </div>
                             </div>
+                            <?php endif; ?>
                             <div class="no-admin-block">
                                 <h3 class="no-admin-title">등록일</h3>
                                 <div class="no-admin-content">

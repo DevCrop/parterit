@@ -12,7 +12,7 @@
             <li class="partnerit-services__item">
                 <div class="partnerit-services__copy">
                     <div class="partnerit-services__text-group">
-                        <span class="partnerit-services__eyebrow f-body-3 --bold">맞춤형 공고 매칭</span>
+                        <span class="partnerit-services__eyebrow f-body-3 --semibold">맞춤형 공고 매칭</span>
                         <h3 class="partnerit-services__item-title f-heading-3 --bold">
                             <span>참여 요건 미충족 사업은 제외,</span>
                             <span>지원가능한 사업만 선별하여 제공</span>
@@ -36,7 +36,7 @@
             <li class="partnerit-services__item partnerit-services__item--reverse">
                 <div class="partnerit-services__copy">
                     <div class="partnerit-services__text-group">
-                        <span class="partnerit-services__eyebrow f-body-3 --bold">AI 분석 리포트</span>
+                        <span class="partnerit-services__eyebrow f-body-3 --semibold">AI 분석 리포트</span>
                         <h3 class="partnerit-services__item-title f-heading-3 --bold">
                             <span>공고 해석, 조건 분석, 판단까지,</span>
                             <span>하나로 끝내는 AI분석 리포트</span>
@@ -59,7 +59,7 @@
             <li class="partnerit-services__item">
                 <div class="partnerit-services__copy">
                     <div class="partnerit-services__text-group">
-                        <span class="partnerit-services__eyebrow f-body-3 --bold">컨소시엄 매칭</span>
+                        <span class="partnerit-services__eyebrow f-body-3 --semibold">컨소시엄 매칭</span>
                         <h3 class="partnerit-services__item-title f-heading-3 --bold">
                             <span>분석부터 연결까지,</span>
                             <span>필요한 파트너를 AI가 자동으로 매칭</span>

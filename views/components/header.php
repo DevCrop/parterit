@@ -1,4 +1,8 @@
-<?php /** @var \Menu\Menu|null $menu */ $menu = app()->get('menu'); ?>
+<?php
+/** @var \Menu\Menu|null $menu */
+$menu = app()->get('menu');
+$headerCurrentPath = rtrim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/', '/') ?: '/';
+?>
 <header id="main-header" class="no-header partnerit-header">
     <div class="no-header__inner partnerit-header__inner">
         <div class="no-container-xl partnerit-header__bar">
@@ -17,8 +21,14 @@
                         <a href="<?= e($rootUrl) ?>"<?= $children ? ' aria-haspopup="true"' : '' ?><?= $root->isActive() ? ($children ? ' aria-current="location"' : ' aria-current="page"') : '' ?>><?= e($root->label()) ?><?php if ($children): ?><span class="partnerit-header__chevron" aria-hidden="true"></span><?php endif; ?></a>
                         <?php if ($children): ?>
                         <ul class="partnerit-header__dropdown">
-                            <?php foreach ($children as $child): if (!$child->isVisible()) continue; ?>
-                            <li><a href="<?= e($child->url()) ?>"<?= $child->isActive() ? ' class="is-active" aria-current="page"' : '' ?>><?= e($child->label()) ?></a></li>
+                            <?php foreach ($children as $child):
+                                if (!$child->isVisible()) continue;
+                                $childUrl = $child->url();
+                                $childPath = rtrim(parse_url($childUrl, PHP_URL_PATH) ?: '/', '/') ?: '/';
+                                $childIsInternal = preg_match('#^(?:[a-z][a-z0-9+.\-]*:|//)#i', $childUrl) !== 1;
+                                $childIsActive = $child->isActive() || ($childIsInternal && $childPath === $headerCurrentPath);
+                                ?>
+                            <li><a href="<?= e($childUrl) ?>"<?= $childIsActive ? ' class="is-active" aria-current="page"' : '' ?>><?= e($child->label()) ?></a></li>
                             <?php endforeach; ?>
                         </ul>
                         <?php endif; ?>

@@ -22,7 +22,15 @@ $router->get('/partners', fn() => render('pages.partners.index'))->name('partner
 $router->get('/partners/{no}', fn($request, $response, $no) => render('pages.partners.show', [
     'storyNo' => (int) $no,
 ]))->where('no', '[0-9]+')->name('partners.show');
-$router->get('/contact', fn() => render('pages.contact.index'))->name('contact');
+$router->post('/brochure-requests', fn($request) => (new \Request\BrochureRequestService(\Database\DB::getInstance()))->submit($request))->name('brochure.requests');
+$router->get('/brochure/download', fn($request) => \Request\BrochureRequestService::download($request))->name('brochure.download');
+$router->get('/contact', function () {
+    if (!project_feature_enabled('content.contact_page', false)) {
+        return redirect('https://app.partnerit.kr/account/signin', 302);
+    }
+
+    return render('pages.contact.index');
+})->name('contact');
 
 $router->group(['prefix' => '/legal'], function ($r) {
     $r->get('/privacy', fn() => render('pages.legal.privacy'))->name('legal.privacy');

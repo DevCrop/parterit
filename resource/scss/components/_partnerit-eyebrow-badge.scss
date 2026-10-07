@@ -1,0 +1,44 @@
+// Shared category label treatment. Keep existing selectors for hero motion.
+.partnerit-announcement-hero__eyebrow,
+.partnerit-announcement-profile__eyebrow,
+.partnerit-ai-report__eyebrow,
+.partnerit-subhero__eyebrow,
+.partnerit-services__eyebrow,
+.partnerit-company-vision__eyebrow,
+.partnerit-legal__eyebrow {
+  --eyebrow-padding-block: .6rem;
+  --eyebrow-padding-inline: 1.2rem;
+  --eyebrow-radius: .8rem;
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 0;
+  align-items: center;
+  align-self: flex-start;
+  justify-self: start;
+  padding: var(--eyebrow-padding-block) var(--eyebrow-padding-inline);
+  border: 0;
+  border-radius: var(--eyebrow-radius);
+  background: var(--clr-surface-section);
+  color: var(--clr-primary-hover);
+  box-shadow: none;
+  letter-spacing: var(--base-letter-spacing);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.partnerit-announcement-hero__eyebrow,
+.partnerit-company-vision__eyebrow {
+  margin-inline: auto;
+}
+
+.partnerit-subhero--pricing .partnerit-subhero__eyebrow {
+  align-self: center;
+}
+
+.partnerit-announcement-hero__eyebrow,
+.partnerit-ai-report-hero .partnerit-ai-report__eyebrow,
+.partnerit-subhero__eyebrow {
+  background: var(--clr-text-navy);
+  color: var(--clr-ui-white);
+}

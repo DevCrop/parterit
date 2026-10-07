@@ -28,11 +28,11 @@ return [
     ],
     3 => [
         'key' => 'request',
-        'title' => '신청 관리',
+        'title' => '도입 문의',
         'icon' => 'fa-inbox',
-        'hidden' => true,
+        'hidden' => false,
         'subs' => [
-            ['title' => '자산진단 신청', 'url' => 'request/request.list.php'],
+            ['title' => '소개서·도입 문의', 'url' => 'request/request.list.php'],
         ],
     ],
     5 => [

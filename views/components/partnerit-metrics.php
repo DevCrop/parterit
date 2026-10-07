@@ -7,11 +7,11 @@
         <ul class="partnerit-metrics__list">
             <li class="partnerit-metrics__card">
                 <p class="partnerit-metrics__value f-display-metrics --medium">
-                    <span class="sr-only">40여 개</span>
-                    <span class="partnerit-metrics__number" data-slot-value="40" aria-hidden="true">40</span>
+                    <span class="sr-only">400여 개</span>
+                    <span class="partnerit-metrics__number" data-slot-value="400" aria-hidden="true">400</span>
                     <span class="partnerit-metrics__unit" aria-hidden="true">여 개</span>
                 </p>
-                <p class="partnerit-metrics__caption f-body-4">정부 공공기관 사업 자금 수집</p>
+                <p class="partnerit-metrics__caption f-body-4">정부·공공기관 공고 수집 채널</p>
             </li>
             <li class="partnerit-metrics__card">
                 <p class="partnerit-metrics__value f-display-metrics --medium">
@@ -27,7 +27,7 @@
                     <span class="partnerit-metrics__number" data-slot-value="92.4" aria-hidden="true">92.4</span>
                     <span class="partnerit-metrics__unit" aria-hidden="true">%</span>
                 </p>
-                <p class="partnerit-metrics__caption f-body-4">유료 전환 후 지속 이용 현황</p>
+                <p class="partnerit-metrics__caption f-body-4">유료 전환 시 지속 이용 의향</p>
             </li>
             <li class="partnerit-metrics__card partnerit-metrics__card--patent">
                 <p class="partnerit-metrics__value f-heading-2 --medium">특허 출원</p>

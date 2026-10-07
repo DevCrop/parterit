@@ -62,6 +62,7 @@ if (isset($menus[$depthnum])) {
                 <?php foreach ($menus as $index => $menu): ?>
                 <?php
                     $displayMenu = $menu;
+                    if ($menu['key'] === 'request' && !$role->in(['superadmin', 'manager'])) continue;
                     // 외부인: 사이트정보관리 메뉴는 조회 가능 항목 + 비밀번호 변경만 노출 (사이트 정보 수정은 숨김)
                     if ($menu['key'] === 'siteinfo' && $role->is('external')) {
                         $displayMenu = array_merge($menu, ['subs' => [

@@ -3,10 +3,24 @@ title: 컴포넌트 카탈로그
 categories: [design, dev]
 desc: UI 생성 전 필독 — 기존 컴포넌트 재사용 또는 신규 생성과 카탈로그 등록 절차
 related: [constants.architecture, constants.conventions, constants.standards]
-updatedAt: 2026-09-15
+updatedAt: 2026-09-30
 ---
 
 # 컴포넌트 카탈로그
+
+- 2026-10-07 공통 spacing: root의 sm/md/lg/xl/2xl은 fluid(10,12)/(12,16)/(20,24)/(24,32)/(32,40), xs는 최소8px 유지. brochure/partners에서 재사용하며 dialog 닫기는 최소40px. 목록 전역 초기화는 RESET에만 ol/ul/li 적용, INIT 중복 제거. 상세: `04-history/261007-fluid-reset-qa.md`.
+
+- 2026-10-07 `partnerit-brochure-modal`/`partnerit-form-field`: 공통 native dialog, 기존 CTA·ScrollManager·타이포 재사용, AJAX 성공 후 소개서 다운로드. 브로슈어 feature flag로 전역 활성화. 필수 4항목+동의/선택 문의, 서버 검증·중복 방지·오류 복구. `partnerit-hero-preview`: Figma 노트북 외곽 원본+HTML 대시보드/메일/분석 카드. `partnerit-partners`: Figma 원본 14종을 공통 container 내 7/4/2열로 전체 표시. 상세 검증·배포는 `04-history/261007-customer-feedback-qa.md`.
+
+- 2026-09-30 히어로 eyebrow 대비 확장: 공고 매칭·AI 보고서·요금정책·고객사례 상단 배지는 공통 SCSS에서 `text-navy` 배경/`ui-white` 글씨로 통일. 본문 eyebrow와 가격·사진 후기 배지는 변경하지 않는다. 기존 타이포·정렬·모션 selector 유지.
+
+- 2026-09-30 `partnerit-ai-report-context`: 조건 비교는 단일 플랫폼 목업으로 표현. ‘기업 맞춤 분석’ 헤더→요구조건3항목/기업정보4항목→합류선·AI분석→네이비 판단안내. 가짜 점수·기능 없음. 모바일에서도2열입력 유지, 아이콘/제목은 세로정렬. `NarrativeAos`는 개별카드 대신 전체패널에 visual1회 적용. AIhero eyebrow만 네이비/화이트로 pale배경과 구분.
+
+- 2026-09-30 공통 eyebrow 배지: 기존 라벨7종(공고 hero/profile, AI hero/context, subhero, 메인 services, company vision, legal)은 `_partnerit-eyebrow-badge.scss`의 단일 선언을 공유. Surface Section 배경·Primary Hover 글씨·8px radius·6/12px padding, `f-body-3 --semibold`. 기존 모션용 클래스·내용·정렬 유지. 가격 플랜·사진 후기 배지는 의미가 달라 제외. 참고/공개 예시: `/matching`, `/ai-report`, `/pricing`, `/partners`.
+
+- 2026-09-30 최종 QA 보정: `header.php` 하위 NAV는 내부 현재 경로 일치도 active로 인정해 상위/하위 URL이 같은 `/matching`에서도 활성 표시한다. `HeaderManager`는 드로어 열림 완료 후 실제 표시·활성화된 요소에만 포커스를 이동하고 Tab/Shift+Tab을 순환한다. `partnerit-metrics`의 92.4% 캡션은 소개서 원문인 ‘유료 전환 시 지속 이용 의향’이다.
+
+- 2026-09-30 `partnerit-announcement-profile`: 왼쪽 설명부를 eyebrow·2단 강조 제목·핵심 설명·보안 안내 카드로 재구성. 기존 오른쪽 3단계 카드와 문구 의미는 유지하며 공통 announcement 타이포 유틸을 사용한다.
 
 - 2026-09-17 `partnerit-swiper-controls`: 후기·인증서·대표 고객사례의 48px 이전/다음 버튼과 6px/24px 점 pagination을 통일하는 공용 컨트롤. 컴포넌트별 클래스는 JS selector로 유지하고 공용 클래스를 함께 사용한다.
 
@@ -120,7 +134,7 @@ updatedAt: 2026-09-15
 | Partnerit reviews | `views/components/partnerit-reviews.php` | Homepage customer-story carousel after Partnerit impact. Uses the exact three unique photo layers, copy, badge, arrows, dimensions, offsets, and five pagination positions from Figma node `225:1461`; off-canvas placeholder positions reuse only the exported preview layers until the admin feed replaces the array. `SwiperController` provides keyboard, clickable pagination, card-next, previous/next navigation, and 5.2-second autoplay with hover/focus pause. Styles: `resource/scss/components/_partnerit-reviews.scss`; Figma assets: `resource/images/main/reviews/`. |
 | Partnerit partners | `views/components/partnerit-partners.php` | Homepage partner-logo proof section after customer reviews. Uses the two Figma logo frames as local PNG assets, in equal logo cards and opposing seamless CSS marquee rows. Styles: `resource/scss/components/_partnerit-partners.scss`; assets: `resource/images/main/partners/`. |
 | Partnerit pricing | `views/components/partnerit-pricing.php` | Homepage pricing and add-on service grid after the partner marquee. Uses Figma node `225:1563` copy, three plan cards, four add-on cards, local exported service icons, and responsive CSS grids. Styles: `resource/scss/components/_partnerit-pricing.scss`; assets: `resource/images/main/pricing/`. |
-| Partnerit CTA link | `views/components/partnerit-cta-link.php` | Shared Partnerit primary/secondary CTA link with the Figma 52px button geometry. Styles: `resource/scss/components/_partnerit-cta-link.scss`. Used by the final CTA and available for later section reuse. |
+| Partnerit CTA link | `views/components/partnerit-cta-link.php` | Shared Partnerit primary/secondary CTA link with the Figma 52px button geometry. `download` prop을 전달하면 동일 출처 자료 파일의 다운로드 링크로 렌더링한다. Styles: `resource/scss/components/_partnerit-cta-link.scss`. Used by the final CTA and available for later section reuse. |
 | Partnerit final CTA | `views/components/partnerit-final-cta.php` | Homepage closing CTA from Figma node `225:1761`; responsive copy/actions over the exact exported background. Styles: `resource/scss/components/_partnerit-final-cta.scss`; asset: `resource/images/main/footer/final-cta-bg.png`. |
 | Partnerit consortium hero | `views/components/partnerit-consortium-hero.php` | Consortium matching page hero from Figma node `350:11114`; contains responsive title/copy and a clipped dashboard export with a bottom-up entrance. Styles: `resource/scss/components/_partnerit-consortium-hero.scss`; asset: `resource/images/business/consortium/consortium-dashboard.png`. |
 | Partnerit consortium problem | `views/components/partnerit-consortium-problem.php` | Problem-definition section following the consortium hero from Figma node `350:10875`; two-column context header and three responsive problem cards. Styles: `resource/scss/components/_partnerit-consortium-problem.scss`; icons: `resource/images/business/consortium/problem/`. |

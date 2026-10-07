@@ -1,5 +1,109 @@
 # Partnerit 작업 이력
 
+## 2026-09-30 — 나머지 히어로 배지 대비 통일
+
+- 날짜: 2026-09-30
+- 작업명: 공고 매칭 및 subhero 배지 네이비/화이트 적용
+- 작업 목적: 밝은 히어로 배경에서 카테고리 라벨이 묻히는 문제 개선
+- 변경 파일: `resource/scss/components/_partnerit-eyebrow-badge.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`, 컴포넌트 카탈로그 및 이력
+- 연관 파일: `partnerit-announcement-hero.php`, `partnerit-ai-report-hero.php`, `partnerit-subhero.php`, `_colors.scss`
+- 주요 변경 내용: AI 보고서에 적용했던 네이비/화이트 규칙을 공고 매칭·요금정책·고객사례 hero에도 적용. 기존 배지 크기·타이포·정렬·모션과 본문 배지 유지.
+- 영향 범위: Frontend CSS만. Backend·Data·i18n 변경 없음. Test는 아래 12개 조합, Docs는 카탈로그/이력 갱신.
+- 리스크: 운영 서버 업로드 및 실제 Safari/Android 검수는 별도. CSS 캐시 갱신 필요.
+- 테스트 결과: npm run build 0 errors/0 warnings, git diff --check 정상. Playwright Chromium에서 matching/ai-report/pricing/partners 각 320/390/1440px HTTP200, 네이비 배경/흰 글씨, 페이지와 배지 가로 넘침 없음, pageerror 없음 확인.
+- 후속 작업: 운영 서버의 `resource/dist/style.css` 교체. map은 선택. HTML/PHP/JS 추가 업로드 불필요.
+
+## 2026-09-30 — AI 보고서 조건 비교 플랫폼 목업 고도화
+
+- 날짜: 2026-09-30
+- 작업명: 조건/기업정보 통합 분석패널 및 hero배지 대비
+- 작업 목적: 두 장의 큰 카드보다 분석흐름이 선명한 플랫폼 표현, pale배경에 묻히던 AIhero 배지 구분
+- 변경 파일: `views/components/partnerit-ai-report-context.php`, `_partnerit-ai-report-context.scss`, `_partnerit-eyebrow-badge.scss`, `resource/js/animation/NarrativeAos.js`, dist app/style 및 maps
+- 연관 파일: `partnerit-ai-report-hero.php`, `_partnerit-ai-report.scss`, 실제hero보고서PNG, `HeroMotionController.js`
+- 주요 변경: 단일 UI패널·입력3/4항목·합류선/AI분석·네이비 결과안내. 기존 필드와 지원판단문구 유지. raster 생성 대신 HTML/CSS목업으로 선명도·접근성·모바일 확보. AIhero배지 네이비/화이트, 본문배지 기존SoftBlue 유지. 개별card AOS 제거하고 전체panel visual로 통일.
+- 영향 범위: `/ai-report` context와hero배지, 기존라우트/DB/가격/실제분석기능 변경없음.
+- 리스크: 실서버배포 및 실제Safari/Android 기기검수 별도. 목업은 분석흐름 설명이지 실시간 결과화면이 아님.
+- 테스트 결과: BUILD0errors/0warnings, PHP lint정상, diffcheck오류0. 320/390/430/768/1440에서 페이지/패널내부넘침0·JS오류0·HTTP200·hero배지네이비/화이트 assert. 390/1440 일반모션 hero배지opacity1, panelopacity1·개별card AOS없음 확인. 데스크톱/모바일intro·hero캡처 직접확인.
+- 후속 작업: `views/components/partnerit-ai-report-context.php`, `resource/dist/style.css`, `resource/dist/app.js` 운영업로드. maps선택. 디자인워크스페이스 `final-review/20260930-ai-context/`에 증거보관.
+
+## 2026-09-30 — 공개 페이지 상단 라벨 배지 통일
+
+- 날짜: 2026-09-30
+- 작업명: 텍스트 eyebrow의 공통 Soft Blue 배지 적용
+- 작업 목적: 제목 위 라벨이 단순히 파란 글씨로 나열되던 인상을 개선하고 역할별 표현 일관성 확보
+- 변경 파일: eyebrow를 가진 PHP8개(`partnerit-announcement-hero/profile`, `partnerit-ai-report-hero/context`, `partnerit-subhero`, `partnerit-company-vision`, `partnerit-legal-document`, `partnerit-services`), 해당 SCSS7개의 중복 라벨 표현 제거, `_partnerit-eyebrow-badge.scss` 신규 및 index forward, `resource/dist/style.css/map`
+- 연관 파일: `HeroMotionController.js`, `CompanyVisionController.js`, `_colors.scss`, `_init.scss`, 기존 서비스/고객사례 배지
+- 주요 변경: 기존 메인서비스 Soft Blue 배지와 고객사례 둥근사각 라벨을 레퍼런스로 사용. 현재 컬러 토큰의 연블루 배경·짙은 블루 글씨, radius8px, padding6/12px, f-body-3/600 위계로 통일. 그림자·아이콘·점·그라디언트 없음. selector 유지로 GSAP 연계 보존.
+- 영향 범위: 메인·회사소개·공고매칭·AI보고서·요금·고객사례·legal의 기존 라벨만. 컨소시엄/회사 히어로에 새 라벨을 추가하지 않고 가격·후기 배지를 보존. DB·라우트·API·실제 서비스 기능 변경 없음.
+- 리스크: 배지 높이가 기존 텍스트보다 늘지만 타이틀 여백 및 모바일 넘침을 실측 확인. 실제 Safari/Android는 별도 검수.
+- 테스트 결과: BUILD0errors/0warnings, PHP8개 lint 정상, git diff --check 오류0. 9페이지×320/390/1440=27조합에서 HTTP200·JS오류0·가로넘침0, badge색상/600굵기/8px radius/그림자없음/내부넘침없음 assert 통과. 390px 일반 모션에서 공고 배지 opacity1/transform none 확인. matching·AI·pricing 데스크톱/모바일 캡처 시각 확인.
+- 후속 작업: 운영 반영시 PHP8개와 `resource/dist/style.css` 업로드 필요. `.map`은 선택. 증거는 디자인 워크스페이스 `final-review/20260930-badges/`에 보관.
+
+## 2026-09-30 — 최종 QA 잔여 3건 수정
+
+- 날짜: 2026-09-30
+- 작업명: 지표 표현·하위 NAV active·모바일 드로어 포커스 보정
+- 작업 목적: 최종 검증에서 발견한 콘텐츠 정확성·활성 표시·키보드 접근성 결함 해결
+- 변경 파일: `views/components/partnerit-metrics.php`, `views/components/header.php`, `resource/js/ui/header/HeaderManager.js`, `resource/dist/app.js`, `resource/dist/app.js.map`
+- 연관 파일: `bootstrap/menu.php`, `src/Menu/Menu.php`, `views/components/drawer.php`, `resource/scss/components/_modal.scss`
+- 주요 변경: 92.4%는 실제 이용 현황이 아닌 지속 이용 의향으로 정정. 공개 헤더 하위 메뉴에 내부 경로 일치 판정을 추가. 드로어는 GSAP 열림 완료 후 포커스를 옮기고 숨김·disabled·inert·음수 tabindex 요소를 제외한 실제 포커스 대상만 순환.
+- 영향 범위: 공개 헤더·모바일 메뉴·메인 지표. 공통 메뉴 엔진·라우트·DB·CMS·가격·SCSS는 변경 없음.
+- 리스크: 실서버 캐시·실제 Safari 기기 반영은 별도 검수 필요. 첫 프레임 포커스 이동은 메뉴 visibility 전환과 충돌하여 열림 완료 시점으로 보완.
+- 테스트 결과: BUILD 오류0·경고0, 변경 PHP2개 lint 정상, `git diff --check` 오류0. Chromium 7페이지×320/390/430/768/1440=35조합에서 HTTP200·JS예외0·가로넘침0·현재 메뉴 단일 active·지표 문구 정합 확인. 320/390/768에서 각2회 드로어 열기→최초 포커스→Shift+Tab 마지막→Tab 처음→Escape 닫기 및 토글 포커스 복귀 통과. `/matching?qa=1` active 유지 확인.
+- 후속 작업: 서버에는 `views/components/header.php`, `views/components/partnerit-metrics.php`, `resource/dist/app.js` 업로드. `app.js.map`은 디버깅용 선택 사항. 로컬 증거는 디자인 워크스페이스 `final-review/20260930-fixed/`에 보관.
+
+## 2026-09-30 — AI 보고서 capability 패널 대비 보정
+
+- 날짜: 2026-09-30
+- 작업명: 역량분석 목업 외부 패널 색상 분리
+- 작업 목적: 섹션 배경과 유사했던 목업 외부 배경의 시각적 경계 확보
+- 변경 파일: `resource/scss/components/_partnerit-ai-report-capability.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`
+- 연관 파일: `views/components/partnerit-ai-report-capability.php`, `resource/scss/components/_partnerit-ai-report.scss`
+- 주요 변경: Primary Blue 28%·16% radial layer와 18%→6%→14% linear layer 조합으로 Soft Blue 패널 강화
+- 영향 범위: `/ai-report` capability visual 배경
+- 리스크: 저채도 디스플레이에서는 색상 차이가 다소 약하게 보일 수 있음
+- 테스트 결과: `npm run build` 성공(0 errors, 0 warnings), `/ai-report` HTTP 200, watch 프로세스 유지, headless 데스크톱 캡처로 대비 확인
+- 후속 작업: 운영 반영 후 실제 디스플레이에서 블루 농도 최종 확인
+
+## 2026-09-30 — 공고 매칭 프로필 콘텐츠 위계 정리
+
+- 날짜: 2026-09-30
+- 작업명: 기업정보 활용 섹션 타이포·정보 구조 고도화
+- 작업 목적: 단순 나열로 보이던 설명을 서비스 흐름과 데이터 관리 안내가 구분되는 구조로 개선
+- 변경 파일: `views/components/partnerit-announcement-collection.php`, `views/components/partnerit-announcement-profile.php`, `resource/scss/components/_partnerit-announcement-profile.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`
+- 연관 파일: `views/pages/business/index.php`, `resource/scss/components/_partnerit-announcement.scss`, `resource/scss/abstract/_headings.scss`
+- 주요 변경: 소개서 기준 주석 제거, eyebrow·강조 제목·설명·보안 안내 카드 적용, 기존 오른쪽 이용 단계 유지
+- 영향 범위: 공개 `/matching` collection/profile 섹션의 콘텐츠와 스타일
+- 리스크: 실제 모바일 브라우저별 줄바꿈은 운영 기기에서 최종 확인 필요
+- 테스트 결과: Docker 4개 서비스 기동, `/matching` GET 200, Sass build 0 errors/0 warnings, PHP lint 통과, 데스크톱·모바일 폭 headless 캡처 확인
+- 후속 작업: 운영 반영 후 실제 iOS Safari/Android Chrome에서 제목·보안 안내 줄바꿈 최종 확인
+
+## 2026-09-30 — 고객자료 기준 콘텐츠·전환 경로 정리
+
+- 날짜: 2026-09-30
+- 작업명: 고객자료 정합성 보정 및 컨택 페이지 비활성화
+- 작업 목적: 고객 서비스 소개서·법적 문서·외부 무료체험 흐름과 공개 사이트 콘텐츠를 일치시킴
+- 변경 파일: `config/project_profile.php`, `routes/web.php`, `views/components/partnerit-metrics.php`, `views/components/hero.php`, `views/components/partnerit-cta-link.php`, `views/components/partnerit-final-cta.php`, `resource/data/legal-documents.json`
+- 연관 파일: `views/pages/contact/index.php`, `resource/files/partnerit-service-brief.pdf`
+- 주요 변경: 기관 수치 400개 통일, 실제 소개서 다운로드 연결, 법적 연락처·조 번호 정리, `/contact` 외부 로그인 리다이렉트
+- 영향 범위: 공개 메인 콘텐츠, 공통 CTA, 법적 문서, `/contact` 접근 동작
+- 리스크: 운영 연락처 변경은 고객 제공 법적 PDF 원문과 달라지므로 향후 법무 확정본 수령 시 재동기화 필요
+- 테스트 결과: `npm run build` 성공(0 errors, 0 warnings), 변경 PHP 6개 lint 통과, JSON 파싱 및 개인정보 조 번호 1~12 연속 확인, 소개서 PDF 20쪽·원본 SHA-256 일치, 링크/구문/삭제 정책 검사 통과. 로컬 HTTP 검증은 현재 PHP 런타임의 PDO MySQL 드라이버 부재로 부팅 전 단계에서 제한됨.
+- 후속 작업: 고객 승인 법적 문서가 갱신되면 `legal-documents.json`과 원본 PDF를 함께 교체
+
+## 2026-09-29 — 홈 서비스 비주얼 블루 그라디언트 복원
+
+- 날짜: 2026-09-29
+- 작업명: AI 분석 리포트·컨소시엄 매칭 배경 이미지 노출 복원
+- 작업 목적: 회색으로 보이던 서비스 목업 뒤 배경을 기존 파트너잇의 블루 계열 분위기로 복원
+- 변경 파일: `resource/scss/components/_partnerit-services.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`
+- 연관 파일: `views/components/partnerit-services.php`, `resource/images/main/services/services-report-bg.png`, `resource/images/main/services/services-consortium-bg.png`
+- 주요 변경: 배경 PNG 자체의 블루 그라디언트를 희석하던 `opacity: 0.22`를 제거해 원본 이미지를 정상 노출
+- 영향 범위: 메인 `Our Services`의 AI 분석 리포트·컨소시엄 매칭 이미지 영역만 변경
+- 리스크: 원본 PNG 색상이 매우 저채도라 디스플레이 환경에 따라 블루 농도가 은은하게 보일 수 있음
+- 테스트 결과: `npm run build` 성공(0 errors, 0 warnings), PHP lint 통과, CSS selector 생성 및 diff 정책 검사 통과
+- 후속 작업: 로컬 또는 배포 서버 기동 후 실제 화면에서 블루 농도와 목업 대비 최종 육안 검수
+
 ## 2026-09-21 — AI 보고서 shadow·CTA 위계 정리
 
 - 변경 파일: `resource/scss/components/_partnerit-ai-report.scss`, `_partnerit-ai-report-hero.scss`, `_partnerit-ai-report-diagnosis.scss`.
@@ -812,3 +916,6 @@
 - 테스트 결과: `npm run build` 오류 0·경고 0, `/` HTTP 200, 데스크톱 렌더에서 4개 개별 이미지와 대체텍스트 확인.
 - 데이터 안정성: DB·업로드 데이터·CMS 조회 로직 변경 없음.
 - 후속 작업: 실제 기기 모바일 QA에서 카드 2열 가독성만 최종 확인.
+- 2026-10-07 — 고객 피드백 3건: 히어로 고해상도 원본/실텍스트 전환, 파트너 로고 원본 재추출 및 그리드 잘림 수정, 소개서 공통 모달/AJAX/DB/관리자 접수 연결. 기존 문의 데이터 보존, 접수 실패 다운로드 금지, 모바일·Chromium·WebKit·실제 POST/관리자 조회/권한 검증 및 빌드 완료. 상세: `261007-customer-feedback-qa.md`.
+- 2026-10-07 — 신규 spacing 5개 fluid 토큰화, RESET/INIT 목록 초기화 단일화, 중복 backdrop/hidden 정리. 기존 적용값·40px 닫기 버튼 유지. 7페이지×4폭=28건 Chromium QA 및 읽기 전용 재캡처, 빌드 오류0/경고0. 상세: `261007-fluid-reset-qa.md`.
+- 2026-10-07 — 최종 검수: 변경 PHP28개 lint 실패0, 최종 build 오류0/경고0, diff check 정상. DevCrop/parterit 공개 원격과 동기화 상태 확인 후 codex/final-qa-20261007 게시. 비밀정보·QA·덤프·generated dist 제외, 실서버 배포/운영 DB 변경 없음. 실행 근거: `261007-fluid-reset-qa.md`.

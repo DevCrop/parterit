@@ -158,7 +158,7 @@ class PageContext
             'design/banner.edit.php' => ['depth' => 2, 'page' => 2, 'title' => '배너 관리'],
             'design/banner.new.php' => ['depth' => 2, 'page' => 2, 'title' => '배너 관리'],
 
-            'request/request.view.php' => ['depth' => 3, 'page' => 1, 'title' => '자산진단 신청'],
+            'request/request.view.php' => ['depth' => 3, 'page' => 1, 'title' => '소개서·도입 문의'],
 
             'privacy/edit.php' => ['depth' => 5, 'page' => 5, 'title' => '개인정보처리방침'],
             'privacy/new.php' => ['depth' => 5, 'page' => 5, 'title' => '개인정보처리방침'],

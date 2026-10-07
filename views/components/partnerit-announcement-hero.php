@@ -1,7 +1,7 @@
 <section class="partnerit-announcement-hero" aria-labelledby="announcement-hero-title">
     <div class="partnerit-announcement-hero__inner partnerit-announcement__container">
         <div class="partnerit-announcement-hero__copy">
-            <p class="partnerit-announcement-hero__eyebrow f-body-announcement-eyebrow">공고 매칭</p>
+            <p class="partnerit-announcement-hero__eyebrow f-body-3 --semibold">공고 매칭</p>
             <h1 class="partnerit-announcement-hero__title" id="announcement-hero-title">
                 <span class="f-heading-announcement-kicker">우리 기업에 맞는 사업기회,</span>
                 <span class="f-heading-announcement-hero">AI가 먼저 찾아드립니다</span>

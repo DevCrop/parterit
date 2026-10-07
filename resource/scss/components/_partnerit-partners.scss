@@ -1,126 +1,17 @@
-@use "../abstract" as *;
-
 .partnerit-partners {
-  overflow: hidden;
   background: var(--clr-ui-bg);
   color: var(--clr-text-title);
-
-  &.no-section-lg {
-    padding-block: fluid(80, 120);
-  }
-
-  &__header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: fluid(12, 16);
-    margin: 0 auto fluid(40, 64);
-    text-align: center;
-  }
-
-  &__title {
-    color: inherit;
-  }
-
-  &__intro {
-    color: var(--clr-text-desc);
-    word-break: keep-all;
-  }
-
-  &__marquees {
-    display: flex;
-    flex-direction: column;
-    gap: 2.4rem;
-  }
-
-  &__marquee {
-    width: 100%;
-    padding-block: 1.6rem;
-    margin-block: -1.6rem;
-    overflow: hidden;
-  }
-
-  &__track {
-    display: flex;
-    width: max-content;
-    animation: partnerit-partners-marquee 42s linear infinite;
-    will-change: transform;
-  }
-
-  &__marquee--reverse &__track {
-    animation-direction: reverse;
-  }
-
-  &__list {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 0.8rem;
-    padding-right: 0.8rem;
-    list-style: none;
-  }
-
-  &__item {
-    position: relative;
-    display: flex;
-    width: clamp(15.6rem, 15.6vw, 20.2rem);
-    aspect-ratio: 202 / 92;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    overflow: hidden;
-    border-radius: 1.4rem;
-    background: white;
-    box-shadow: 0 0 0.8rem rgba(0, 0, 0, 0.04);
-  }
-
-  &__logo {
-    position: absolute;
-    // export의 8px 외곽 캔버스를 제외하고 원본 202×92 프레임만 표시합니다.
-    inset: -8.695652% -3.960396%;
-    display: block;
-    width: 107.920792%;
-    height: 117.391304%;
-    max-width: none;
-  }
-
-  picture#{&}__logo img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &__track {
-      animation-play-state: paused;
-    }
-  }
-
-  @include mq(sm) {
-    &__marquees {
-      gap: 1.6rem;
-    }
-
-    &__marquee {
-      padding-block: 1rem;
-      margin-block: -1rem;
-    }
-
-    &__track {
-      animation-duration: 32s;
-    }
-
-    &__list {
-      gap: 0.8rem;
-      padding-right: 0.8rem;
-    }
-  }
-}
-
-@keyframes partnerit-partners-marquee {
-  to {
-    transform: translateX(-50%);
-  }
+  &__header { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-2xl); text-align: center; }
+  &__intro { color: var(--clr-text-desc); word-break: keep-all; }
+  &__list { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: var(--spacing-sm); }
+  &__item { display: flex; align-items: center; justify-content: center; min-width: 0; aspect-ratio: 218/108; padding: var(--spacing-xs); background: var(--clr-ui-bg); border: 1px solid var(--clr-gray-200); border-radius: var(--spacing-sm); overflow: hidden; }
+  &__logo { display: block; width: 100%; height: 100%; object-fit: contain; }
+  picture#{&}__logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  // These Figma sources include large empty canvases. Crop only their empty margins,
+  // not the brand artwork; ordinary logos keep contain sizing.
+  &__logo--canvas { width: 110%; height: auto; max-width: none; flex-shrink: 0; }
+  &__logo--compact { width: 60%; height: auto; }
+  &__logo--square { width: 90%; height: auto; }
+  @media(max-width: 1024px) { &__list { grid-template-columns: repeat(4,minmax(0,1fr)); } }
+  @media(max-width: 560px) { &__list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--spacing-xs); } }
 }

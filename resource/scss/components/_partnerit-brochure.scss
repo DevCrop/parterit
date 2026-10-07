@@ -21,17 +21,25 @@
   &__form { display: grid; gap: var(--spacing-lg); }
   &__fields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--spacing-md); }
   &__consent { display: grid; gap: var(--spacing-xs); }
-  &__privacy { color: var(--clr-gray-600); }
-  &__privacy summary { cursor: pointer; color: var(--clr-primary-hover); }
-  &__privacy p { margin-block: var(--spacing-sm); }
+  &__privacy { display: grid; gap: var(--spacing-sm); padding: var(--spacing-md); border-radius: var(--spacing-xs); background: var(--clr-gray-50); color: var(--clr-gray-600); }
+  &__privacy-title { color: var(--clr-text-title); }
+  &__privacy-copy { display: grid; gap: var(--spacing-xs); }
   &__privacy a { text-decoration: underline; }
   &__status { color: var(--clr-primary-hover); overflow-wrap: anywhere; }
   &__status:empty { display: none; }
   &__form .partnerit-cta-link, &__success .partnerit-cta-link { width: 100%; cursor: pointer; }
   &__form .partnerit-cta-link:disabled { opacity: .6; cursor: wait; }
-  &__success { display: grid; gap: var(--spacing-md); padding-top: var(--spacing-lg); text-align: center; }
+  &--complete { width: min(52rem, calc(100% - var(--spacing-xl))); }
+  &__success { display: grid; gap: var(--spacing-lg); padding-top: var(--spacing-lg); text-align: center; }
   &__success p { color: var(--clr-gray-600); }
-  &__success-mark { color: var(--clr-primary-def); }
+  &__success-mark { display: grid; place-items: center; justify-self: center; width: calc(var(--spacing-xl) * 2); aspect-ratio: 1; border-radius: 50%; background: var(--clr-surface-section); color: var(--clr-primary-def); }
+  &__success-mark svg { width: 50%; height: 50%; }
+  &__success-heading { display: grid; gap: var(--spacing-sm); word-break: keep-all; }
+  &__success-hint { display: block; }
+  &__success-actions { display: grid; gap: var(--spacing-xs); }
+  &__dismiss { width: 100%; min-height: 4.4rem; padding-inline: var(--spacing-md); border: 0; border-radius: var(--spacing-xs); background: transparent; color: var(--clr-gray-600); cursor: pointer; transition: background-color var(--duration-fast), color var(--duration-fast); }
+  &__dismiss:hover { background: var(--clr-gray-50); color: var(--clr-text-title); }
+  &__dismiss:focus-visible { outline: 2px solid var(--clr-primary-def); outline-offset: 2px; }
   &__trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   @media(max-width: 560px) {
     &__fields { grid-template-columns: minmax(0,1fr); }

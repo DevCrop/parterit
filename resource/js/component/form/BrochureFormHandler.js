@@ -7,6 +7,8 @@ export class BrochureFormHandler {
     const form = dialog.querySelector('form');
     const status = dialog.querySelector('[role="status"]');
     const success = dialog.querySelector('.partnerit-brochure__success');
+    const heading = dialog.querySelector('.partnerit-brochure__heading');
+    const successTitle = dialog.querySelector('#brochure-success-title');
     const submit = form.querySelector('[type="submit"]');
     let opener;
     let busy = false;
@@ -15,9 +17,26 @@ export class BrochureFormHandler {
         event.preventDefault();
         if (dialog.open) return;
         opener = button;
+        if (!success.hidden) {
+          form.reset();
+          const key = form.elements.namedItem('submission_key');
+          const bytes = window.crypto.getRandomValues(new Uint8Array(16));
+          key.value = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+          status.textContent = '';
+          form.querySelectorAll('[aria-invalid]').forEach(field => field.removeAttribute('aria-invalid'));
+          form.querySelectorAll('[data-field-error]').forEach(error => { error.textContent = ''; });
+          dialog.querySelector('[data-brochure-download]').removeAttribute('href');
+          success.hidden = true;
+          heading.hidden = false;
+          form.hidden = false;
+          dialog.classList.remove('partnerit-brochure--complete');
+          dialog.setAttribute('aria-labelledby', 'brochure-title');
+          dialog.setAttribute('aria-describedby', 'brochure-description');
+        }
         dialog.showModal();
         this.scroll.lock('brochure');
-        dialog.querySelector(form.hidden ? '[data-brochure-download]' : '[name="company"]').focus();
+        form.querySelector('[name="company"]').focus({preventScroll: true});
+        dialog.scrollTop = 0;
       });
     });
     const close = () => { if (!busy) dialog.close(); };
@@ -62,9 +81,14 @@ export class BrochureFormHandler {
         const link = dialog.querySelector('[data-brochure-download]');
         link.href = url.href;
         form.hidden = true;
+        heading.hidden = true;
         success.hidden = false;
+        dialog.classList.add('partnerit-brochure--complete');
+        dialog.setAttribute('aria-labelledby', 'brochure-success-title');
+        dialog.setAttribute('aria-describedby', 'brochure-success-description');
         form.reset();
-        link.focus();
+        successTitle.focus({preventScroll: true});
+        dialog.scrollTop = 0;
         link.click();
       } catch (_) {
         status.textContent = '연결을 확인한 뒤 다시 시도해 주세요. 입력 내용은 유지됩니다.';

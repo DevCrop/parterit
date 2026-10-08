@@ -21,11 +21,19 @@ $partners = [
         <h2 class="partnerit-partners__title f-heading-1 --bold" id="partnerit-partners-title">기술 자산과 파트너십으로 쌓아가는 신뢰</h2>
         <p class="partnerit-partners__intro f-body-2">수많은 기관과 기업이 파트너잇과 함께 새로운 기회를 만들어가고 있습니다.</p>
     </header>
-    <ul class="partnerit-partners__list no-container-xl" aria-label="파트너사 로고">
-        <?php foreach ($partners as $partner): ?>
-        <li class="partnerit-partners__item">
-            <?= image_picture($partner['image'], ['alt' => $partner['name'], 'class' => 'partnerit-partners__logo' . (in_array($partner['name'], ['bluepoint', '부산경제진흥원', '애기야가자'], true) ? ' partnerit-partners__logo--canvas' : ($partner['name'] === '정보통신산업진흥원' ? ' partnerit-partners__logo--compact' : ($partner['name'] === 'dot' ? ' partnerit-partners__logo--square' : ''))), 'loading' => 'lazy', 'decoding' => 'async']) ?>
-        </li>
+    <div class="partnerit-partners__marquees">
+        <?php foreach (array_chunk($partners, 7) as $rowIndex => $row): ?>
+        <div class="partnerit-partners__marquee<?= $rowIndex === 1 ? ' partnerit-partners__marquee--reverse' : '' ?>">
+            <div class="partnerit-partners__track">
+                <ul class="partnerit-partners__list" aria-label="파트너사 로고 <?= $rowIndex + 1 ?>">
+                    <?php foreach ($row as $partner): ?>
+                    <li class="partnerit-partners__item">
+                        <?= image_picture($partner['image'], ['alt' => $partner['name'], 'class' => 'partnerit-partners__logo' . (in_array($partner['name'], ['bluepoint', '부산경제진흥원', '애기야가자'], true) ? ' partnerit-partners__logo--canvas' : ($partner['name'] === '정보통신산업진흥원' ? ' partnerit-partners__logo--compact' : ($partner['name'] === 'dot' ? ' partnerit-partners__logo--square' : ''))), 'loading' => 'eager', 'decoding' => 'async']) ?>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
         <?php endforeach; ?>
-    </ul>
+    </div>
 </section>

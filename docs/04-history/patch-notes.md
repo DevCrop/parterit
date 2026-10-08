@@ -919,3 +919,69 @@
 - 2026-10-07 — 고객 피드백 3건: 히어로 고해상도 원본/실텍스트 전환, 파트너 로고 원본 재추출 및 그리드 잘림 수정, 소개서 공통 모달/AJAX/DB/관리자 접수 연결. 기존 문의 데이터 보존, 접수 실패 다운로드 금지, 모바일·Chromium·WebKit·실제 POST/관리자 조회/권한 검증 및 빌드 완료. 상세: `261007-customer-feedback-qa.md`.
 - 2026-10-07 — 신규 spacing 5개 fluid 토큰화, RESET/INIT 목록 초기화 단일화, 중복 backdrop/hidden 정리. 기존 적용값·40px 닫기 버튼 유지. 7페이지×4폭=28건 Chromium QA 및 읽기 전용 재캡처, 빌드 오류0/경고0. 상세: `261007-fluid-reset-qa.md`.
 - 2026-10-07 — 최종 검수: 변경 PHP28개 lint 실패0, 최종 build 오류0/경고0, diff check 정상. DevCrop/parterit 공개 원격과 동기화 상태 확인 후 codex/final-qa-20261007 게시. 비밀정보·QA·덤프·generated dist 제외, 실서버 배포/운영 DB 변경 없음. 실행 근거: `261007-fluid-reset-qa.md`.
+
+## 2026-10-08 — 메인 히어로 1400px fluid 폭
+
+### 요구사항과 영향 분석
+- 원하는 것: 히어로 비주얼 최대 1400px, 좁은 화면에서 유동 축소.
+- 현재 문제: visual 1280px 및 부모 공통 컨테이너 폭 제한.
+- 기대 동작: 기존 좌우 여백을 유지하며 부모와 visual 모두 1400px까지 확장.
+- 유지 범위: 원본 PNG 4개, 비율·position·모바일 배치·타이포·인터랙션.
+- 제약: 공통 컨테이너와 다른 섹션은 변경하지 않음.
+- 배포: 변경된 빌드 CSS만 제공하며 서버 업로드는 수행하지 않음.
+- Backend/Data/i18n: PHP·DB·문구 변경 없음. Frontend: `_hero.scss`만 수정. Test: viewport 실측 및 build. Docs: 본 이력과 components 카탈로그.
+
+### 변경 계획
+1. 수정 파일: `resource/scss/components/_hero.scss`.
+2. 연관 파일: `base/_root.scss`, `views/components/hero.php`, `partnerit-hero-preview.php` 읽기 확인.
+3. 호출 흐름: 메인 hero → inner 공통 컨테이너 → PNG visual; hero 범위의 폭만 override.
+4. DB 영향: 없음.
+5. 기존 기능 영향: 이미지 소스·링크·애니메이션 유지.
+6. 리스크: 부모 max-width에 막히거나 모바일 overflow 발생 가능, 실제 DOM 측정으로 검증.
+7. 테스트 계획: 1920/1440/1280/768/390/320px, 이미지 로딩·경계·문서 가로 넘침 검사, production build와 diff check.
+8. 문서: 카탈로그 및 본 append-only 이력에 검증 결과 기록.
+
+### 규칙 적용
+- #1/#10: 기존 hero 컴포넌트와 동일 BEM SCSS 재사용.
+- #11/#17: 기존 no-container-xl 유지, 사용자 지정 1400px 예외는 hero 내부만 적용; 기존 spacing과 타이포 유지.
+- #18: 계산값이 아니라 브라우저 width·root font-size 실측으로 검증.
+- 디자인 단계: 기존 브랜드 변수 유지 → 폭만 조정 → hero SCSS 재사용 → build CSS 적용.
+
+### 검증 및 작업 이력
+- 작업명/목적: 메인 히어로 최대 1400px fluid 요청 반영.
+- 변경/연관 파일: 위 계획과 동일, PHP·이미지·JS 변경 없음.
+- 주요 내용: inner `min(1400px, calc(100% - 4.8rem))` 및 max-width 1400px, visual 상한 1400px.
+- 영향 범위: 메인 hero, 공통 컨테이너 파일은 수정하지 않음.
+- 기능 검증: 원본 PNG4개 로드 및 visual 경계 내 배치 6개 viewport 모두 통과.
+- 코드 정합성: `npm run build` 오류0·경고0, `git.exe diff --check` 정상.
+- UI/테스트: `node hero-fluid-qa.cjs` 성공. root10px, viewport1920/1440/1280/768/390/320에 visual1400/1392/1232/720/342/272px, 가로 overflow0. 1920·390 캡처 시각 확인.
+- 데이터 안정성: DB/API 요청 로직 수정 없음, QA는 GET만 수행.
+- 리스크/환경: 최초 QA는 localhost 서버 중지로 실패; 해당 프로젝트 기존 DB/web 컨테이너 시작 후 통과. 실서버 검증 및 배포는 하지 않음.
+- 후속: `resource/dist/style.css`만 서버 동일 경로 덮어쓰기; 사용자 요청 범위상 Git push 없음.
+
+## 2026-10-08 — 파트너 로고 마퀴 복원
+
+- 요구: 고객 요청에 따라 정적 grid에서 양방향 자동 흐름 복원.
+- 현재 문제: 최신 로고 교체 시 marquee wrapper가 제거되어 기존 controller가 작동하지 않음.
+- 기대 동작: 14개 최신 로고를 7개씩 두 줄로 반복, 각 로고의 contain/캔버스 보정 유지.
+- 유지 범위: 로고 파일·이름·제목·타이포·hero1400px 변경 보존.
+- 제약: 이동하며 화면 경계로 출입하는 동작과 로고 이미지 자체 잘림은 구분, 과거 음수 inset 크롭은 복원하지 않음.
+- 배포: 변경 PHP와 빌드 CSS만 제공 예정. JS는 기존 MarqueeController 재사용.
+- 영향 점검: Backend는 component 마크업만, Frontend는 partners SCSS, Data/i18n 불변, Test는 브라우저 이동 및 반응형 확인, Docs는 카탈로그/이력.
+- 계획1 수정: `views/components/partnerit-partners.php`, `_partnerit-partners.scss`.
+- 계획2 연관: `MarqueeController.js`, `NarrativeAos.js`, app 초기화 확인.
+- 계획3 호출: component rows → 기존 controller resize fill/aria-hidden duplicate → CSS seamless translateX(-50%).
+- 계획4 DB: 변경 없음.
+- 계획5 기존 기능: 최신 이미지 보정 재사용, 다른 marquee 불변.
+- 계획6 리스크: 반복 빈틈·전체 문서 overflow·감소 모션에서 누락. CSS fallback 및 브라우저 확인.
+- 계획7 검증: PHP lint/build/diff, PC·모바일 자동 이동/복제 그룹 크기·이미지 로드·overflow 확인.
+- 계획8 문서: 본 이력과 components 카탈로그 갱신, runtime-only ZIP 제공.
+- 규칙: #1/#10 기존 컴포넌트·controller 재사용, #5 인라인 style 없음, #17 기존 색/spacing 변수 유지, #19 PHP component 내 렌더링 유지.
+- 디자인 단계: 기존 브랜드 토큰 → 2줄 자동 흐름 → 기존 BEM/JS 재사용 → component와 SCSS 적용.
+- 완료/기능: 14개 최신 로고, 두 줄 반대 방향 42초(모바일32초) 무한 흐름. 로고 contain/개별 보정 보존, 예전 음수 inset 없음.
+- 검증/코드: `npm run build` 오류0·경고0, Docker PHP lint 성공, `git.exe diff --check` 공백 오류 없음.
+- 검증/UI: 내장 브라우저1280/1440/1920/390px에서 document 가로 overflow 없음. 1280px track X -195→-394 / 역방향 -1280→-1081로 실제 이동 확인. 390px 2개 그룹 각1148px, 1440px 각1605.625px, 1920px 각3220px로 viewport보다 넓고 양쪽 반복 크기 동일. 이미지 로드 모두 성공, PC·모바일 시각 확인.
+- 접근성: 각 행 원본7개, 복제 aria-hidden=true 확인. reduced-motion은 CSS 정적 grid/no animation 적용(시스템 설정 실측은 미수행).
+- 데이터/리스크: DB·접수·개인정보·이미지 파일 변경 없음. 마퀴가 화면 경계로 출입할 때의 일부 카드 노출은 정상 이동 동작이며 이미지 내부 잘림과 별개. 운영 서버 직접 배포 미수행.
+- 패키지/후속: PHP component 및 style.css 두 파일만 제공. 기존 배포 app.js의 MarqueeController 재사용. 오늘 hero1400px CSS도 포함, Git push 없음.
+- Git 게시 후속 요청: 사용자가 GitHub 업로드를 승인함. 원격 `DevCrop/parterit`, 기존 `codex/final-qa-20261007` 브랜치에 hero/partners 소스3개와 문서2개만 게시 대상으로 확정. 직전 원격 HEAD `1539f46` 일치 확인, 기존 빌드·UI·PHP lint 근거 재사용. generated dist/ZIP/환경정보 제외, Docker 중지 상태 유지, main 머지·운영 서버 배포는 범위 밖.

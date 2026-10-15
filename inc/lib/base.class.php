@@ -322,7 +322,10 @@ include_once $_path_str . '/PasswordHashClass.php';
 include_once $_path_str . '/db.php';
 include_once $_path_str . '/func.php';
 include_once $_path_str . '/board.class.php';
-include_once $_path_str . '/inc.php';
+// Optional site extension; this project does not ship an inc.php override.
+if (is_file($_path_str . '/inc.php')) {
+    include_once $_path_str . '/inc.php';
+}
 include_once $_path_str . '/cache.inc.php';
 include_once $_path_str . '/site.info.php';
 include_once $_path_str . '/var.php';

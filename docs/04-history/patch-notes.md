@@ -1,5 +1,109 @@
 # Partnerit 작업 이력
 
+## 2026-09-30 — 나머지 히어로 배지 대비 통일
+
+- 날짜: 2026-09-30
+- 작업명: 공고 매칭 및 subhero 배지 네이비/화이트 적용
+- 작업 목적: 밝은 히어로 배경에서 카테고리 라벨이 묻히는 문제 개선
+- 변경 파일: `resource/scss/components/_partnerit-eyebrow-badge.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`, 컴포넌트 카탈로그 및 이력
+- 연관 파일: `partnerit-announcement-hero.php`, `partnerit-ai-report-hero.php`, `partnerit-subhero.php`, `_colors.scss`
+- 주요 변경 내용: AI 보고서에 적용했던 네이비/화이트 규칙을 공고 매칭·요금정책·고객사례 hero에도 적용. 기존 배지 크기·타이포·정렬·모션과 본문 배지 유지.
+- 영향 범위: Frontend CSS만. Backend·Data·i18n 변경 없음. Test는 아래 12개 조합, Docs는 카탈로그/이력 갱신.
+- 리스크: 운영 서버 업로드 및 실제 Safari/Android 검수는 별도. CSS 캐시 갱신 필요.
+- 테스트 결과: npm run build 0 errors/0 warnings, git diff --check 정상. Playwright Chromium에서 matching/ai-report/pricing/partners 각 320/390/1440px HTTP200, 네이비 배경/흰 글씨, 페이지와 배지 가로 넘침 없음, pageerror 없음 확인.
+- 후속 작업: 운영 서버의 `resource/dist/style.css` 교체. map은 선택. HTML/PHP/JS 추가 업로드 불필요.
+
+## 2026-09-30 — AI 보고서 조건 비교 플랫폼 목업 고도화
+
+- 날짜: 2026-09-30
+- 작업명: 조건/기업정보 통합 분석패널 및 hero배지 대비
+- 작업 목적: 두 장의 큰 카드보다 분석흐름이 선명한 플랫폼 표현, pale배경에 묻히던 AIhero 배지 구분
+- 변경 파일: `views/components/partnerit-ai-report-context.php`, `_partnerit-ai-report-context.scss`, `_partnerit-eyebrow-badge.scss`, `resource/js/animation/NarrativeAos.js`, dist app/style 및 maps
+- 연관 파일: `partnerit-ai-report-hero.php`, `_partnerit-ai-report.scss`, 실제hero보고서PNG, `HeroMotionController.js`
+- 주요 변경: 단일 UI패널·입력3/4항목·합류선/AI분석·네이비 결과안내. 기존 필드와 지원판단문구 유지. raster 생성 대신 HTML/CSS목업으로 선명도·접근성·모바일 확보. AIhero배지 네이비/화이트, 본문배지 기존SoftBlue 유지. 개별card AOS 제거하고 전체panel visual로 통일.
+- 영향 범위: `/ai-report` context와hero배지, 기존라우트/DB/가격/실제분석기능 변경없음.
+- 리스크: 실서버배포 및 실제Safari/Android 기기검수 별도. 목업은 분석흐름 설명이지 실시간 결과화면이 아님.
+- 테스트 결과: BUILD0errors/0warnings, PHP lint정상, diffcheck오류0. 320/390/430/768/1440에서 페이지/패널내부넘침0·JS오류0·HTTP200·hero배지네이비/화이트 assert. 390/1440 일반모션 hero배지opacity1, panelopacity1·개별card AOS없음 확인. 데스크톱/모바일intro·hero캡처 직접확인.
+- 후속 작업: `views/components/partnerit-ai-report-context.php`, `resource/dist/style.css`, `resource/dist/app.js` 운영업로드. maps선택. 디자인워크스페이스 `final-review/20260930-ai-context/`에 증거보관.
+
+## 2026-09-30 — 공개 페이지 상단 라벨 배지 통일
+
+- 날짜: 2026-09-30
+- 작업명: 텍스트 eyebrow의 공통 Soft Blue 배지 적용
+- 작업 목적: 제목 위 라벨이 단순히 파란 글씨로 나열되던 인상을 개선하고 역할별 표현 일관성 확보
+- 변경 파일: eyebrow를 가진 PHP8개(`partnerit-announcement-hero/profile`, `partnerit-ai-report-hero/context`, `partnerit-subhero`, `partnerit-company-vision`, `partnerit-legal-document`, `partnerit-services`), 해당 SCSS7개의 중복 라벨 표현 제거, `_partnerit-eyebrow-badge.scss` 신규 및 index forward, `resource/dist/style.css/map`
+- 연관 파일: `HeroMotionController.js`, `CompanyVisionController.js`, `_colors.scss`, `_init.scss`, 기존 서비스/고객사례 배지
+- 주요 변경: 기존 메인서비스 Soft Blue 배지와 고객사례 둥근사각 라벨을 레퍼런스로 사용. 현재 컬러 토큰의 연블루 배경·짙은 블루 글씨, radius8px, padding6/12px, f-body-3/600 위계로 통일. 그림자·아이콘·점·그라디언트 없음. selector 유지로 GSAP 연계 보존.
+- 영향 범위: 메인·회사소개·공고매칭·AI보고서·요금·고객사례·legal의 기존 라벨만. 컨소시엄/회사 히어로에 새 라벨을 추가하지 않고 가격·후기 배지를 보존. DB·라우트·API·실제 서비스 기능 변경 없음.
+- 리스크: 배지 높이가 기존 텍스트보다 늘지만 타이틀 여백 및 모바일 넘침을 실측 확인. 실제 Safari/Android는 별도 검수.
+- 테스트 결과: BUILD0errors/0warnings, PHP8개 lint 정상, git diff --check 오류0. 9페이지×320/390/1440=27조합에서 HTTP200·JS오류0·가로넘침0, badge색상/600굵기/8px radius/그림자없음/내부넘침없음 assert 통과. 390px 일반 모션에서 공고 배지 opacity1/transform none 확인. matching·AI·pricing 데스크톱/모바일 캡처 시각 확인.
+- 후속 작업: 운영 반영시 PHP8개와 `resource/dist/style.css` 업로드 필요. `.map`은 선택. 증거는 디자인 워크스페이스 `final-review/20260930-badges/`에 보관.
+
+## 2026-09-30 — 최종 QA 잔여 3건 수정
+
+- 날짜: 2026-09-30
+- 작업명: 지표 표현·하위 NAV active·모바일 드로어 포커스 보정
+- 작업 목적: 최종 검증에서 발견한 콘텐츠 정확성·활성 표시·키보드 접근성 결함 해결
+- 변경 파일: `views/components/partnerit-metrics.php`, `views/components/header.php`, `resource/js/ui/header/HeaderManager.js`, `resource/dist/app.js`, `resource/dist/app.js.map`
+- 연관 파일: `bootstrap/menu.php`, `src/Menu/Menu.php`, `views/components/drawer.php`, `resource/scss/components/_modal.scss`
+- 주요 변경: 92.4%는 실제 이용 현황이 아닌 지속 이용 의향으로 정정. 공개 헤더 하위 메뉴에 내부 경로 일치 판정을 추가. 드로어는 GSAP 열림 완료 후 포커스를 옮기고 숨김·disabled·inert·음수 tabindex 요소를 제외한 실제 포커스 대상만 순환.
+- 영향 범위: 공개 헤더·모바일 메뉴·메인 지표. 공통 메뉴 엔진·라우트·DB·CMS·가격·SCSS는 변경 없음.
+- 리스크: 실서버 캐시·실제 Safari 기기 반영은 별도 검수 필요. 첫 프레임 포커스 이동은 메뉴 visibility 전환과 충돌하여 열림 완료 시점으로 보완.
+- 테스트 결과: BUILD 오류0·경고0, 변경 PHP2개 lint 정상, `git diff --check` 오류0. Chromium 7페이지×320/390/430/768/1440=35조합에서 HTTP200·JS예외0·가로넘침0·현재 메뉴 단일 active·지표 문구 정합 확인. 320/390/768에서 각2회 드로어 열기→최초 포커스→Shift+Tab 마지막→Tab 처음→Escape 닫기 및 토글 포커스 복귀 통과. `/matching?qa=1` active 유지 확인.
+- 후속 작업: 서버에는 `views/components/header.php`, `views/components/partnerit-metrics.php`, `resource/dist/app.js` 업로드. `app.js.map`은 디버깅용 선택 사항. 로컬 증거는 디자인 워크스페이스 `final-review/20260930-fixed/`에 보관.
+
+## 2026-09-30 — AI 보고서 capability 패널 대비 보정
+
+- 날짜: 2026-09-30
+- 작업명: 역량분석 목업 외부 패널 색상 분리
+- 작업 목적: 섹션 배경과 유사했던 목업 외부 배경의 시각적 경계 확보
+- 변경 파일: `resource/scss/components/_partnerit-ai-report-capability.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`
+- 연관 파일: `views/components/partnerit-ai-report-capability.php`, `resource/scss/components/_partnerit-ai-report.scss`
+- 주요 변경: Primary Blue 28%·16% radial layer와 18%→6%→14% linear layer 조합으로 Soft Blue 패널 강화
+- 영향 범위: `/ai-report` capability visual 배경
+- 리스크: 저채도 디스플레이에서는 색상 차이가 다소 약하게 보일 수 있음
+- 테스트 결과: `npm run build` 성공(0 errors, 0 warnings), `/ai-report` HTTP 200, watch 프로세스 유지, headless 데스크톱 캡처로 대비 확인
+- 후속 작업: 운영 반영 후 실제 디스플레이에서 블루 농도 최종 확인
+
+## 2026-09-30 — 공고 매칭 프로필 콘텐츠 위계 정리
+
+- 날짜: 2026-09-30
+- 작업명: 기업정보 활용 섹션 타이포·정보 구조 고도화
+- 작업 목적: 단순 나열로 보이던 설명을 서비스 흐름과 데이터 관리 안내가 구분되는 구조로 개선
+- 변경 파일: `views/components/partnerit-announcement-collection.php`, `views/components/partnerit-announcement-profile.php`, `resource/scss/components/_partnerit-announcement-profile.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`
+- 연관 파일: `views/pages/business/index.php`, `resource/scss/components/_partnerit-announcement.scss`, `resource/scss/abstract/_headings.scss`
+- 주요 변경: 소개서 기준 주석 제거, eyebrow·강조 제목·설명·보안 안내 카드 적용, 기존 오른쪽 이용 단계 유지
+- 영향 범위: 공개 `/matching` collection/profile 섹션의 콘텐츠와 스타일
+- 리스크: 실제 모바일 브라우저별 줄바꿈은 운영 기기에서 최종 확인 필요
+- 테스트 결과: Docker 4개 서비스 기동, `/matching` GET 200, Sass build 0 errors/0 warnings, PHP lint 통과, 데스크톱·모바일 폭 headless 캡처 확인
+- 후속 작업: 운영 반영 후 실제 iOS Safari/Android Chrome에서 제목·보안 안내 줄바꿈 최종 확인
+
+## 2026-09-30 — 고객자료 기준 콘텐츠·전환 경로 정리
+
+- 날짜: 2026-09-30
+- 작업명: 고객자료 정합성 보정 및 컨택 페이지 비활성화
+- 작업 목적: 고객 서비스 소개서·법적 문서·외부 무료체험 흐름과 공개 사이트 콘텐츠를 일치시킴
+- 변경 파일: `config/project_profile.php`, `routes/web.php`, `views/components/partnerit-metrics.php`, `views/components/hero.php`, `views/components/partnerit-cta-link.php`, `views/components/partnerit-final-cta.php`, `resource/data/legal-documents.json`
+- 연관 파일: `views/pages/contact/index.php`, `resource/files/partnerit-service-brief.pdf`
+- 주요 변경: 기관 수치 400개 통일, 실제 소개서 다운로드 연결, 법적 연락처·조 번호 정리, `/contact` 외부 로그인 리다이렉트
+- 영향 범위: 공개 메인 콘텐츠, 공통 CTA, 법적 문서, `/contact` 접근 동작
+- 리스크: 운영 연락처 변경은 고객 제공 법적 PDF 원문과 달라지므로 향후 법무 확정본 수령 시 재동기화 필요
+- 테스트 결과: `npm run build` 성공(0 errors, 0 warnings), 변경 PHP 6개 lint 통과, JSON 파싱 및 개인정보 조 번호 1~12 연속 확인, 소개서 PDF 20쪽·원본 SHA-256 일치, 링크/구문/삭제 정책 검사 통과. 로컬 HTTP 검증은 현재 PHP 런타임의 PDO MySQL 드라이버 부재로 부팅 전 단계에서 제한됨.
+- 후속 작업: 고객 승인 법적 문서가 갱신되면 `legal-documents.json`과 원본 PDF를 함께 교체
+
+## 2026-09-29 — 홈 서비스 비주얼 블루 그라디언트 복원
+
+- 날짜: 2026-09-29
+- 작업명: AI 분석 리포트·컨소시엄 매칭 배경 이미지 노출 복원
+- 작업 목적: 회색으로 보이던 서비스 목업 뒤 배경을 기존 파트너잇의 블루 계열 분위기로 복원
+- 변경 파일: `resource/scss/components/_partnerit-services.scss`, `resource/dist/style.css`, `resource/dist/style.css.map`
+- 연관 파일: `views/components/partnerit-services.php`, `resource/images/main/services/services-report-bg.png`, `resource/images/main/services/services-consortium-bg.png`
+- 주요 변경: 배경 PNG 자체의 블루 그라디언트를 희석하던 `opacity: 0.22`를 제거해 원본 이미지를 정상 노출
+- 영향 범위: 메인 `Our Services`의 AI 분석 리포트·컨소시엄 매칭 이미지 영역만 변경
+- 리스크: 원본 PNG 색상이 매우 저채도라 디스플레이 환경에 따라 블루 농도가 은은하게 보일 수 있음
+- 테스트 결과: `npm run build` 성공(0 errors, 0 warnings), PHP lint 통과, CSS selector 생성 및 diff 정책 검사 통과
+- 후속 작업: 로컬 또는 배포 서버 기동 후 실제 화면에서 블루 농도와 목업 대비 최종 육안 검수
+
 ## 2026-09-21 — AI 보고서 shadow·CTA 위계 정리
 
 - 변경 파일: `resource/scss/components/_partnerit-ai-report.scss`, `_partnerit-ai-report-hero.scss`, `_partnerit-ai-report-diagnosis.scss`.
@@ -812,3 +916,151 @@
 - 테스트 결과: `npm run build` 오류 0·경고 0, `/` HTTP 200, 데스크톱 렌더에서 4개 개별 이미지와 대체텍스트 확인.
 - 데이터 안정성: DB·업로드 데이터·CMS 조회 로직 변경 없음.
 - 후속 작업: 실제 기기 모바일 QA에서 카드 2열 가독성만 최종 확인.
+- 2026-10-07 — 고객 피드백 3건: 히어로 고해상도 원본/실텍스트 전환, 파트너 로고 원본 재추출 및 그리드 잘림 수정, 소개서 공통 모달/AJAX/DB/관리자 접수 연결. 기존 문의 데이터 보존, 접수 실패 다운로드 금지, 모바일·Chromium·WebKit·실제 POST/관리자 조회/권한 검증 및 빌드 완료. 상세: `261007-customer-feedback-qa.md`.
+- 2026-10-07 — 신규 spacing 5개 fluid 토큰화, RESET/INIT 목록 초기화 단일화, 중복 backdrop/hidden 정리. 기존 적용값·40px 닫기 버튼 유지. 7페이지×4폭=28건 Chromium QA 및 읽기 전용 재캡처, 빌드 오류0/경고0. 상세: `261007-fluid-reset-qa.md`.
+- 2026-10-07 — 최종 검수: 변경 PHP28개 lint 실패0, 최종 build 오류0/경고0, diff check 정상. DevCrop/parterit 공개 원격과 동기화 상태 확인 후 codex/final-qa-20261007 게시. 비밀정보·QA·덤프·generated dist 제외, 실서버 배포/운영 DB 변경 없음. 실행 근거: `261007-fluid-reset-qa.md`.
+
+## 2026-10-08 — 메인 히어로 1400px fluid 폭
+
+### 요구사항과 영향 분석
+- 원하는 것: 히어로 비주얼 최대 1400px, 좁은 화면에서 유동 축소.
+- 현재 문제: visual 1280px 및 부모 공통 컨테이너 폭 제한.
+- 기대 동작: 기존 좌우 여백을 유지하며 부모와 visual 모두 1400px까지 확장.
+- 유지 범위: 원본 PNG 4개, 비율·position·모바일 배치·타이포·인터랙션.
+- 제약: 공통 컨테이너와 다른 섹션은 변경하지 않음.
+- 배포: 변경된 빌드 CSS만 제공하며 서버 업로드는 수행하지 않음.
+- Backend/Data/i18n: PHP·DB·문구 변경 없음. Frontend: `_hero.scss`만 수정. Test: viewport 실측 및 build. Docs: 본 이력과 components 카탈로그.
+
+### 변경 계획
+1. 수정 파일: `resource/scss/components/_hero.scss`.
+2. 연관 파일: `base/_root.scss`, `views/components/hero.php`, `partnerit-hero-preview.php` 읽기 확인.
+3. 호출 흐름: 메인 hero → inner 공통 컨테이너 → PNG visual; hero 범위의 폭만 override.
+4. DB 영향: 없음.
+5. 기존 기능 영향: 이미지 소스·링크·애니메이션 유지.
+6. 리스크: 부모 max-width에 막히거나 모바일 overflow 발생 가능, 실제 DOM 측정으로 검증.
+7. 테스트 계획: 1920/1440/1280/768/390/320px, 이미지 로딩·경계·문서 가로 넘침 검사, production build와 diff check.
+8. 문서: 카탈로그 및 본 append-only 이력에 검증 결과 기록.
+
+### 규칙 적용
+- #1/#10: 기존 hero 컴포넌트와 동일 BEM SCSS 재사용.
+- #11/#17: 기존 no-container-xl 유지, 사용자 지정 1400px 예외는 hero 내부만 적용; 기존 spacing과 타이포 유지.
+- #18: 계산값이 아니라 브라우저 width·root font-size 실측으로 검증.
+- 디자인 단계: 기존 브랜드 변수 유지 → 폭만 조정 → hero SCSS 재사용 → build CSS 적용.
+
+### 검증 및 작업 이력
+- 작업명/목적: 메인 히어로 최대 1400px fluid 요청 반영.
+- 변경/연관 파일: 위 계획과 동일, PHP·이미지·JS 변경 없음.
+- 주요 내용: inner `min(1400px, calc(100% - 4.8rem))` 및 max-width 1400px, visual 상한 1400px.
+- 영향 범위: 메인 hero, 공통 컨테이너 파일은 수정하지 않음.
+- 기능 검증: 원본 PNG4개 로드 및 visual 경계 내 배치 6개 viewport 모두 통과.
+- 코드 정합성: `npm run build` 오류0·경고0, `git.exe diff --check` 정상.
+- UI/테스트: `node hero-fluid-qa.cjs` 성공. root10px, viewport1920/1440/1280/768/390/320에 visual1400/1392/1232/720/342/272px, 가로 overflow0. 1920·390 캡처 시각 확인.
+- 데이터 안정성: DB/API 요청 로직 수정 없음, QA는 GET만 수행.
+- 리스크/환경: 최초 QA는 localhost 서버 중지로 실패; 해당 프로젝트 기존 DB/web 컨테이너 시작 후 통과. 실서버 검증 및 배포는 하지 않음.
+- 후속: `resource/dist/style.css`만 서버 동일 경로 덮어쓰기; 사용자 요청 범위상 Git push 없음.
+
+## 2026-10-08 — 파트너 로고 마퀴 복원
+
+- 요구: 고객 요청에 따라 정적 grid에서 양방향 자동 흐름 복원.
+- 현재 문제: 최신 로고 교체 시 marquee wrapper가 제거되어 기존 controller가 작동하지 않음.
+- 기대 동작: 14개 최신 로고를 7개씩 두 줄로 반복, 각 로고의 contain/캔버스 보정 유지.
+- 유지 범위: 로고 파일·이름·제목·타이포·hero1400px 변경 보존.
+- 제약: 이동하며 화면 경계로 출입하는 동작과 로고 이미지 자체 잘림은 구분, 과거 음수 inset 크롭은 복원하지 않음.
+- 배포: 변경 PHP와 빌드 CSS만 제공 예정. JS는 기존 MarqueeController 재사용.
+- 영향 점검: Backend는 component 마크업만, Frontend는 partners SCSS, Data/i18n 불변, Test는 브라우저 이동 및 반응형 확인, Docs는 카탈로그/이력.
+- 계획1 수정: `views/components/partnerit-partners.php`, `_partnerit-partners.scss`.
+- 계획2 연관: `MarqueeController.js`, `NarrativeAos.js`, app 초기화 확인.
+- 계획3 호출: component rows → 기존 controller resize fill/aria-hidden duplicate → CSS seamless translateX(-50%).
+- 계획4 DB: 변경 없음.
+- 계획5 기존 기능: 최신 이미지 보정 재사용, 다른 marquee 불변.
+- 계획6 리스크: 반복 빈틈·전체 문서 overflow·감소 모션에서 누락. CSS fallback 및 브라우저 확인.
+- 계획7 검증: PHP lint/build/diff, PC·모바일 자동 이동/복제 그룹 크기·이미지 로드·overflow 확인.
+- 계획8 문서: 본 이력과 components 카탈로그 갱신, runtime-only ZIP 제공.
+- 규칙: #1/#10 기존 컴포넌트·controller 재사용, #5 인라인 style 없음, #17 기존 색/spacing 변수 유지, #19 PHP component 내 렌더링 유지.
+- 디자인 단계: 기존 브랜드 토큰 → 2줄 자동 흐름 → 기존 BEM/JS 재사용 → component와 SCSS 적용.
+- 완료/기능: 14개 최신 로고, 두 줄 반대 방향 42초(모바일32초) 무한 흐름. 로고 contain/개별 보정 보존, 예전 음수 inset 없음.
+- 검증/코드: `npm run build` 오류0·경고0, Docker PHP lint 성공, `git.exe diff --check` 공백 오류 없음.
+- 검증/UI: 내장 브라우저1280/1440/1920/390px에서 document 가로 overflow 없음. 1280px track X -195→-394 / 역방향 -1280→-1081로 실제 이동 확인. 390px 2개 그룹 각1148px, 1440px 각1605.625px, 1920px 각3220px로 viewport보다 넓고 양쪽 반복 크기 동일. 이미지 로드 모두 성공, PC·모바일 시각 확인.
+- 접근성: 각 행 원본7개, 복제 aria-hidden=true 확인. reduced-motion은 CSS 정적 grid/no animation 적용(시스템 설정 실측은 미수행).
+- 데이터/리스크: DB·접수·개인정보·이미지 파일 변경 없음. 마퀴가 화면 경계로 출입할 때의 일부 카드 노출은 정상 이동 동작이며 이미지 내부 잘림과 별개. 운영 서버 직접 배포 미수행.
+- 패키지/후속: PHP component 및 style.css 두 파일만 제공. 기존 배포 app.js의 MarqueeController 재사용. 오늘 hero1400px CSS도 포함, Git push 없음.
+- Git 게시 후속 요청: 사용자가 GitHub 업로드를 승인함. 원격 `DevCrop/parterit`, 기존 `codex/final-qa-20261007` 브랜치에 hero/partners 소스3개와 문서2개만 게시 대상으로 확정. 직전 원격 HEAD `1539f46` 일치 확인, 기존 빌드·UI·PHP lint 근거 재사용. generated dist/ZIP/환경정보 제외, Docker 중지 상태 유지, main 머지·운영 서버 배포는 범위 밖.
+
+## 2026-10-15 — PHP 8.4 호환성 마이그레이션 계획
+
+- 원하는 결과: PHP 8.4에서 기존 사이트와 CMS 기능 유지, 확인된 호환성 오류·경고 정리 및 QA.
+- 현재 문제: PHP 7.4 Docker, Intervention v2 nullable 경고, 구형 에디터 문법, 누락 include와 관리자 depth 빈 값, GD WebP 미지원.
+- 기대 동작: 기존 HTTP/API 계약·디자인·언어·DB 스키마 그대로 유지하며 업로드와 소개서 흐름 정상화.
+- 수정하지 않는 범위: 운영 서버·DB·고객 콘텐츠·기존 resource/dist 작업. 외부 SMTP 발송과 Git push 제외.
+- 제약: 운영 PHP 전환 전 소스/vendor/업로드/DB 백업 필요. 로컬 검증은 격리된 복제 DB만 사용.
+- 영향 분석: Backend `ImageHelper.php`, `func.php`, `base.class.php`, `site.info.php`, QA helper; Frontend `board.view.php` hidden 값만; Data 기존 schema 유지; i18n ko labels 유지; Test 기존 격리 HTTP/lint harness 확장; Docs 서버 명세 및 본 이력.
+
+### 변경 계획
+1. 수정 파일: dockerfile, composer.json/lock, ImageHelper, 공통 include/메타/삭제 helper, 관리자 depth 값, nullable 선언, legacy editor 문법·접근 차단.
+2. 연관 파일: routes/web.php, BrochureRequestService, LoginProcessor, board.process.php, upload.php, backfill-webp.php, Apache 설정과 .gitignore.
+3. 호출 흐름: 공개/console bootstrap → Composer autoload → 이미지 래퍼; multipart → imageUpload → WebP 생성; imageDelete → 파생본 삭제.
+4. DB 영향: 신규 스키마 변경 없음. 기존 소개서 마이그레이션은 QA 복제본에만 적용.
+5. 기존 기능 영향: 이미지 원본·비율·작은 이미지 크기 유지, WebP 지원 활성화. 현재 Summernote 보존. 구형 editor는 미사용 참조 확인 후 차단.
+6. 리스크: 라이브러리 API와 WebP 결과·삭제 연동; FTP 배포 시 vendor 누락; 서버 세션/업로드 권한. 이전 vendor 복구본과 배포 안내 제공.
+7. 테스트: PHP 전체 lint, Composer platform/audit, 이미지 단위 검사, 양 버전 공개/관리자/CRUD/업로드/소개서 성공·실패·권한 HTTP 회귀, 브라우저 UI 확인.
+8. 문서: server-spec·architecture 관련 환경/래퍼 설명, 본 append-only 최종 검증 결과.
+
+- 정책 제약: legacy 폴더 삭제 실행이 차단됨. 파일은 보존하고 하위 .htaccess로 웹 접근 차단, PHP 문법만 호환 수정. 사용자 기능 제거/DB 삭제 없음.
+
+## 2026-10-15 — PHP 8.4 구현 및 서버 QA (화면 QA 미완료)
+
+1. 날짜: 2026-10-15.
+2. 작업명: PHP 8.4 마이그레이션 및 8.3 회귀 확인.
+3. 목적: 확인된 nullable/구형 문법/include/NULL 경고와 이미지 라이브러리를 정리하고 기존 기능을 유지한다.
+4. 변경 파일: composer.json/lock, dockerfile, .dockerignore, .htaccess, inc/lib/{base.class.php,func.php,site.info.php,helper/ImageHelper.php}, console/lib/QA/CrudQaInspector.php, console/pages/board/board.view.php, scripts/check-php-compat.php. Git ignored resource/vendor의 HTMLPurifier.standalone.php와 Common.php 문법도 보정하여 후보 패키지에 포함.
+5. 연관 파일: config/setup.php, routes/web.php, src/Request/BrochureRequestService.php, console/lib/Auth/LoginProcessor.php, console/pages/board/ajax/{board.process.php,upload.php}, scripts/backfill-webp.php, apache.conf, .user.ini.
+6. 주요 변경: Docker 기본 8.4 및 GD WebP/mbstring/exif 활성화, Intervention Image 3.11.10 + GIF 4.2.4, 기존 래퍼/원본/작은 이미지 크기 보존, 원본 삭제 시 WebP 동반 정리. 구형 에디터는 보존하되 비활성. 최종 차단 위치는 하위 .htaccess가 아닌 Git 추적 대상인 **루트 .htaccess**로 확정; 임시 하위 파일은 제거.
+7. 영향 범위: Backend 호환성 및 이미지 처리; Frontend hidden 값 보정만; Data 운영 DB/스키마 불변; i18n 고객 문구 불변; Test CLI 추가/격리 HTTP 검증; Docs server-spec·architecture·상세 QA 기록. 기존 resource/dist 변경은 보존하고 이번 패키지에서 제외.
+8. 리스크: 브라우저 초기화 오류(os error 3)로 UI/모바일 시각 검증 미완료. 운영 SAPI·확장·SMTP·Imagick 미검증. 새 vendor는 PHP 7.4에서 실행 불가, PHP와 소스/vendor 동시 전환 필요.
+9. 테스트: PHP 8.3.35·8.4.26 각각 781파일 lint 오류/경고0, 단위22·HTTP41·추가HTTP7 통과. root 차단 규칙 + 로컬 production 모드 포함 GET24 통과. Composer platform 양쪽 성공, audit advisory0, validate 유효(기존 권고2). E_ALL 로그에 테스트된 PHP 오류/경고 없음. git diff --check 성공. 후보 runtime498파일 원본 SHA-256 일치 확인.
+10. 후속: Codex 재시작 후 공식 브라우저로 화면 QA를 마친 뒤 실제 호스팅 조건 확인 및 배포 여부 결정. `php84-migration-candidate-20261015`는 검증 대기 후보이며 자동 배포하지 않는다. 신규 SQL/외부 메일 발송/Git push/운영 접근 없음. 상세 실행 보고는 `docs/04-history/php84-qa-20261015.md`, 전환·롤백은 server-spec 참조.
+
+- 후속 검증: 브라우저 상태 조회를 다시 시도했으나 페이지 접근 전 같은 kernel assets/os error 3으로 실패하여 UI 미검증 상태 유지. 배포 ZIP 내부 runtime 498개를 압축 스트림에서 직접 SHA-256 검산하여 현재 소스와 전부 일치 확인(629,194 bytes, ZIP SHA-256 `7C585B00B651ACFF0A2E6B436EA5C214654C75BFCEA180DB526EFDA774F34B5F`). 패키지 경로 이탈·staging 대비 누락 없음. 기존 서버/QA 컨테이너를 새로 시작하지 않았으며 화면 QA는 앱 환경 복구 후 재개한다.
+
+## 2026-10-15 — PHP 8.4 최종 UI QA 완료
+
+- 사용자 재시작 후 공식 브라우저 복구. 격리 php84/db만 시작하여 UI 검사했고 기존 260915 프로젝트는 중지 상태를 유지했다.
+- 9개 공개 페이지 × 4개 폭(320/390/768/1440) 총 36측정에서 제목·이미지 로딩 정상, 가로 넘침 0. PC/모바일 캡처 직접 확인, 모바일 메뉴와 고객사례 상세 추가 확인.
+- 소개서 PC 신청/재시도·완료·재진입 초기화 및 모바일 첫 제출 완료 확인. PC 첫 연결 오류는 서버 접수 후 발생했으나 같은 요청 재시도 시 중복 저장 없이 1건 유지. 후속 모바일 정상, 원인 미확정 사실을 QA 보고서에 보존.
+- UI 이후 PHP 오류/경고 기록 없음, 브라우저 error/warn 없음. 기존 PHP 8.3/8.4 전체 lint·단위·HTTP 결과는 런타임 변경이 없어 재사용했다.
+- 변경 범위: 최종 QA 문서와 배포 설명만 갱신. 기존 프런트 dist 및 고객 문구/DB/소스 디자인은 불변. QA 전용 누락 이미지 fixture 3개만 복사.
+- 최종 제공: php84-migration-final-20261015.zip, upload 내부 498개 런타임 파일. .env/uploads/DB/dist/QA 자료 제외. PHP 8.4와 vendor 동시 전환·전체 교체·백업 및 롤백 지침 포함. 실제 호스팅/SMTP/Imagick 미검증, 운영 배포와 Git push 미수행.
+- 최종 수령 검증: ZIP 630,884 bytes, SHA-256 `CAAED0F494AD7A7125238EB7278750CCDB897A259AC3AECFB8C672488A4DCFC3`. 압축 내부 runtime 498파일을 현재 repo와 SHA-256 대조하여 불일치 0. `git diff --check` 공백 오류 없음(기존 CRLF 정규화 안내는 별도). 직접 만든 QA 브라우저 탭을 닫고 viewport를 초기화했으며, QA Compose 전체 중지 및 실행 컨테이너 0 확인. DB volume과 증거는 복구 가능하게 보존.
+
+## 2026-10-15 — PHP 8.4 최종 GitHub 게시
+
+### 요구·범위·계획
+
+- 원하는 결과: 사용자가 승인한 최종 PHP 8.4 작업을 기존 GitHub 브랜치에 게시한다.
+- 현재 상태: 로컬 구현/QA 완료, 원격에는 아직 미반영.
+- 기대 동작: 검증된 소스·lock·CLI 검사·문서만 하나의 커밋으로 게시.
+- 보존 범위: 기존 resource/dist 수정/삭제 6건, 원본/업로드/운영 DB는 건드리지 않는다.
+- 권한 제약: 사용자 승인 대상은 Git push. main 병합·실서버 배포·외부 메일 발송은 제외.
+- 저장 제약: .env/자격 증명/QA fixture/ZIP/root vendor/resource vendor는 커밋하지 않는다. vendor 보정본은 앞서 제공한 최종 서버 ZIP으로 전달한다.
+- 영향 분석: Backend는 기존 PHP 호환 diff만 게시; Frontend는 board.view hidden 값 외 신규 변경 없음; Data/i18n 신규 변경 없음; Test는 기존 8.3/8.4 및 36 UI 측정 근거 재사용; Docs는 server-spec/architecture/QA 기록/본 이력을 게시.
+- 계획1 수정: 이력만 추가하고 이미 검증된 16개 명시 경로를 stage한다.
+- 계획2 연관: .gitignore, composer.json/lock, 원격 origin 및 현재 branch 확인.
+- 계획3 흐름: fetch → 원격 차이 확인 → 명시 stage → staged 검사 → commit → 일반 push → 원격 SHA 대조.
+- 계획4 DB: 변경/접속 없음.
+- 계획5 기능: 추가 런타임 변경 없음, 기존 검증 결과 유지.
+- 계획6 리스크: 프런트 산출물/민감정보 혼입과 vendor 누락. 명시 파일 목록 및 lock/별도 ZIP 안내로 분리.
+- 계획7 검증: staged diff/check·민감 경로 제외·원격 HEAD 일치·비대상 로컬 변경 보존. 런타임이 같으므로 Docker/전체 QA 재시작 없음.
+- 계획8 문서: 본 append-only Git 게시 이력과 최종 응답의 실제 commit/branch 결과.
+
+### 실행 기록
+
+1. 날짜: 2026-10-15.
+2. 작업명: PHP 8.4 검증본 GitHub 게시.
+3. 목적: 사용자 최종 업로드 요청 이행.
+4. 파일: .dockerignore, .htaccess, composer.json/lock, dockerfile, 공통 PHP 4파일, console 2파일, CLI 검사 1파일, 문서 4파일.
+5. 연관: .gitignore 및 최종 서버 ZIP(별도 전달), 기존 프런트 dist 보존.
+6. 내용: 검증본만 명시 stage 및 일반 push; force push 없음.
+7. 영향: Git 원격 소스/문서 갱신만. 배포/DB/고객 문구는 불변.
+8. 리스크: Git에는 ignored vendor가 없으므로 실제 서버는 lock 기반 install 또는 최종 ZIP 필요.
+9. 사전 검증: fetch 후 HEAD와 origin/codex/final-qa-20261007 차이 0/0, 시작 SHA 019f159b22f35fd63bfe4d7c407a17fe63b3d5a9. 기존 인덱스 비어 있음. 런타임 검사 근거는 바로 위 최종 QA 기록.
+10. 후속 확인: push 성공과 원격 SHA 일치 여부를 최종 응답에 보고한다. 실제 호스팅 검증/배포는 별도 요청이 필요하다.

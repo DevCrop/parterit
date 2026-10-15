@@ -1,11 +1,13 @@
 <?php
 
 use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 
 /**
  * 이미지 변환 유틸리티 — 업로드 시점에 .webp 파생본을 생성한다.
  *
- * - intervention/image v2 (PHP 7.4 호환)
+ * - intervention/image v3 (PHP 8.3/8.4)
  * - GD/Imagick 미설치 환경에서는 graceful degrade(null 반환) → <picture> 폴백이 정상 작동
  */
 final class ImageHelper
@@ -38,27 +40,20 @@ final class ImageHelper
         }
 
         try {
-            $driver  = extension_loaded('imagick') ? 'imagick' : 'gd';
-            $manager = new ImageManager(['driver' => $driver]);
-            $img     = $manager->make($sourceFullPath);
-
-            if ($img->width() > $maxWidth) {
-                $img->resize($maxWidth, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
+            $driver = extension_loaded('imagick') ? ImagickDriver::class : GdDriver::class;
+            // Keep the existing asset orientation and never upscale small originals.
+            $manager = new ImageManager($driver, autoOrientation: false);
+            if (!$manager->driver()->supports('webp')) {
+                return null;
             }
+            $img = $manager->read($sourceFullPath)->scaleDown(width: max(1, $maxWidth));
 
             $dir  = dirname($sourceFullPath);
             $base = pathinfo($sourceFullPath, PATHINFO_FILENAME);
             $dest = $dir . DIRECTORY_SEPARATOR . $base . '.webp';
 
-            $img->encode('webp', $quality)->save($dest);
-
-            // GD 리소스 즉시 해제 — 백필 같은 다회 호출에서 메모리 누적 방지
-            if (method_exists($img, 'destroy')) {
-                $img->destroy();
-            }
+            $img->toWebp(quality: max(0, min(100, $quality)))->save($dest);
+            unset($img, $manager);
 
             return is_file($dest) ? $dest : null;
         } catch (\Throwable $e) {

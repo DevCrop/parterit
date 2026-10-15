@@ -6,7 +6,7 @@ $document = $documents[$legalKind];
 <section class="partnerit-legal" aria-labelledby="legal-title">
     <div class="partnerit-legal__inner no-container-xl">
         <header class="partnerit-legal__header">
-            <p class="partnerit-legal__eyebrow f-body-3 --bold">PARTNERIT</p>
+            <p class="partnerit-legal__eyebrow f-body-3 --semibold">PARTNERIT</p>
             <h1 class="f-heading-announcement-hero" id="legal-title"><?= e($document['title']) ?></h1>
             <p class="partnerit-legal__date f-body-3">시행일 <?= e($document['effectiveDate']) ?></p>
         </header>

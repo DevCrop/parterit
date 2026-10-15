@@ -8,7 +8,7 @@ $descriptionLines = $isPricingHero
 ?>
 <section class="partnerit-subhero partnerit-subhero--<?= e($kind) ?>" aria-labelledby="partnerit-subhero-title">
     <div class="partnerit-subhero__inner no-container-xl">
-        <p class="partnerit-subhero__eyebrow <?= $isPricingHero ? 'f-body-ai-report-eyebrow' : 'f-body-stories-eyebrow' ?>"><?= $isPricingHero ? '요금정책' : 'CUSTOMER STORIES' ?></p>
+        <p class="partnerit-subhero__eyebrow f-body-3 --semibold"><?= $isPricingHero ? '요금정책' : 'CUSTOMER STORIES' ?></p>
         <h1 class="partnerit-subhero__title <?= $isPricingHero ? 'f-heading-pricing-hero' : 'f-heading-stories-hero' ?>" id="partnerit-subhero-title">
             <?php foreach ($heroLines as $line): ?><span><?= e($line) ?></span><?php endforeach; ?>
         </h1>

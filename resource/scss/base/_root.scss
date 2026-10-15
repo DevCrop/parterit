@@ -4,6 +4,13 @@
 $theme-colors: $theme-colors-light;
 
 :root {
+  // Shared public form/component rhythm (1rem = 10px).
+  --spacing-xs: .8rem;
+  --spacing-sm: #{fluid(10, 12)};
+  --spacing-md: #{fluid(12, 16)};
+  --spacing-lg: #{fluid(20, 24)};
+  --spacing-xl: #{fluid(24, 32)};
+  --spacing-2xl: #{fluid(32, 40)};
   --base-font-size: #{fluid(12, 16)};
 
   --base-line-height: 1.618;
@@ -17,7 +24,7 @@ $theme-colors: $theme-colors-light;
   --header-sticky-gap: #{fluid(8, 24)};
 
   // Z-Index 계층 구조
-  --z-index-backdrop: 9998;
+  --z-index-backdrop: 10;
   --z-index-header: 10000;
   --z-index-drawer: 10001;
   --z-index-search: 10001;
@@ -31,7 +38,6 @@ $theme-colors: $theme-colors-light;
 
   --input-height: #{fluid(40, 54)};
 
-  --z-index-backdrop: 10;
   --z-index-bg: -1;
 
   // Motion: 빠르고 정돈된 감각 (과한 스프링·지연 지양)

@@ -9,7 +9,7 @@
     </div>
     <div class="partnerit-company-vision__inner no-container-xl">
         <header class="partnerit-company-vision__header">
-            <p class="partnerit-company-vision__eyebrow f-body-2 --bold">파트너잇이 나아가는 방향</p>
+            <p class="partnerit-company-vision__eyebrow f-body-3 --semibold">파트너잇이 나아가는 방향</p>
             <h2 class="partnerit-company-vision__title f-heading-2 --bold" id="partnerit-company-vision-title">
                 <span>대한민국 기업 성장의</span>
                 <strong>인프라를 향해</strong>

@@ -2,7 +2,8 @@
 
 include_once "../../bootstrap/admin.php";
 
-$NO_STATIC_TITLE = '자산진단 신청';
+if (!$role->in(['superadmin', 'manager'])) { http_response_code(403); exit('접근 권한이 없습니다.'); }
+$NO_STATIC_TITLE = '소개서·도입 문의';
 
 $page = isset($_REQUEST['page']) ? max(1, (int) $_REQUEST['page']) : 1;
 $perpage = isset($_REQUEST['perpage']) ? max(1, min(200, (int) $_REQUEST['perpage'])) : 20;
@@ -13,10 +14,11 @@ $count = ($listCurPage - 1) * $listRowCnt;
 
 $sdate = trim((string) ($_REQUEST['sdate'] ?? ''));
 $edate = trim((string) ($_REQUEST['edate'] ?? ''));
-$request_type = trim((string) ($_REQUEST['request_type'] ?? ''));
+$request_type = trim((string) ($_REQUEST['request_type'] ?? 'brochure_download'));
 $gender = isset($_REQUEST['gender']) ? (int) $_REQUEST['gender'] : 0;
 $residence = isset($_REQUEST['residence']) ? (int) $_REQUEST['residence'] : 0;
 $interest = isset($_REQUEST['interest']) ? (int) $_REQUEST['interest'] : 0;
+if ($request_type === 'brochure_download') $gender = $residence = $interest = 0;
 $searchKeyword = trim((string) ($_REQUEST['searchKeyword'] ?? ''));
 
 $connect = DB::getInstance();
@@ -44,10 +46,12 @@ if ($interest > 0) {
 }
 
 if ($searchKeyword !== '') {
-    $mainqry .= " AND (r.name LIKE :kw OR REPLACE(r.phone, ' ', '') LIKE :kw2) ";
+    $mainqry .= " AND (r.name LIKE :kw OR REPLACE(r.phone, ' ', '') LIKE :kw2 OR r.company LIKE :kw3 OR r.email LIKE :kw4) ";
     $params[':kw'] = '%' . $searchKeyword . '%';
     $kwDigits = preg_replace('/\D+/', '', $searchKeyword) ?? '';
-    $params[':kw2'] = '%' . $kwDigits . '%';
+    $params[':kw2'] = '%' . ($kwDigits !== '' ? $kwDigits : $searchKeyword) . '%';
+    $params[':kw3'] = '%' . $searchKeyword . '%';
+    $params[':kw4'] = '%' . $searchKeyword . '%';
 }
 
 if ($sdate !== '' && $edate !== '') {
@@ -58,6 +62,7 @@ if ($sdate !== '' && $edate !== '') {
 
 $request_type_labels = [
     'free_asset_diagnosis' => '무료 자산진단',
+    'brochure_download' => '소개서·도입 문의',
 ];
 
 $arrResultSet = [];
@@ -79,6 +84,8 @@ try {
             r.request_type,
             r.name,
             r.phone,
+            r.company,
+            r.email,
             r.gender,
             r.residence,
             r.residence_other,
@@ -135,11 +142,11 @@ $searchParam = http_build_query([
                     <div class="no-toolbar">
                         <div class="no-toolbar-container no-flex-stack">
                             <div class="no-page-indicator">
-                                <h1 class="no-page-title"><?= htmlspecialchars($pageName ?: '자산진단 신청', ENT_QUOTES, 'UTF-8') ?></h1>
+                                <h1 class="no-page-title">소개서·도입 문의</h1>
                                 <div class="no-breadcrumb-container">
                                     <ul class="no-breadcrumb-list">
                                         <li class="no-breadcrumb-item"><span>신청 관리</span></li>
-                                        <li class="no-breadcrumb-item"><span>자산진단 신청</span></li>
+                                        <li class="no-breadcrumb-item"><span>소개서·도입 문의</span></li>
                                     </ul>
                                 </div>
                             </div>
@@ -158,7 +165,7 @@ $searchParam = http_build_query([
                                         <select name="request_type" id="request_filter_request_type">
                                             <option value="">전체</option>
                                             <?php
-                                            $typesToShow = $distinctTypes ?: array_keys($request_type_labels);
+                                            $typesToShow = array_unique(array_merge(array_keys($request_type_labels), $distinctTypes));
                                             foreach ($typesToShow as $t) {
                                                 if ($t === '' || $t === null) {
                                                     continue;
@@ -172,6 +179,7 @@ $searchParam = http_build_query([
                                         </select>
                                     </div>
                                 </div>
+                                <?php if ($request_type !== 'brochure_download'): ?>
                                 <div class="no-admin-block">
                                     <h3 class="no-admin-title">성별</h3>
                                     <div class="no-admin-content">
@@ -208,6 +216,7 @@ $searchParam = http_build_query([
                                         </select>
                                     </div>
                                 </div>
+                                <?php endif; ?>
                                 <div class="no-admin-block">
                                     <h3 class="no-admin-title">등록일</h3>
                                     <div class="no-admin-content no-admin-date">
@@ -219,12 +228,12 @@ $searchParam = http_build_query([
                                     </div>
                                 </div>
                                 <div class="no-admin-block wide">
-                                    <h3 class="no-admin-title">이름·연락처</h3>
+                                    <h3 class="no-admin-title">회사명·이름·연락처·이메일</h3>
                                     <div class="no-search-wrap">
                                         <div class="no-search-input">
                                             <i class="bx bx-search-alt-2"></i>
                                             <input name="searchKeyword" id="searchKeyword" type="text"
-                                                title="검색어 입력" placeholder="이름 또는 연락처"
+                                                title="검색어 입력" placeholder="회사명, 이름, 연락처 또는 이메일"
                                                 value="<?= htmlspecialchars($searchKeyword, ENT_QUOTES, 'UTF-8') ?>" />
                                         </div>
                                         <div class="no-search-btn">
@@ -257,9 +266,8 @@ $searchParam = http_build_query([
                                                 <th scope="col">요청 유형</th>
                                                 <th scope="col">이름</th>
                                                 <th scope="col">연락처</th>
-                                                <th scope="col">성별</th>
-                                                <th scope="col">거주지</th>
-                                                <th scope="col">관심분야</th>
+                                                <th scope="col">회사명</th>
+                                                <th scope="col">이메일</th>
                                                 <th scope="col">등록일</th>
                                                 <th scope="col" class="no-min-width-role">관리</th>
                                             </tr>
@@ -298,9 +306,8 @@ $searchParam = http_build_query([
                                                     </a>
                                                 </td>
                                                 <td><?= htmlspecialchars((string) $v['phone'], ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td><?= htmlspecialchars($gLabel, ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td><?= htmlspecialchars($resLabel, ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td style="max-width: 24rem"><?= htmlspecialchars($interestSummary, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td><?= htmlspecialchars((string) ($v['company'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td><?= htmlspecialchars((string) ($v['email'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                                 <td><?= htmlspecialchars((string) $v['regdate'], ENT_QUOTES, 'UTF-8') ?></td>
                                                 <td>
                                                     <div class="no-table-role">

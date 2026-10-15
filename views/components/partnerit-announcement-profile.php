@@ -1,9 +1,21 @@
 <section class="partnerit-announcement-profile partnerit-announcement__section" aria-labelledby="announcement-profile-title">
     <div class="partnerit-announcement-profile__inner partnerit-announcement__container">
-        <div class="partnerit-announcement__copy">
-            <h2 class="f-heading-announcement-section" id="announcement-profile-title">기업정보는 한 번,<br> 활용은 더 넓게.</h2>
-            <p class="partnerit-announcement__description f-body-announcement-copy">입력된 기업정보를 항목별로 구조화하여<br> 공고 매칭, AI 리포트 생성, 컨소시엄 구성에 활용합니다.</p>
-            <p class="partnerit-announcement__note f-body-announcement-meta">입력된 기업정보는 비식별화 처리 후<br> 내부 시스템에서 저장·관리됩니다.</p>
+        <div class="partnerit-announcement-profile__copy partnerit-announcement__copy">
+            <p class="partnerit-announcement-profile__eyebrow f-body-3 --semibold">기업정보 활용</p>
+            <h2 class="partnerit-announcement-profile__title f-heading-announcement-section" id="announcement-profile-title">
+                <span>기업정보는 한 번,</span>
+                <span class="partnerit-announcement-profile__title-accent">활용은 더 넓게.</span>
+            </h2>
+            <p class="partnerit-announcement-profile__summary partnerit-announcement__description f-body-announcement-copy">입력된 기업정보를 항목별로 구조화하여 공고 매칭, AI 리포트 생성, 컨소시엄 구성에 활용합니다.</p>
+            <div class="partnerit-announcement-profile__security">
+                <div class="partnerit-announcement-profile__security-icon" aria-hidden="true">
+                    <?= image_picture('shared/soft-blue-v3/shield.png', ['alt' => '', 'decoding' => 'async', 'loading' => 'lazy']) ?>
+                </div>
+                <div class="partnerit-announcement-profile__security-copy">
+                    <strong class="f-heading-announcement-feature">데이터 관리 안내</strong>
+                    <p class="partnerit-announcement__note f-body-announcement-meta">입력된 기업정보는 비식별화 처리 후 내부 시스템에서 저장·관리됩니다.</p>
+                </div>
+            </div>
         </div>
         <ol class="partnerit-announcement-profile__list" aria-label="맞춤 공고 이용 순서">
             <?php foreach ([

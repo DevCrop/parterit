@@ -2,23 +2,41 @@
     <div class="partnerit-ai-report-context__inner partnerit-ai-report__container no-container-xl">
         <div class="partnerit-ai-report-context__intro">
         <div class="partnerit-ai-report-context__heading">
-            <p class="partnerit-ai-report__eyebrow f-heading-ai-report-label">기업별 맞춤 분석</p>
+            <p class="partnerit-ai-report__eyebrow f-body-3 --semibold">기업별 맞춤 분석</p>
             <h2 class="f-heading-announcement-section" id="ai-report-context-title">공고를 읽는 것과<br> 지원 판단은 다르니까</h2>
             <p class="partnerit-ai-report__description f-body-announcement-copy">분석에 필요한 시간과 인력은 부족하고,<br> 우리 기업에 맞는 사업인지 판단하기는 어렵습니다.<br> 파트너잇은 공고 요구조건과 기업정보를 함께 분석합니다.</p>
         </div>
         <div class="partnerit-ai-report-context__grid">
+            <div class="partnerit-ai-report-context__panel-header">
+                <span class="partnerit-ai-report-context__panel-title f-body-3 --semibold">기업 맞춤 분석</span>
+                <span class="partnerit-ai-report-context__panel-meta f-body-4">분석 기준</span>
+            </div>
+            <div class="partnerit-ai-report-context__inputs">
             <article class="partnerit-ai-report-context__card">
+                <header class="partnerit-ai-report-context__card-header">
                 <div class="partnerit-ai-report-context__icon"><?= image_picture('shared/soft-blue-v3/document.png', ['alt' => '', 'loading' => 'lazy']) ?></div>
-                <h3 class="f-heading-ai-report-label">공고 요구조건</h3>
-                <p class="partnerit-ai-report__description f-body-announcement-detail">참여자격 · 제약조건 · 가점요건</p>
+                <h3 class="f-body-2 --bold">공고 요구조건</h3>
+                </header>
+                <ul class="partnerit-ai-report-context__fields f-body-3">
+                    <?php foreach (['참여자격', '제약조건', '가점요건'] as $field): ?>
+                    <li><span><?= e($field) ?></span></li>
+                    <?php endforeach; ?>
+                </ul>
             </article>
-            <span class="partnerit-ai-report-context__plus f-heading-3" aria-hidden="true">+</span>
             <article class="partnerit-ai-report-context__card">
+                <header class="partnerit-ai-report-context__card-header">
                 <div class="partnerit-ai-report-context__icon"><?= image_picture('shared/soft-blue-v3/building.png', ['alt' => '', 'loading' => 'lazy']) ?></div>
-                <h3 class="f-heading-ai-report-label">우리 기업정보</h3>
-                <p class="partnerit-ai-report__description f-body-announcement-detail">업종 · 기술역량 · 재무정보 · 수행이력</p>
+                <h3 class="f-body-2 --bold">우리 기업정보</h3>
+                </header>
+                <ul class="partnerit-ai-report-context__fields f-body-3">
+                    <?php foreach (['업종', '기술역량', '재무정보', '수행이력'] as $field): ?>
+                    <li><span><?= e($field) ?></span></li>
+                    <?php endforeach; ?>
+                </ul>
             </article>
-            <p class="partnerit-ai-report-context__result f-heading-ai-report-label --bold"><span>두 정보를 함께 분석해,</span><strong>우리 기업의 지원 판단을 돕습니다.</strong></p>
+            </div>
+            <div class="partnerit-ai-report-context__merge" aria-hidden="true"><span class="f-body-4 --semibold">AI 분석</span></div>
+            <p class="partnerit-ai-report-context__result f-body-2 --bold"><span>두 정보를 함께 분석해,</span><strong>우리 기업의 지원 판단을 돕습니다.</strong></p>
         </div>
         </div>
         <div class="partnerit-ai-report-context__walkthrough">

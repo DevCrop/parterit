@@ -6,7 +6,6 @@
   color: var(--clr-text-body);
   &__inner.no-container-xl { max-width: 104rem; }
   &__header { display: grid; gap: var(--legal-space); margin-bottom: 4.8rem; color: var(--clr-text-title); }
-  &__eyebrow { color: var(--clr-primary-def); }
   &__date { color: var(--clr-text-body); }
   &__tabs { display: flex; gap: var(--legal-space); border-bottom: 1px solid var(--legal-border); margin-bottom: var(--legal-space); }
   &__tabs a { padding-block: 1.6rem; border-bottom: 2px solid transparent; transition: color .2s, background-color .2s; }

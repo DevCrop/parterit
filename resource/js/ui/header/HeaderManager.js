@@ -110,6 +110,10 @@ export class HeaderManager {
     if (!this.#drawer) return;
     this.#drawerTl = gsap.timeline({ paused: true });
     this.#drawerTl.to(this.#drawer, { x: "0%", opacity: 1, ease: "power3.out", duration: 0.24 });
+    this.#drawerTl.eventCallback("onComplete", () => {
+      if (this.#drawer.getAttribute("data-state") !== "open") return;
+      this.#getDrawerFocusableElements()[0]?.focus({ preventScroll: true });
+    });
     this.#drawerTl.eventCallback("onReverseComplete", () => {
       this.#drawer.classList.remove("is-active");
     });
@@ -130,18 +134,16 @@ export class HeaderManager {
     this.#drawerOpenBtn?.setAttribute("aria-expanded", "true");
     this.#drawerOpenBtn?.setAttribute("aria-label", "사이트 메뉴 닫기");
 
-    const focusable = Array.from(this.#drawer.querySelectorAll(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    ));
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    requestAnimationFrame(() => first?.focus());
     this.#focusTrapHandler = (e) => {
       if (e.key !== "Tab") return;
+      const focusable = this.#getDrawerFocusableElements();
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first) return;
       if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+        if (document.activeElement === first) { e.preventDefault(); last?.focus({ preventScroll: true }); }
       } else {
-        if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+        if (document.activeElement === last) { e.preventDefault(); first.focus({ preventScroll: true }); }
       }
     };
     this.#drawer.addEventListener("keydown", this.#focusTrapHandler);
@@ -162,6 +164,17 @@ export class HeaderManager {
         overwrite: true,
       });
     }
+  }
+
+  #getDrawerFocusableElements() {
+    if (!this.#drawer) return [];
+    return Array.from(this.#drawer.querySelectorAll(
+      'a[href], button:not([disabled]), [tabindex]'
+    )).filter((element) => {
+      if (element.tabIndex < 0 || element.matches(":disabled") || element.closest("[inert]")) return false;
+      const style = window.getComputedStyle(element);
+      return element.getClientRects().length > 0 && style.display !== "none" && style.visibility === "visible";
+    });
   }
 
   #closeDrawer({ wait = false } = {}) {

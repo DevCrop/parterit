@@ -206,6 +206,7 @@ $alternateHreflangEnabled = !empty($seoMeta->alternateUrls());
     </div>
 
     <?= yield_section('portal', '') ?>
+    <?= include_view('components.partnerit-brochure-modal') ?>
     <?= include_view('components.popup') ?>
     <?= yield_section('script', '') ?>
 </body>

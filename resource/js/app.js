@@ -4,6 +4,7 @@ import { MarqueeController } from "./animation/MarqueeController.js";
 import { RevealAnimator } from "./animation/RevealAnimator.js";
 import { FloatingButtonController } from "./ui/FloatingButtonController.js";
 import { ApplyFormHandler } from "./component/form/ApplyFormHandler.js";
+import { BrochureFormHandler } from "./component/form/BrochureFormHandler.js";
 import { SwiperController } from "./ui/SwiperController.js";
 import { AboutTabsController } from "./ui/AboutTabsController.js";
 import { BusinessNavController } from "./ui/BusinessNavController.js";
@@ -39,6 +40,7 @@ $(document).ready(function () {
   new RevealAnimator().init();
   new FloatingButtonController().init();
   new ApplyFormHandler(scroll).init();
+  new BrochureFormHandler(scroll).init();
   new SwiperController().init();
   new AboutTabsController().init();
   new BusinessNavController().init();

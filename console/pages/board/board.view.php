@@ -69,10 +69,10 @@ include_once "../../inc/admin.js.php";
                 <input type="hidden" id="no" name="no" value="<?= htmlspecialchars($data['no'], ENT_QUOTES, 'UTF-8', false) ?>">
                 <input type="hidden" id="default_locale" name="default_locale" value="<?= htmlspecialchars($DEFAULT_LOCALE, ENT_QUOTES, 'UTF-8', false) ?>">
 
-                <input type="hidden" id="depth1" value="<?= htmlspecialchars($data['depth1'], ENT_QUOTES, 'UTF-8', false) ?>">
-                <input type="hidden" id="depth2" value="<?= htmlspecialchars($data['depth2'], ENT_QUOTES, 'UTF-8', false) ?>">
-                <input type="hidden" id="depth3" value="<?= htmlspecialchars($data['depth3'], ENT_QUOTES, 'UTF-8', false) ?>">
-                <input type="hidden" id="depth4" value="<?= htmlspecialchars($data['depth4'], ENT_QUOTES, 'UTF-8', false) ?>">
+                <input type="hidden" id="depth1" value="<?= htmlspecialchars((string) ($data['depth1'] ?? ''), ENT_QUOTES, 'UTF-8', false) ?>">
+                <input type="hidden" id="depth2" value="<?= htmlspecialchars((string) ($data['depth2'] ?? ''), ENT_QUOTES, 'UTF-8', false) ?>">
+                <input type="hidden" id="depth3" value="<?= htmlspecialchars((string) ($data['depth3'] ?? ''), ENT_QUOTES, 'UTF-8', false) ?>">
+                <input type="hidden" id="depth4" value="<?= htmlspecialchars((string) ($data['depth4'] ?? ''), ENT_QUOTES, 'UTF-8', false) ?>">
 
                 <section class="no-content">
                     <!-- Page Title -->

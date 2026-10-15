@@ -43,7 +43,7 @@
     overflow-wrap: break-word;
   }
   &__header { width: 100%; }
-  &__eyebrow { margin: 0 0 2rem; color: var(--clr-primary-def); }
+  &__eyebrow { margin: 0 0 2rem; }
   &__title { display: flex; flex-direction: column; margin: 0; color: var(--clr-text-title); text-wrap: balance; }
   &__title strong,
   &__body strong { color: var(--clr-primary-def); }

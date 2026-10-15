@@ -24,6 +24,8 @@ $hero-border: #e2e8f0;
 
   &__inner {
     display: flex;
+    width: min(1400px, calc(100% - 4.8rem));
+    max-width: 1400px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -115,7 +117,7 @@ $hero-border: #e2e8f0;
 
   &__visual {
     position: relative;
-    width: min(100%, 1280px);
+    width: min(100%, 1400px);
     aspect-ratio: 1280 / 540;
     isolation: isolate;
   }

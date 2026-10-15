@@ -42,7 +42,7 @@ final class CrudQaInspector
         ]);
     }
 
-    public function verifyRead($id, callable $finder, callable $predicate = null): CrudQaCheck
+    public function verifyRead($id, callable $finder, ?callable $predicate = null): CrudQaCheck
     {
         if (!$this->isValidIdentifier($id)) {
             return new CrudQaCheck('read', false, '조회 식별자가 유효하지 않습니다.', [

@@ -45,7 +45,11 @@ return [
     ],
     'features' => [
         'ui'      => ['language_switcher'  => false],
-        'content' => ['site_tags'          => false],
+        'content' => [
+            'site_tags'   => false,
+            'contact_page' => false,
+            'brochure_request' => true,
+        ],
         'seo'     => ['alternate_hreflang' => false],
     ],
     'links' => [
@@ -106,5 +110,12 @@ return [
         'request_type'   => 'contact_request',
         'notify_subject' => '문의 신청 접수',
         'notify_title'   => '문의 신청이 접수되었습니다',
+    ],
+    'brochure' => [
+        'file' => 'resource/files/partnerit-service-brief.pdf',
+        'filename' => 'partnerit-service-brief.pdf',
+        'consent_version' => '20261007',
+        'retention' => '도입 문의 응대 완료 시까지 보관하며, 목적 달성 후 파기합니다.',
+        'hourly_limit' => 5,
     ],
 ];

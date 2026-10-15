@@ -116,3 +116,11 @@ updatedAt: 2026-05-13
 - God class·God service (책임 5개짜리 클래스), 깊은 상속 트리
 - 새 기능 모듈인데 기능 플래그 등록 누락 → 토글 페이지·라우트 게이트에 안 보임
 - 스키마를 raw `.sql` DB 직접 실행으로 변경 (마이그레이션 우회)
+
+## 7. 파트너잇 PHP 8.4 전환 적용 메모 (2026-10-15)
+
+- 이 기존 사이트의 실제 이미지 래퍼는 `inc/lib/helper/ImageHelper.php`다. 이번 전환에서는 새 app 레이어를 만들지 않고 기존 API를 유지했다.
+- Composer의 Intervention Image v3 호출은 이 래퍼 내부로 한정한다. `generateWebpVariant`는 원본 유지·최대 폭 1600px·작은 이미지 확대 금지·실패 시 null 계약을 유지한다. 자동 EXIF 회전은 기존 결과 보존을 위해 끈다.
+- 업로드의 `imageDelete`는 원본 삭제 성공 후 같은 basename의 WebP 파생본도 삭제한다. DB 삭제/권한/응답 형식은 변경하지 않는다.
+- PHP 최소 8.3, 기본 Docker 8.4. 반복 검증 진입점은 CLI 전용 `scripts/check-php-compat.php`이며 `--lint`로 vendor/레거시 PHP까지 검사한다.
+- 기존 `resource/vendor`는 Git ignore 대상이다. 미사용 에디터의 최소 PHP 문법 수정은 배포 후보 파일에 포함하고, 웹 접근 차단은 추적되는 루트 `.htaccess`로 유지한다. 새 checkout에서는 Composer vendor 설치와 별도 리소스 공급을 구분해야 한다.

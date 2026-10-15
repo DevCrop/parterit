@@ -79,17 +79,6 @@ $services-blue: #3c82f6;
     gap: 0;
   }
 
-  &__eyebrow {
-    display: inline-flex;
-    min-height: 3.6rem;
-    align-items: center;
-    padding: 0 1.4rem;
-    border-radius: 999px;
-    background: #ecf3ff;
-    color: $services-blue;
-    white-space: nowrap;
-  }
-
   &__item-title {
     margin: fluid(16, 16) 0 0;
     color: $services-ink;
@@ -176,7 +165,7 @@ $services-blue: #3c82f6;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.22;
+    opacity: 1;
   }
 
   &__visual-background--consortium {
@@ -184,7 +173,7 @@ $services-blue: #3c82f6;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.22;
+    opacity: 1;
   }
 
   &__mockup {

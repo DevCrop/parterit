@@ -17,8 +17,12 @@
     padding: var(--report-space-lg);
     border-radius: 2rem;
     background:
-      radial-gradient(ellipse at 8% 35%, color-mix(in srgb, var(--report-primary) 23%, white), transparent 78%),
-      linear-gradient(110deg, var(--report-surface), #eff9ff);
+      radial-gradient(circle at 12% 16%, color-mix(in srgb, var(--report-primary) 28%, var(--report-white)), transparent 42%),
+      radial-gradient(circle at 88% 84%, color-mix(in srgb, var(--report-primary) 16%, var(--report-white)), transparent 48%),
+      linear-gradient(135deg,
+        color-mix(in srgb, var(--report-primary) 18%, var(--report-white)),
+        color-mix(in srgb, var(--report-primary) 6%, var(--report-white)) 52%,
+        color-mix(in srgb, var(--report-primary) 14%, var(--report-white)));
     img { display: block; width: 100%; height: auto; object-fit: contain; }
   }
   &__mockup { min-width: 0; width: 100%; overflow: hidden; border-radius: 1.4rem; background: var(--report-white); box-shadow: var(--report-mockup-shadow); }

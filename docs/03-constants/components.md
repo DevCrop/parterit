@@ -3,10 +3,24 @@ title: 컴포넌트 카탈로그
 categories: [design, dev]
 desc: UI 생성 전 필독 — 기존 컴포넌트 재사용 또는 신규 생성과 카탈로그 등록 절차
 related: [constants.architecture, constants.conventions, constants.standards]
-updatedAt: 2026-09-15
+updatedAt: 2026-09-30
 ---
 
 # 컴포넌트 카탈로그
+
+- 2026-10-07 공통 spacing: root의 sm/md/lg/xl/2xl은 fluid(10,12)/(12,16)/(20,24)/(24,32)/(32,40), xs는 최소8px 유지. brochure/partners에서 재사용하며 dialog 닫기는 최소40px. 목록 전역 초기화는 RESET에만 ol/ul/li 적용, INIT 중복 제거. 상세: `04-history/261007-fluid-reset-qa.md`.
+
+- 2026-10-07 `partnerit-brochure-modal`/`partnerit-form-field`: 공통 native dialog, 기존 CTA·ScrollManager·타이포 재사용, AJAX 성공 후 소개서 다운로드. 브로슈어 feature flag로 전역 활성화. 필수 4항목+동의/선택 문의, 서버 검증·중복 방지·오류 복구. `partnerit-hero-preview`: Figma 노트북 외곽 원본+HTML 대시보드/메일/분석 카드. `partnerit-partners`: Figma 원본 14종을 공통 container 내 7/4/2열로 전체 표시. 상세 검증·배포는 `04-history/261007-customer-feedback-qa.md`.
+
+- 2026-09-30 히어로 eyebrow 대비 확장: 공고 매칭·AI 보고서·요금정책·고객사례 상단 배지는 공통 SCSS에서 `text-navy` 배경/`ui-white` 글씨로 통일. 본문 eyebrow와 가격·사진 후기 배지는 변경하지 않는다. 기존 타이포·정렬·모션 selector 유지.
+
+- 2026-09-30 `partnerit-ai-report-context`: 조건 비교는 단일 플랫폼 목업으로 표현. ‘기업 맞춤 분석’ 헤더→요구조건3항목/기업정보4항목→합류선·AI분석→네이비 판단안내. 가짜 점수·기능 없음. 모바일에서도2열입력 유지, 아이콘/제목은 세로정렬. `NarrativeAos`는 개별카드 대신 전체패널에 visual1회 적용. AIhero eyebrow만 네이비/화이트로 pale배경과 구분.
+
+- 2026-09-30 공통 eyebrow 배지: 기존 라벨7종(공고 hero/profile, AI hero/context, subhero, 메인 services, company vision, legal)은 `_partnerit-eyebrow-badge.scss`의 단일 선언을 공유. Surface Section 배경·Primary Hover 글씨·8px radius·6/12px padding, `f-body-3 --semibold`. 기존 모션용 클래스·내용·정렬 유지. 가격 플랜·사진 후기 배지는 의미가 달라 제외. 참고/공개 예시: `/matching`, `/ai-report`, `/pricing`, `/partners`.
+
+- 2026-09-30 최종 QA 보정: `header.php` 하위 NAV는 내부 현재 경로 일치도 active로 인정해 상위/하위 URL이 같은 `/matching`에서도 활성 표시한다. `HeaderManager`는 드로어 열림 완료 후 실제 표시·활성화된 요소에만 포커스를 이동하고 Tab/Shift+Tab을 순환한다. `partnerit-metrics`의 92.4% 캡션은 소개서 원문인 ‘유료 전환 시 지속 이용 의향’이다.
+
+- 2026-09-30 `partnerit-announcement-profile`: 왼쪽 설명부를 eyebrow·2단 강조 제목·핵심 설명·보안 안내 카드로 재구성. 기존 오른쪽 3단계 카드와 문구 의미는 유지하며 공통 announcement 타이포 유틸을 사용한다.
 
 - 2026-09-17 `partnerit-swiper-controls`: 후기·인증서·대표 고객사례의 48px 이전/다음 버튼과 6px/24px 점 pagination을 통일하는 공용 컨트롤. 컴포넌트별 클래스는 JS selector로 유지하고 공용 클래스를 함께 사용한다.
 
@@ -120,7 +134,7 @@ updatedAt: 2026-09-15
 | Partnerit reviews | `views/components/partnerit-reviews.php` | Homepage customer-story carousel after Partnerit impact. Uses the exact three unique photo layers, copy, badge, arrows, dimensions, offsets, and five pagination positions from Figma node `225:1461`; off-canvas placeholder positions reuse only the exported preview layers until the admin feed replaces the array. `SwiperController` provides keyboard, clickable pagination, card-next, previous/next navigation, and 5.2-second autoplay with hover/focus pause. Styles: `resource/scss/components/_partnerit-reviews.scss`; Figma assets: `resource/images/main/reviews/`. |
 | Partnerit partners | `views/components/partnerit-partners.php` | Homepage partner-logo proof section after customer reviews. Uses the two Figma logo frames as local PNG assets, in equal logo cards and opposing seamless CSS marquee rows. Styles: `resource/scss/components/_partnerit-partners.scss`; assets: `resource/images/main/partners/`. |
 | Partnerit pricing | `views/components/partnerit-pricing.php` | Homepage pricing and add-on service grid after the partner marquee. Uses Figma node `225:1563` copy, three plan cards, four add-on cards, local exported service icons, and responsive CSS grids. Styles: `resource/scss/components/_partnerit-pricing.scss`; assets: `resource/images/main/pricing/`. |
-| Partnerit CTA link | `views/components/partnerit-cta-link.php` | Shared Partnerit primary/secondary CTA link with the Figma 52px button geometry. Styles: `resource/scss/components/_partnerit-cta-link.scss`. Used by the final CTA and available for later section reuse. |
+| Partnerit CTA link | `views/components/partnerit-cta-link.php` | Shared Partnerit primary/secondary CTA link with the Figma 52px button geometry. `download` prop을 전달하면 동일 출처 자료 파일의 다운로드 링크로 렌더링한다. Styles: `resource/scss/components/_partnerit-cta-link.scss`. Used by the final CTA and available for later section reuse. |
 | Partnerit final CTA | `views/components/partnerit-final-cta.php` | Homepage closing CTA from Figma node `225:1761`; responsive copy/actions over the exact exported background. Styles: `resource/scss/components/_partnerit-final-cta.scss`; asset: `resource/images/main/footer/final-cta-bg.png`. |
 | Partnerit consortium hero | `views/components/partnerit-consortium-hero.php` | Consortium matching page hero from Figma node `350:11114`; contains responsive title/copy and a clipped dashboard export with a bottom-up entrance. Styles: `resource/scss/components/_partnerit-consortium-hero.scss`; asset: `resource/images/business/consortium/consortium-dashboard.png`. |
 | Partnerit consortium problem | `views/components/partnerit-consortium-problem.php` | Problem-definition section following the consortium hero from Figma node `350:10875`; two-column context header and three responsive problem cards. Styles: `resource/scss/components/_partnerit-consortium-problem.scss`; icons: `resource/images/business/consortium/problem/`. |
@@ -388,6 +402,20 @@ Admin 페이지를 구성하는 재사용 가능한 패턴 단위. 신규 페이
 
 ## 변경 이력 (이 카탈로그 자체)
 
+- 2026-10-07 — 소개서 모달의 × 문자 제거, 선형 SVG 닫기 아이콘 적용. 기존 완료 SVG 유지 및 SVG 자체 포커스 제외. 접근성 버튼 이름·동작 유지.
+
+- 2026-10-07 — 완료 모달 닫기 버튼은 다운로드 버튼과 동일한 100% 너비. 보조 색상 및 동작 유지.
+
+- 2026-10-07 — 소개서 신청 성공 후 재열기는 빈 폼·미동의 상태로 복귀하고 새 submission_key 생성. 실패 후 재열기는 입력과 기존 키 유지.
+
+- 2026-10-07 — 후속 요청: 완료 모달의 소개서 파일명·PDF 안내 박스 제거. 완료 메시지와 버튼만 유지.
+
+- 2026-10-07 — 소개서 완료 모달: 신청 헤더 숨김, 완료 아이콘/제목/파일 안내/다운로드 CTA 및 보조 닫기 구성. 성공 상태 접근성 제목과 포커스·스크롤 초기화. API 유지.
+
+- 2026-10-07 — 소개서 모달의 수집·이용 안내는 상시 표시하는 일반 영역으로 변경. 접기/펼치기 제거, 동의 문구·체크박스·접수 로직 유지.
+
+- 2026-10-07 — 히어로 사용자 정정: `partnerit-hero-preview.php`는 원본 Figma 3x 투명 PNG 4개만 출력. HTML 대시보드 재구성 및 전용 SCSS 제거. `_hero.scss` 기존 배치/모션 유지. 추출 근거는 `docs/04-history/261007-hero-original-export.md`.
+
 - 2026-09-16 — 헤더 하위 NAV active는 primary 글자·surface-section 배경·700 굵기로 표시하며 hover/focus에도 유지.
 
 - 2026-09-16 — header/drawer 상위 메뉴는 첫 공개 하위 URL로 이동. /about·/business는 첫 하위 경로로 302 이동. PartnerIT CTA·서비스 링크·리뷰/인증서 버튼 hover 이동 제거, primary-hover·surface-section 토큰으로 배경 전환. 스크롤 등장·TOP 표시 모션 유지.
@@ -407,3 +435,5 @@ Admin 페이지를 구성하는 재사용 가능한 패턴 단위. 신규 페이
 - 2026-09-16 — AI report motion: ReportFlowController owns grouped copy/visual reveals. No per-item AOS. Copy starts earlier with short fade; supporting visuals use restrained desktop rise. Mobile fades only; reduced-motion remains static. Shared footer/reviews and other routes unchanged.
 - 2026-09-16 — Supersedes report-only scope: ContentFlowController now provides explicit copy/visual groups across home, company, announcement, AI report, consortium and pricing. Interactive Swiper/Marquee/SlotCounter and CompanyVisionController remain independent. Removed four legacy per-card AOS declarations and unused consortium AOS overrides.
 - 2026-09-16 — `components.partnerit-legal-document`: kind privacy/terms, JSON 원문 기반 공통 법률 문서 UI. 정책 탭·접이식 목차·조항·반응형 표. 실제 공개 예시 /legal/privacy 및 /legal/cookies. SCSS partnerit-legal-document 등록. 원문 확인사항은 legal-documents.md.
+- 2026-10-08 — `components.hero`: visual/inner 최대 1400px fluid, 기존 컨테이너 좌우 합48px 및 모바일 position 유지. 1920px viewport에서1400px, 390px에서342px 실측. 다른 no-container-xl 영향 없음.
+- 2026-10-08 — `components.partnerit-partners`: 최신14개 로고 보정 유지, 7개씩 양방향 marquee 복원. 기존 MarqueeController의 resize fill/숨김 복제 재사용, 42초/모바일32초, hover 정지 및 reduced-motion 정적 grid.

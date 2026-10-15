@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+uploads
+sources
+handoff
+database/*.sql
+database/*.SQL
+resource/video

@@ -246,7 +246,11 @@ function imageDelete(string $path): bool
 {
     // Check if path is provided and if file exists
     if ($path && file_exists($path)) {
-        return unlink($path); // Return the result of the unlink operation directly
+        $deleted = unlink($path);
+        if ($deleted && class_exists('ImageHelper')) {
+            ImageHelper::deleteWebpVariant($path);
+        }
+        return $deleted;
     }
 
     return false; // Return false if the file doesn't exist or path is empty

@@ -985,3 +985,82 @@
 - 데이터/리스크: DB·접수·개인정보·이미지 파일 변경 없음. 마퀴가 화면 경계로 출입할 때의 일부 카드 노출은 정상 이동 동작이며 이미지 내부 잘림과 별개. 운영 서버 직접 배포 미수행.
 - 패키지/후속: PHP component 및 style.css 두 파일만 제공. 기존 배포 app.js의 MarqueeController 재사용. 오늘 hero1400px CSS도 포함, Git push 없음.
 - Git 게시 후속 요청: 사용자가 GitHub 업로드를 승인함. 원격 `DevCrop/parterit`, 기존 `codex/final-qa-20261007` 브랜치에 hero/partners 소스3개와 문서2개만 게시 대상으로 확정. 직전 원격 HEAD `1539f46` 일치 확인, 기존 빌드·UI·PHP lint 근거 재사용. generated dist/ZIP/환경정보 제외, Docker 중지 상태 유지, main 머지·운영 서버 배포는 범위 밖.
+
+## 2026-10-15 — PHP 8.4 호환성 마이그레이션 계획
+
+- 원하는 결과: PHP 8.4에서 기존 사이트와 CMS 기능 유지, 확인된 호환성 오류·경고 정리 및 QA.
+- 현재 문제: PHP 7.4 Docker, Intervention v2 nullable 경고, 구형 에디터 문법, 누락 include와 관리자 depth 빈 값, GD WebP 미지원.
+- 기대 동작: 기존 HTTP/API 계약·디자인·언어·DB 스키마 그대로 유지하며 업로드와 소개서 흐름 정상화.
+- 수정하지 않는 범위: 운영 서버·DB·고객 콘텐츠·기존 resource/dist 작업. 외부 SMTP 발송과 Git push 제외.
+- 제약: 운영 PHP 전환 전 소스/vendor/업로드/DB 백업 필요. 로컬 검증은 격리된 복제 DB만 사용.
+- 영향 분석: Backend `ImageHelper.php`, `func.php`, `base.class.php`, `site.info.php`, QA helper; Frontend `board.view.php` hidden 값만; Data 기존 schema 유지; i18n ko labels 유지; Test 기존 격리 HTTP/lint harness 확장; Docs 서버 명세 및 본 이력.
+
+### 변경 계획
+1. 수정 파일: dockerfile, composer.json/lock, ImageHelper, 공통 include/메타/삭제 helper, 관리자 depth 값, nullable 선언, legacy editor 문법·접근 차단.
+2. 연관 파일: routes/web.php, BrochureRequestService, LoginProcessor, board.process.php, upload.php, backfill-webp.php, Apache 설정과 .gitignore.
+3. 호출 흐름: 공개/console bootstrap → Composer autoload → 이미지 래퍼; multipart → imageUpload → WebP 생성; imageDelete → 파생본 삭제.
+4. DB 영향: 신규 스키마 변경 없음. 기존 소개서 마이그레이션은 QA 복제본에만 적용.
+5. 기존 기능 영향: 이미지 원본·비율·작은 이미지 크기 유지, WebP 지원 활성화. 현재 Summernote 보존. 구형 editor는 미사용 참조 확인 후 차단.
+6. 리스크: 라이브러리 API와 WebP 결과·삭제 연동; FTP 배포 시 vendor 누락; 서버 세션/업로드 권한. 이전 vendor 복구본과 배포 안내 제공.
+7. 테스트: PHP 전체 lint, Composer platform/audit, 이미지 단위 검사, 양 버전 공개/관리자/CRUD/업로드/소개서 성공·실패·권한 HTTP 회귀, 브라우저 UI 확인.
+8. 문서: server-spec·architecture 관련 환경/래퍼 설명, 본 append-only 최종 검증 결과.
+
+- 정책 제약: legacy 폴더 삭제 실행이 차단됨. 파일은 보존하고 하위 .htaccess로 웹 접근 차단, PHP 문법만 호환 수정. 사용자 기능 제거/DB 삭제 없음.
+
+## 2026-10-15 — PHP 8.4 구현 및 서버 QA (화면 QA 미완료)
+
+1. 날짜: 2026-10-15.
+2. 작업명: PHP 8.4 마이그레이션 및 8.3 회귀 확인.
+3. 목적: 확인된 nullable/구형 문법/include/NULL 경고와 이미지 라이브러리를 정리하고 기존 기능을 유지한다.
+4. 변경 파일: composer.json/lock, dockerfile, .dockerignore, .htaccess, inc/lib/{base.class.php,func.php,site.info.php,helper/ImageHelper.php}, console/lib/QA/CrudQaInspector.php, console/pages/board/board.view.php, scripts/check-php-compat.php. Git ignored resource/vendor의 HTMLPurifier.standalone.php와 Common.php 문법도 보정하여 후보 패키지에 포함.
+5. 연관 파일: config/setup.php, routes/web.php, src/Request/BrochureRequestService.php, console/lib/Auth/LoginProcessor.php, console/pages/board/ajax/{board.process.php,upload.php}, scripts/backfill-webp.php, apache.conf, .user.ini.
+6. 주요 변경: Docker 기본 8.4 및 GD WebP/mbstring/exif 활성화, Intervention Image 3.11.10 + GIF 4.2.4, 기존 래퍼/원본/작은 이미지 크기 보존, 원본 삭제 시 WebP 동반 정리. 구형 에디터는 보존하되 비활성. 최종 차단 위치는 하위 .htaccess가 아닌 Git 추적 대상인 **루트 .htaccess**로 확정; 임시 하위 파일은 제거.
+7. 영향 범위: Backend 호환성 및 이미지 처리; Frontend hidden 값 보정만; Data 운영 DB/스키마 불변; i18n 고객 문구 불변; Test CLI 추가/격리 HTTP 검증; Docs server-spec·architecture·상세 QA 기록. 기존 resource/dist 변경은 보존하고 이번 패키지에서 제외.
+8. 리스크: 브라우저 초기화 오류(os error 3)로 UI/모바일 시각 검증 미완료. 운영 SAPI·확장·SMTP·Imagick 미검증. 새 vendor는 PHP 7.4에서 실행 불가, PHP와 소스/vendor 동시 전환 필요.
+9. 테스트: PHP 8.3.35·8.4.26 각각 781파일 lint 오류/경고0, 단위22·HTTP41·추가HTTP7 통과. root 차단 규칙 + 로컬 production 모드 포함 GET24 통과. Composer platform 양쪽 성공, audit advisory0, validate 유효(기존 권고2). E_ALL 로그에 테스트된 PHP 오류/경고 없음. git diff --check 성공. 후보 runtime498파일 원본 SHA-256 일치 확인.
+10. 후속: Codex 재시작 후 공식 브라우저로 화면 QA를 마친 뒤 실제 호스팅 조건 확인 및 배포 여부 결정. `php84-migration-candidate-20261015`는 검증 대기 후보이며 자동 배포하지 않는다. 신규 SQL/외부 메일 발송/Git push/운영 접근 없음. 상세 실행 보고는 `docs/04-history/php84-qa-20261015.md`, 전환·롤백은 server-spec 참조.
+
+- 후속 검증: 브라우저 상태 조회를 다시 시도했으나 페이지 접근 전 같은 kernel assets/os error 3으로 실패하여 UI 미검증 상태 유지. 배포 ZIP 내부 runtime 498개를 압축 스트림에서 직접 SHA-256 검산하여 현재 소스와 전부 일치 확인(629,194 bytes, ZIP SHA-256 `7C585B00B651ACFF0A2E6B436EA5C214654C75BFCEA180DB526EFDA774F34B5F`). 패키지 경로 이탈·staging 대비 누락 없음. 기존 서버/QA 컨테이너를 새로 시작하지 않았으며 화면 QA는 앱 환경 복구 후 재개한다.
+
+## 2026-10-15 — PHP 8.4 최종 UI QA 완료
+
+- 사용자 재시작 후 공식 브라우저 복구. 격리 php84/db만 시작하여 UI 검사했고 기존 260915 프로젝트는 중지 상태를 유지했다.
+- 9개 공개 페이지 × 4개 폭(320/390/768/1440) 총 36측정에서 제목·이미지 로딩 정상, 가로 넘침 0. PC/모바일 캡처 직접 확인, 모바일 메뉴와 고객사례 상세 추가 확인.
+- 소개서 PC 신청/재시도·완료·재진입 초기화 및 모바일 첫 제출 완료 확인. PC 첫 연결 오류는 서버 접수 후 발생했으나 같은 요청 재시도 시 중복 저장 없이 1건 유지. 후속 모바일 정상, 원인 미확정 사실을 QA 보고서에 보존.
+- UI 이후 PHP 오류/경고 기록 없음, 브라우저 error/warn 없음. 기존 PHP 8.3/8.4 전체 lint·단위·HTTP 결과는 런타임 변경이 없어 재사용했다.
+- 변경 범위: 최종 QA 문서와 배포 설명만 갱신. 기존 프런트 dist 및 고객 문구/DB/소스 디자인은 불변. QA 전용 누락 이미지 fixture 3개만 복사.
+- 최종 제공: php84-migration-final-20261015.zip, upload 내부 498개 런타임 파일. .env/uploads/DB/dist/QA 자료 제외. PHP 8.4와 vendor 동시 전환·전체 교체·백업 및 롤백 지침 포함. 실제 호스팅/SMTP/Imagick 미검증, 운영 배포와 Git push 미수행.
+- 최종 수령 검증: ZIP 630,884 bytes, SHA-256 `CAAED0F494AD7A7125238EB7278750CCDB897A259AC3AECFB8C672488A4DCFC3`. 압축 내부 runtime 498파일을 현재 repo와 SHA-256 대조하여 불일치 0. `git diff --check` 공백 오류 없음(기존 CRLF 정규화 안내는 별도). 직접 만든 QA 브라우저 탭을 닫고 viewport를 초기화했으며, QA Compose 전체 중지 및 실행 컨테이너 0 확인. DB volume과 증거는 복구 가능하게 보존.
+
+## 2026-10-15 — PHP 8.4 최종 GitHub 게시
+
+### 요구·범위·계획
+
+- 원하는 결과: 사용자가 승인한 최종 PHP 8.4 작업을 기존 GitHub 브랜치에 게시한다.
+- 현재 상태: 로컬 구현/QA 완료, 원격에는 아직 미반영.
+- 기대 동작: 검증된 소스·lock·CLI 검사·문서만 하나의 커밋으로 게시.
+- 보존 범위: 기존 resource/dist 수정/삭제 6건, 원본/업로드/운영 DB는 건드리지 않는다.
+- 권한 제약: 사용자 승인 대상은 Git push. main 병합·실서버 배포·외부 메일 발송은 제외.
+- 저장 제약: .env/자격 증명/QA fixture/ZIP/root vendor/resource vendor는 커밋하지 않는다. vendor 보정본은 앞서 제공한 최종 서버 ZIP으로 전달한다.
+- 영향 분석: Backend는 기존 PHP 호환 diff만 게시; Frontend는 board.view hidden 값 외 신규 변경 없음; Data/i18n 신규 변경 없음; Test는 기존 8.3/8.4 및 36 UI 측정 근거 재사용; Docs는 server-spec/architecture/QA 기록/본 이력을 게시.
+- 계획1 수정: 이력만 추가하고 이미 검증된 16개 명시 경로를 stage한다.
+- 계획2 연관: .gitignore, composer.json/lock, 원격 origin 및 현재 branch 확인.
+- 계획3 흐름: fetch → 원격 차이 확인 → 명시 stage → staged 검사 → commit → 일반 push → 원격 SHA 대조.
+- 계획4 DB: 변경/접속 없음.
+- 계획5 기능: 추가 런타임 변경 없음, 기존 검증 결과 유지.
+- 계획6 리스크: 프런트 산출물/민감정보 혼입과 vendor 누락. 명시 파일 목록 및 lock/별도 ZIP 안내로 분리.
+- 계획7 검증: staged diff/check·민감 경로 제외·원격 HEAD 일치·비대상 로컬 변경 보존. 런타임이 같으므로 Docker/전체 QA 재시작 없음.
+- 계획8 문서: 본 append-only Git 게시 이력과 최종 응답의 실제 commit/branch 결과.
+
+### 실행 기록
+
+1. 날짜: 2026-10-15.
+2. 작업명: PHP 8.4 검증본 GitHub 게시.
+3. 목적: 사용자 최종 업로드 요청 이행.
+4. 파일: .dockerignore, .htaccess, composer.json/lock, dockerfile, 공통 PHP 4파일, console 2파일, CLI 검사 1파일, 문서 4파일.
+5. 연관: .gitignore 및 최종 서버 ZIP(별도 전달), 기존 프런트 dist 보존.
+6. 내용: 검증본만 명시 stage 및 일반 push; force push 없음.
+7. 영향: Git 원격 소스/문서 갱신만. 배포/DB/고객 문구는 불변.
+8. 리스크: Git에는 ignored vendor가 없으므로 실제 서버는 lock 기반 install 또는 최종 ZIP 필요.
+9. 사전 검증: fetch 후 HEAD와 origin/codex/final-qa-20261007 차이 0/0, 시작 SHA 019f159b22f35fd63bfe4d7c407a17fe63b3d5a9. 기존 인덱스 비어 있음. 런타임 검사 근거는 바로 위 최종 QA 기록.
+10. 후속 확인: push 성공과 원격 SHA 일치 여부를 최종 응답에 보고한다. 실제 호스팅 검증/배포는 별도 요청이 필요하다.

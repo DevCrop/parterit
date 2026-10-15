@@ -7,6 +7,9 @@
     Options +FollowSymLinks
     RewriteEngine On
 
+    # Retired template editors are not part of the Summernote CMS.
+    RewriteRule ^resource/vendor/(smarteditor2(?:/|$)|tinymce/plugins/jbimages(?:/|$)) - [F,L,NC]
+
     # WebP auto-serve — Accept: image/webp 브라우저에 같은 basename의 .webp가 있으면 자동 송출
     # 마크업 변경 없이 모든 jpg/png가 webp로 서빙된다 (.webp 부재 시 원본 그대로 서빙).
     RewriteCond %{HTTP_ACCEPT} image/webp

@@ -1,4 +1,4 @@
-ARG PHP_VERSION=8.4
+ARG PHP_VERSION=8.4.27
 FROM php:${PHP_VERSION}-apache
 
 # 필요한 패키지 설치 및 PHP 확장 설치
@@ -22,6 +22,7 @@ RUN a2enmod rewrite headers
 
 # 내 설정으로 Apache 설정 덮어쓰기
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
+COPY config/php-security.ini /usr/local/etc/php/conf.d/zz-partnerit-security.ini
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 

@@ -9,7 +9,8 @@ vendor/
 .vscode/
 
 # Source handoff and local reference materials (not runtime assets)
-handoff/
+/handoff/*
+!/handoff/README.md
 sources/
 
 # DB dumps and migration scratch files — keep out of repo

@@ -1064,3 +1064,65 @@
 8. 리스크: Git에는 ignored vendor가 없으므로 실제 서버는 lock 기반 install 또는 최종 ZIP 필요.
 9. 사전 검증: fetch 후 HEAD와 origin/codex/final-qa-20261007 차이 0/0, 시작 SHA 019f159b22f35fd63bfe4d7c407a17fe63b3d5a9. 기존 인덱스 비어 있음. 런타임 검사 근거는 바로 위 최종 QA 기록.
 10. 후속 확인: push 성공과 원격 SHA 일치 여부를 최종 응답에 보고한다. 실제 호스팅 검증/배포는 별도 요청이 필요하다.
+
+## 2026-10-26 — PHP 8.4.27 보안 업데이트 계획
+
+- 원하는 결과: PHP 8.4.27 실행 환경, 재검수된 서버 업데이트 ZIP 제공.
+- 현재 문제: 이전 QA는 8.4.26이며 10/21 보안 수정 전 버전이다.
+- 기대 동작: 기존 공개 사이트/CMS/업로드/소개서 계약 그대로 동작.
+- 보존 범위: 사용자 resource/dist 변경, 운영 DB/업로드/자격 증명, 다른 프로젝트 컨테이너.
+- DB/API/i18n 제약: 스키마·메서드·문구 변경 없음, QA 전용 DB/계정만 사용.
+- 배포 제약: 파일 전달만 수행. 실제 호스팅 PHP 엔진 업데이트/재시작은 서버 담당자가 수행해야 하며 Git push는 이번 요청 범위 밖.
+- 영향 분석: Backend Docker/Composer 실행 제약; Frontend 기존 dist 보존 및 브라우저 회귀; Data 격리 DB만 CRUD; i18n 변경 없음; Test 기존 PHP/HTTP harness 재사용; Docs server-spec/검수 기록/이력 갱신.
+- 계획1 수정 파일: dockerfile, composer.json/lock, config/php-security.ini, scripts/check-php-compat.php 및 관련 문서.
+- 계획2 연관 파일: ImageHelper, .htaccess/.user.ini/apache.conf, 이미지 업로드, 관리자/소개서 기존 QA harness.
+- 계획3 흐름: Docker 8.4.27 → PHP 초기 ini → 기존 bootstrap/vendor → 기존 API. Composer solver 기준과 최소 요구 버전 동기화.
+- 계획4 DB 영향: 신규 SQL 없음. 기존 격리 DB 복제본에서 테스트하며 운영 영향 없음.
+- 계획5 기존 기능: session upload progress만 서버 초기 설정에서 비활성화, 기존 multipart 업로드와 Summernote 유지. 디자인 변경 없음.
+- 계획6 리스크: CLI/web 버전 불일치·서비스 미재시작·vendor platform mismatch. 양 SAPI 버전과 ini값을 별도 검증하고 배포 안내에 명시.
+- 계획7 테스트: 전체 PHP lint/이미지 단위/Composer platform/audit, 공개 라우트/리디렉트/소개서 성공·검증·중복·세션·제한, 관리자 CRUD/이미지·WebP/captcha, 공식 브라우저 PC·모바일 확인.
+- 계획8 문서: 최종 실제 검사 수치와 도구 제한을 기록하고, 검증한 runtime만 ZIP에 포함. PHP 공식 10/21 및 10/23 공지 확인(https://www.php.net/archive/2026.php).
+
+## 2026-10-26 — PHP 8.4.27 최종 검증 결과
+
+1. 날짜: 2026-10-26.
+2. 작업명: PHP 8.4.27 보안 업데이트 및 서버용 누적 묶음 제공.
+3. 목적: 10/21 취약점 수정 런타임 적용 및 기존 기능 유지 확인.
+4. 변경 파일: dockerfile, composer.json/lock, config/php-security.ini, scripts/check-php-compat.php, server-spec, requirement-changes, 본 이력 및 261026-php8427-qa.md.
+5. 연관 파일: ImageHelper, bootstrap, .htaccess/.user.ini/apache.conf, 관리자/소개서 기존 QA harness. 원본 resource/dist 변경·삭제 6건 보존.
+6. 주요 변경: 8.4.27-apache 고정, Composer ~8.4.27/solver 8.4.27, 초기 conf.d에서 session.upload_progress.enabled=0. 라이브러리 버전은 그대로 유지하고 autoload platform check 재생성.
+7. 영향: Backend 환경·검사만 변경, Frontend/Data/i18n 기능 변경 없음. 운영 DB/소스/계정·Git 원격 접근 없음.
+8. 리스크: 실제 호스팅 엔진·초기 설정·재시작은 파일 업로드로 대체되지 않음. 호스팅 PHP-FPM/Imagick/외부 SMTP 미검증. README에 적용 순서/검증/롤백 명시.
+9. 테스트: PHP 781파일 issues0, 단위23/HTTP41+7/개발·production GET16 모두 통과. Composer platform/validate/audit 확인(기존 권고2, advisory0). CLI 및 두 웹 환경 PHP8.4.27·초기 설정0 확인. 공개9페이지×4폭36측정 깨진 이미지/가로 넘침0, PC/모바일 모달·메뉴·고객사례 상세 확인. UI 신청 DB1건, E_ALL PHP 기록 없음, 브라우저 error/warn0. diff --check 공백 오류 없음. 세부 증거는 검수 문서 참조.
+10. 전달: release/partnerit-php8427-final-20261026.zip. upload/ runtime498 + README + server-settings/php-security.ini, 총500파일/625,624 bytes. SHA-256 `B605FFE04B9407D784EC2D7571765257F534BB14E605942BC54D621DDBDEB3CE`. 압축 스트림의 runtime498파일 SHA-256을 현재 repo와 대조하여 불일치0, 민감/QA/DB/dist 경로 제외. 공식 브라우저 탭 종료·viewport 초기화, QA 프로젝트만 중지하고 DB volume/증거 보존. 운영 배포/Git push 없음.
+
+## 2026-11-05 — 최종 코드·배포 인수인계 GitHub 게시 계획
+
+- 원하는 결과: 기존 DevCrop/parterit 저장소에 현재 검증된 코드와 다음 담당자가 이어갈 인수인계 정보를 게시한다.
+- 현재 문제: PHP 8.4.27 패치와 검수 기록이 미게시이며, 원격 프런트 dist는 이미 추적 중인 최신 소스보다 오래됐다.
+- 기대 동작: 기존 codex/final-qa-20261007 브랜치에서 일반 push 후 원격 SHA를 확인하고 handoff/README.md를 진입점으로 제공한다.
+- 보존 범위: 고객 원본, 로컬 환경설정, SSH 키, DB·업로드, 다른 프로젝트 설정과 컨테이너를 유지한다.
+- DB/API/i18n 제약: 이번 작업에서 스키마·라우트·문구·고객 데이터 변경 없음. 서버 접속 증거는 11/3 실제 검사 결과이며 11/5에 다시 접속했다고 주장하지 않는다.
+- 권한·배포 제약: 사용자 요청은 GitHub 게시와 handoff 정리다. 신규 서버 업로드·DB import·도메인 전환·main 병합은 수행하지 않는다. 비밀번호·개인키·실제 .env는 게시하지 않는다.
+- 영향 분석: Backend는 기존 PHP 패치 게시, Frontend는 현재 소스와 일치하는 dist 동기화, Data/i18n 변경 없음, Test는 기존 QA 재사용 및 빌드/패치/비밀경로 검사, Docs는 현행 서버 명세·인수인계·실행 이력.
+- 계획1 수정: .gitignore의 handoff/README.md만 허용, handoff/README.md 신규, server-spec 갱신 및 append-only 이력. 기존 PHP 8.4.27 변경과 프런트 dist를 명시 경로로 stage한다.
+- 계획2 연관: composer.json/lock, dockerfile, config/php-security.ini, scripts/check-php-compat.php, build.js, routes/web.php, config/setup.php, 기존 QA 기록.
+- 계획3 흐름: fetch/원격 차이 0/0 확인 → 출판 범위·diff 검토 → 빌드 재현·런타임 검사 → 명시 stage → 민감정보/경로 검사 → commit → 일반 push → 원격 SHA 대조.
+- 계획4 DB: 새 SQL·이관 없음. 기존 운영 데이터 최신 덤프 확보가 남아 있으며 9/17 덤프나 QA DB를 최신 고객 데이터로 쓰지 않는다.
+- 계획5 기존 기능: 신규 런타임 기능 변경 없음. 기존 소스의 소개서 모달·배지·마퀴 등을 dist에 반영한다. 단일 빌드의 출력 4개는 기존 로컬 산출물과 이미 바이트 일치 확인했다.
+- 계획6 리스크: Git에 없는 root/resource vendor 및 DB/uploads/video는 별도 전달 필요. 소스 저장소와 신규 서버 설치 완료를 구분한다. 미사용 빌드 자산의 기존 삭제는 참조가 없는지 확인 후 함께 게시한다.
+- 계획7 검증: PHP 8.4.27 기존 이미지의 CLI lint/호환 검사, build.js write:false 재현, source map와 현재 소스 대조, 기존 최종 ZIP hash/runtime 대조, staged diff/check·민감 문자열·Markdown 링크·원격 SHA 확인. UI 신규 변경이 없어 전체 브라우저 QA는 10/26 기록을 재사용한다.
+- 계획8 문서: 서버 안내값/직접 확인 결과/미검증 항목을 분리하고 full 이관에 필요한 항목과 시작 명령을 handoff에 기록한다. 최종 검증 결과는 본 이력에 추가한다.
+
+### 실행 기록·검증 결과
+
+1. 날짜: 2026-11-05.
+2. 작업명: 미게시 PHP 패치·현재 프런트 산출물 및 최종 인수인계 GitHub 게시.
+3. 목적: 코드와 검증 근거를 같은 브랜치에 정리하고 신규 서버 이관의 남은 작업을 다음 담당자에게 전달.
+4. 변경 파일: .gitignore, composer.json/lock, dockerfile, config/php-security.ini, scripts/check-php-compat.php, resource/dist JS/CSS/map 4개와 기존 미사용 assets 삭제 2개, handoff/README.md, server-spec, PHP QA 문서 및 이력 2개. 비공개 접속 요약은 ignored handoff/server-access-private.md에만 저장.
+5. 연관 파일: build.js, config/setup.php/project_profile.php, routes/web.php, brochure 서비스/마이그레이션, 공용 후기 컴포넌트, 기존 PHP 검수 기록/업데이트 ZIP.
+6. 주요 변경: PHP 8.4.27 패치를 게시 범위에 포함. 원격의 오래된 dist를 이미 검증된 현재 소스의 산출물로 동기화한다. 실서버 식별값·비밀번호·개인키·고객 자료·DB·QA 로그를 공개 저장소에서 제외. 생성 dist의 기존 로컬 내용을 수정하지 않았으며 기존 삭제 2파일의 활성 참조 0건을 확인.
+7. 영향 분석: Backend는 기존 환경 패치 게시/신규 API 없음; Frontend는 현재 소스와 동일한 빌드 반영/새 디자인 없음; Data는 원격 읽기 결과의 과거 기록만 정리/쓰기 없음; i18n은 변경 없음; Test는 CLI·빌드·패키지·경로 검사/10월 UI 기록 재사용; Docs는 공개 인수인계·현행 서버 명세·append-only 이력.
+8. 리스크와 조치: 저장소가 PUBLIC임을 gh repo view로 확인하여 접속 호스트·계정·사설 DB 주소·허용 IP도 공개 문서에서 치환했다. root/resource vendor, 운영 DB/uploads 및 일부 영상은 Git만으로 복원되지 않으므로 별도 전달 절차를 명시했다. Windows 기본 PHP 8.4.24 대신 기존 8.4.27 이미지를 네트워크 없이 사용. 실행 후 자동 제거되는 검사 컨테이너만 사용했고 개발 서버나 다른 프로젝트에 변경 없음.
+9. 실제 검증: fetch 후 기존 HEAD/origin 차이 0/0. build.js write:false 재현 오류0/경고0, 출력4개와 현재 dist 바이트 일치. map 내 프로젝트 소스 불일치0. PHP 8.4.27 docker run의 --lint는 781파일 issues0, 동일 이미지 호환 검사23개 pass. Composer validate 유효(기존 라이선스/빈 PSR-4 권고2), check-platform-reqs 성공. PHP ZIP 625,624 bytes/SHA-256 B605FFE04B9407D784EC2D7571765257F534BB14E605942BC54D621DDBDEB3CE, runtime498파일 불일치0. 공개 문서 상대 링크 누락0, git diff --check 오류0. UI 신규 변경이 없어 10/26 PC·모바일 결과를 재사용하며 11/5 신규 브라우저·실서버 검사를 했다고 주장하지 않는다.
+10. 게시 범위: 기존 codex/final-qa-20261007 브랜치에 명시 경로만 commit/일반 push하고 기존 PR #1에 반영한다. 원격 SHA 대조 결과는 최종 응답에 보고한다. main 병합·신규 서버 업로드·DB import·도메인 전환은 미수행.

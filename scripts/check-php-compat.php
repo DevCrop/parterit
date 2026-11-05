@@ -41,7 +41,8 @@ $check = static function (string $name, bool $pass) use (&$checks): void {
     $checks[] = ['name' => $name, 'pass' => $pass];
 };
 try {
-    $check('PHP >= 8.3', PHP_VERSION_ID >= 80300);
+    $check('PHP 8.4.27 or newer in 8.4 branch', PHP_VERSION_ID >= 80427 && PHP_VERSION_ID < 80500);
+    $check('session upload progress disabled at startup', !filter_var(ini_get('session.upload_progress.enabled'), FILTER_VALIDATE_BOOLEAN));
     foreach (['gd', 'mbstring', 'fileinfo', 'pdo_mysql', 'mysqli', 'zip', 'exif'] as $extension) {
         $check('extension ' . $extension, extension_loaded($extension));
     }

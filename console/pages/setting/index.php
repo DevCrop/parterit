@@ -13,7 +13,7 @@
 <body>
     <div class="no-wrap">
         <!-- Header -->
-        <?php 
+        <?php
         include_once "../../inc/admin.header.php";
         ?>
 
@@ -61,7 +61,7 @@
                                     </h3>
                                     <div class="no-admin-content">
                                         <input type="text" name="title" id="title" class="no-input--detail"
-                                            placeholder="사이트 제목 입력" value="<?=$SITEINFO_TITLE?>" />
+                                            placeholder="사이트 제목 입력" value="<?= e($SITEINFO_TITLE) ?>" />
                                         <span class="no-admin-info">
                                             <i class="bx bxs-info-circle"></i>
                                             브라우저에 노출됩니다.
@@ -75,7 +75,7 @@
                                     </h3>
                                     <div class="no-admin-content">
                                         <input type="text" name="phone" id="phone" class="no-input--detail"
-                                            placeholder="대표번호" value="<?=$SITEINFO_PHONE?>" />
+                                            placeholder="대표번호" value="<?= e($SITEINFO_PHONE) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -87,7 +87,7 @@
                                     </h3>
                                     <div class="no-admin-content">
                                         <input type="text" name="hp" id="hp" class="no-input--detail"
-                                            placeholder="블로그 주소" value="<?=$SITEINFO_HP?>" />
+                                            placeholder="블로그 주소" value="<?= e($SITEINFO_HP) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -97,7 +97,7 @@
                                     </h3>
                                     <div class="no-admin-content">
                                         <input type="text" name="email" id="email" class="no-input--detail"
-                                            placeholder="카카오톡 채널 주소" value="<?=$SITEINFO_EMAIL?>" />
+                                            placeholder="카카오톡 채널 주소" value="<?= e($SITEINFO_EMAIL) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -111,7 +111,7 @@
                                     <div class="no-admin-content">
                                         <input type="text" name="customercenter_able_time" id="customercenter_able_time"
                                             class="no-input--detail" placeholder="인스타 주소"
-                                            value="<?=$SITEINFO_CUSTOMER_CENTER_ABLE_TIME?>" />
+                                            value="<?= e($SITEINFO_CUSTOMER_CENTER_ABLE_TIME) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -130,7 +130,7 @@
                                             id="company_able_time"
                                             class="no-input--detail"
                                             placeholder="운영시간"
-                                            value="<?=$SITEINFO_COMPANY_ABLE_TIME?>" 
+                                            value="<?= e($SITEINFO_COMPANY_ABLE_TIME) ?>"
                                         />
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@
                                             id="google_map_key"
                                             class="no-input--detail"
                                             placeholder="구글 지도 API KEY"
-                                            value="<?=$SITEINFO_GOOGLE_MAP_KEY?>"
+                                            value="<?= e($SITEINFO_GOOGLE_MAP_KEY) ?>"
                                         />
                                     </div>
                                 </div> -->
@@ -161,10 +161,10 @@
                                     </h3>
                                     <div class="no-admin-content">
                                         <?php if($SITEINFO_LOGO_TOP){?>
-                                        <input type="hidden" id="logo_top_filename" value="<?=$SITEINFO_LOGO_TOP?>">
+                                        <input type="hidden" id="logo_top_filename" value="<?= e($SITEINFO_LOGO_TOP) ?>">
                                         <div class="no-banner-image logo">
-                                            <img src="<?=$UPLOAD_SITEINFO_WDIR_LOGO?>/<?=$SITEINFO_LOGO_TOP?>"
-                                                alt="<?=$SITEINFO_TITLE?>" style="width: 200px" />
+                                            <img src="<?=$UPLOAD_SITEINFO_WDIR_LOGO?>/<?= e($SITEINFO_LOGO_TOP) ?>"
+                                                alt="<?= e($SITEINFO_TITLE) ?>" style="width: 200px" />
                                         </div>
                                         <?php } ?>
 
@@ -196,10 +196,10 @@
                                     <div class="no-admin-content">
                                         <?php if($SITEINFO_LOGO_FOOTER){?>
                                         <input type="hidden" id="logo_footer_filename"
-                                            value="<?=$SITEINFO_LOGO_FOOTER?>">
+                                            value="<?= e($SITEINFO_LOGO_FOOTER) ?>">
                                         <div class="no-banner-image logo">
-                                            <img src="<?=$UPLOAD_SITEINFO_WDIR_LOGO?>/<?=$SITEINFO_LOGO_FOOTER?>"
-                                                alt="<?=$SITEINFO_TITLE?>" style="width: 200px" />
+                                            <img src="<?=$UPLOAD_SITEINFO_WDIR_LOGO?>/<?= e($SITEINFO_LOGO_FOOTER) ?>"
+                                                alt="<?= e($SITEINFO_TITLE) ?>" style="width: 200px" />
                                         </div>
                                         <?php } ?>
                                         <div class="no-file-control">
@@ -254,7 +254,7 @@
                                     </h3>
                                     <div class="no-admin-content">
                                         <input type="text" name="footer_name" id="footer_name" class="no-input--detail"
-                                            placeholder="하단 푸터 사이트명" value="<?=$SITEINFO_FOOTER_NAME?>" />
+                                            placeholder="하단 푸터 사이트명" value="<?= e($SITEINFO_FOOTER_NAME) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -265,7 +265,7 @@
                                     <div class="no-admin-content">
                                         <input type="text" name="footer_address" id="footer_address"
                                             class="no-input--detail" placeholder="주소"
-                                            value="<?=$SITEINFO_FOOTER_ADDRESS?>" />
+                                            value="<?= e($SITEINFO_FOOTER_ADDRESS) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -276,7 +276,7 @@
                                     <div class="no-admin-content">
                                         <input type="text" name="footer_phone" id="footer_phone"
                                             class="no-input--detail" placeholder="전화번호"
-                                            value="<?=$SITEINFO_FOOTER_PHONE?>" />
+                                            value="<?= e($SITEINFO_FOOTER_PHONE) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -287,7 +287,7 @@
                                     <div class="no-admin-content">
                                         <input type="text" name="footer_email" id="footer_email"
                                             class="no-input--detail" placeholder="이메일"
-                                            value="<?=$SITEINFO_FOOTER_EMAIL?>" />
+                                            value="<?= e($SITEINFO_FOOTER_EMAIL) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -304,7 +304,7 @@
                                             id="footer_fax"
                                             class="no-input--detail"
                                             placeholder="팩스번호"
-                                            value="<?=$SITEINFO_FOOTER_FAX?>"
+                                            value="<?= e($SITEINFO_FOOTER_FAX) ?>"
                                         />
                                     </div>
                                 </div> -->
@@ -312,7 +312,7 @@
                                 <!--<div class="no-admin-block">
                                     <h3 class="no-admin-title">
                                         <label for="footer_hp"
-                                            >입원문의</label
+                                            >추가 연락처</label
                                         >
                                     </h3>
                                     <div class="no-admin-content">
@@ -321,19 +321,19 @@
                                             name="footer_hp"
                                             id="footer_hp"
                                             class="no-input--detail"
-                                            placeholder="입원문의"
-                                            value="<?=$SITEINFO_FOOTER_HP?>"
+                                            placeholder="추가 연락처"
+                                            value="<?= e($SITEINFO_FOOTER_HP) ?>"
                                         />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
                                 <div class="no-admin-block">
                                     <h3 class="no-admin-title">
-                                        <label for="footer_ssn">SSN</label>
+                                        <label for="footer_ssn">사업자등록번호</label>
                                     </h3>
                                     <div class="no-admin-content">
                                         <input type="text" name="footer_ssn" id="footer_ssn" class="no-input--detail"
-                                            placeholder="SSN" value="<?=$SITEINFO_FOOTER_SSN?>" />
+                                            placeholder="사업자등록번호" value="<?= e($SITEINFO_FOOTER_SSN) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -344,7 +344,7 @@
                                     <div class="no-admin-content">
                                         <input type="text" name="footer_owner" id="footer_owner"
                                             class="no-input--detail" placeholder="대표자"
-                                            value="<?=$SITEINFO_FOOTER_OWNER?>" />
+                                            value="<?= e($SITEINFO_FOOTER_OWNER) ?>" />
                                     </div>
                                 </div>
                                 <!-- admin-block -->
@@ -361,7 +361,7 @@
                                             id="footer_ssn"
                                             class="no-input--detail"
                                             placeholder="사업자번호"
-                                            value="<?=$SITEINFO_FOOTER_SSN?>"
+                                            value="<?= e($SITEINFO_FOOTER_SSN) ?>"
                                         />
                                     </div>
                                 </div> -->
@@ -379,7 +379,7 @@
                                             id="footer_policy_charger"
                                             class="no-input--detail"
                                             placeholder="하단 푸터 개인정보관리책임자"
-                                            value="<?=$SITEINFO_FOOTER_CHARGER?>"
+                                            value="<?= e($SITEINFO_FOOTER_CHARGER) ?>"
                                         />
                                     </div>
                                 </div> -->

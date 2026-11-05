@@ -166,7 +166,7 @@ $NO_ADMIN_BASE = ($NO_WEB_BASE !== '' ? $NO_WEB_BASE . '/' : '/') . $NO_ADMIN_DI
 $NO_ADMIN_PATH = $NO_PROJECT_ROOT . "/" . $NO_ADMIN_DIR;
 $NO_ADMIN_PAGES_BASE = $NO_ADMIN_BASE . "/pages";
 $NO_ADMIN_RESOURCE_BASE = $NO_ADMIN_BASE . "/resource";
-$NO_SITE_UNIQUE_KEY = "DKHOLD";
+$NO_SITE_UNIQUE_KEY = SITE_SITEKEY;
 
 // 세션이 시작되지 않았을 때만 시작
 if (session_status() === PHP_SESSION_NONE) {

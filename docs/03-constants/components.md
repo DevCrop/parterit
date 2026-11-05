@@ -3,10 +3,16 @@ title: 컴포넌트 카탈로그
 categories: [design, dev]
 desc: UI 생성 전 필독 — 기존 컴포넌트 재사용 또는 신규 생성과 카탈로그 등록 절차
 related: [constants.architecture, constants.conventions, constants.standards]
-updatedAt: 2026-09-30
+updatedAt: 2026-11-05
 ---
 
 # 컴포넌트 카탈로그
+
+## 2026-11-05 배포 정제 메모
+
+- 미사용 `partners-grid` 템플릿과 SCSS를 제거했다. 실제 파트너잇 파트너 로고 마퀴인 `partnerit-partners`는 유지한다.
+- DK/Seegene/Quidel 및 제작사 관리자 로고·의료 템플릿 이미지 55개는 현재 뷰 참조가 없음을 확인하고 별도 백업 후 제거했다. 현행 후기 시안·파트너 로고·인증서·서비스 목업은 유지한다.
+- 활성 레이아웃 변경이나 새 컴포넌트는 없다. 사용처 없는 `gray-rldx` 토큰/유틸만 제거했고 최신 dist를 재생성했다.
 
 - 2026-10-07 공통 spacing: root의 sm/md/lg/xl/2xl은 fluid(10,12)/(12,16)/(20,24)/(24,32)/(32,40), xs는 최소8px 유지. brochure/partners에서 재사용하며 dialog 닫기는 최소40px. 목록 전역 초기화는 RESET에만 ol/ul/li 적용, INIT 중복 제거. 상세: `04-history/261007-fluid-reset-qa.md`.
 
@@ -437,3 +443,10 @@ Admin 페이지를 구성하는 재사용 가능한 패턴 단위. 신규 페이
 - 2026-09-16 — `components.partnerit-legal-document`: kind privacy/terms, JSON 원문 기반 공통 법률 문서 UI. 정책 탭·접이식 목차·조항·반응형 표. 실제 공개 예시 /legal/privacy 및 /legal/cookies. SCSS partnerit-legal-document 등록. 원문 확인사항은 legal-documents.md.
 - 2026-10-08 — `components.hero`: visual/inner 최대 1400px fluid, 기존 컨테이너 좌우 합48px 및 모바일 position 유지. 1920px viewport에서1400px, 390px에서342px 실측. 다른 no-container-xl 영향 없음.
 - 2026-10-08 — `components.partnerit-partners`: 최신14개 로고 보정 유지, 7개씩 양방향 marquee 복원. 기존 MarqueeController의 resize fill/숨김 복제 재사용, 42초/모바일32초, hover 정지 및 reduced-motion 정적 grid.
+
+
+### 2026-11-05 기존 컴포넌트 연결 보완
+- `footer.php`: 기존 클래스·타이포 유지, site.info.php globals의 관리자 푸터 설정 연결/출력 escape/명시적 공란 반영.
+- `popup.php` / `image-popup.php`: 메인 이미지 팝업 유지, 기간값 2 및 기존0 호환·날짜형 종료일 당일 포함. 저장소 차단 시에도 JS 닫기 동작 유지.
+- `partnerit-stories-data.php` / gallery: 대표 swiper 최대5 유지, 추가 대표는 갤러리 포함, 실제 건수 기반 목록·단건 DB 상세 조회.
+- 도입 문의 모달의 기존 마크업·토큰·2열/모바일1열·완료/닫기 구조 유지. 실측 시각 검수는 하지 않음.

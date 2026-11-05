@@ -11,6 +11,19 @@ $footerNav = [
     ['label' => '요금정책', 'href' => base_path('/pricing')],
     ['label' => '고객사례', 'href' => base_path('/#partnerit-reviews-title')],
 ];
+
+// ViewEngine includes components in method scope; site.info.php exports globals.
+$footerValue = static function (string $key, string $fallback): string {
+    return array_key_exists($key, $GLOBALS) ? trim((string) $GLOBALS[$key]) : $fallback;
+};
+$footerCompany = $footerValue('SITEINFO_FOOTER_NAME', '주식회사 파트너잇');
+$footerOwner = $footerValue('SITEINFO_FOOTER_OWNER', '김남훈');
+$footerBusinessNo = $footerValue('SITEINFO_FOOTER_SSN', '865-87-03332');
+$footerAddress = $footerValue('SITEINFO_FOOTER_ADDRESS', '부산광역시 해운대구 센텀중앙로 90, 큐비e센텀 917호');
+$footerPhone = $footerValue('SITEINFO_FOOTER_PHONE', '010-9235-4407');
+$footerEmail = $footerValue('SITEINFO_FOOTER_EMAIL', 'partnerit917@gmail.com');
+$footerPhoneHref = preg_replace('/[^0-9+]/', '', $footerPhone);
+$footerEmailHref = filter_var($footerEmail, FILTER_VALIDATE_EMAIL) ? 'mailto:' . $footerEmail : '';
 ?>
 <footer id="main-footer" class="no-footer">
     <div class="no-footer__inner no-container-xl">
@@ -26,10 +39,14 @@ $footerNav = [
                     함께하는 성장의 연결고리, 기회와 파트너를 잇:다
                 </p>
                 <address class="no-footer__company f-body-footer-info">
-                    <span>주식회사 파트너잇&nbsp; | &nbsp;대표 김남훈</span>
-                    <span>사업자등록번호 865-87-03332</span>
-                    <span>부산광역시 해운대구 센텀중앙로 90, 큐비e센텀 917호</span>
-                    <span><a href="tel:01092354407">010-9235-4407</a>&nbsp; | &nbsp;<a href="mailto:partnerit917@gmail.com">partnerit917@gmail.com</a></span>
+                    <?php if ($footerCompany !== '' || $footerOwner !== ''): ?>
+                        <span><?= e($footerCompany) ?><?php if ($footerCompany !== '' && $footerOwner !== ''): ?>&nbsp; | &nbsp;<?php endif ?><?php if ($footerOwner !== ''): ?>대표 <?= e($footerOwner) ?><?php endif ?></span>
+                    <?php endif ?>
+                    <?php if ($footerBusinessNo !== ''): ?><span>사업자등록번호 <?= e($footerBusinessNo) ?></span><?php endif ?>
+                    <?php if ($footerAddress !== ''): ?><span><?= e($footerAddress) ?></span><?php endif ?>
+                    <?php if ($footerPhone !== '' || $footerEmail !== ''): ?>
+                        <span><?php if ($footerPhoneHref !== ''): ?><a href="<?= e('tel:' . $footerPhoneHref) ?>"><?= e($footerPhone) ?></a><?php else: ?><?= e($footerPhone) ?><?php endif ?><?php if ($footerPhone !== '' && $footerEmail !== ''): ?>&nbsp; | &nbsp;<?php endif ?><?php if ($footerEmailHref !== ''): ?><a href="<?= e($footerEmailHref) ?>"><?= e($footerEmail) ?></a><?php else: ?><?= e($footerEmail) ?><?php endif ?></span>
+                    <?php endif ?>
                 </address>
             </div>
 

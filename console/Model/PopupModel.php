@@ -136,32 +136,14 @@ class PopupModel
             $params[$key] = (int)$id;
         }
 
-        $stmt = $db->prepare("SELECT sort_no FROM nb_popups WHERE id IN (" . implode(', ', $placeholders) . ")");
+        $stmt = $db->prepare("SELECT id FROM nb_popups WHERE id IN (" . implode(', ', $placeholders) . ") ORDER BY sort_no DESC, id DESC");
         $stmt->execute($params);
-        $sortNos = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-        if (empty($sortNos)) return false;
-
-        $minSortNo = min($sortNos);
-        $deletedCount = count($sortNos);
-
-        $sql = "DELETE FROM nb_popups WHERE id IN (" . implode(', ', $placeholders) . ")";
-        $stmt = $db->prepare($sql);
-        $result = $stmt->execute($params);
-
-        if ($result) {
-            $stmt = $db->prepare("
-                UPDATE nb_popups 
-                SET sort_no = sort_no - :deletedCount 
-                WHERE sort_no > :minSortNo
-            ");
-            $stmt->execute([
-                ':deletedCount' => $deletedCount,
-                ':minSortNo'    => $minSortNo
-            ]);
+        $existingIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        if (!$existingIds) return false;
+        foreach ($existingIds as $id) {
+            if (!self::delete((int) $id)) return false;
         }
-
-        return $result;
+        return true;
     }
 
     public static function find($id)

@@ -16,6 +16,7 @@ final class LoginProcessor
         session_start();
 
         require_once dirname(__DIR__, 2) . '/bootstrap/base.php';
+        require_once dirname(__DIR__, 3) . '/inc/lib/helper/CaptchaHelper.php';
 
         $pdo = DB::getInstance();
 
@@ -100,7 +101,7 @@ final class LoginProcessor
             $sendLoginError("Too many login attempts. Try again in {$remainingMinutes} minute(s).");
         }
 
-        if (($_SESSION['captcha_secure'] ?? '') !== $captcha) {
+        if (!CaptchaHelper::matches($_SESSION['captcha_secure'] ?? null, $captcha)) {
             $sendLoginError('보안코드가 일치하지 않습니다. 새로 표시된 보안코드를 입력해 주세요.');
         }
 

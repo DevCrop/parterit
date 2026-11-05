@@ -1,443 +1,232 @@
 <?php
-
 include_once "../../../bootstrap/admin.php";
 include_once "../../../lib/admin.check.ajax.php";
 require_once dirname(__DIR__, 3) . '/Model/BoardLocaleModel.php';
 $role->requireLogin();
 $role->requireCanModify();
+header('Content-Type: application/json; charset=utf-8');
 
-$mode = $_POST['mode'];
-
+$mode = (string)($_POST['mode'] ?? '');
 $DEFAULT_LOCALE = function_exists('project_default_locale') ? project_default_locale() : 'en';
 $SUPPORTED_LOCALES = function_exists('project_supported_locales') ? project_supported_locales() : ['en', 'ko', 'jp'];
+$db = DB::getInstance();
+$newFiles = [];
+$oldFiles = [];
+$committed = false;
+$fileFields = ['thumb_image'];
+for ($i = 1; $i <= 5; $i++) $fileFields[] = "file_attach_{$i}";
 
-/** locale 별 base64 contents 를 디코딩하여 ['en' => '...', 'ko' => '...', ...] 반환 */
-$decodeLocaleContents = static function (array $post, array $locales): array {
-    $out = [];
-    foreach ($locales as $lc) {
-        $raw = $post["contents_{$lc}"] ?? '';
-        $enc = $post["contents_encoding_{$lc}"] ?? '';
-        if ($enc === 'base64') {
-            $raw = (string)base64_decode((string)$raw);
-        }
-        $out[$lc] = $raw;
+$respond = static function (bool $ok, string $message): void {
+    echo json_encode(['result' => $ok ? 'success' : 'fail', 'msg' => $message], JSON_UNESCAPED_UNICODE);
+};
+$requireTransactions = static function () use ($db): void {
+    static $checked = false;
+    if ($checked) return;
+    $rows = $db->query("SHOW TABLE STATUS WHERE Name IN ('nb_board', 'nb_board_manage', 'nb_board_locale', 'nb_board_comment')")->fetchAll(PDO::FETCH_ASSOC);
+    if (count($rows) !== 4) throw new RuntimeException('게시판 테이블 설정을 확인해 주세요.');
+    foreach ($rows as $row) {
+        if (strcasecmp((string)$row['Engine'], 'InnoDB') !== 0) throw new RuntimeException('게시판 저장 전에 InnoDB 데이터베이스 업데이트를 적용해 주세요.');
     }
-    return $out;
+    $checked = true;
+};
+$positiveId = static function ($value): int {
+    return is_scalar($value) && preg_match('/^[1-9][0-9]*$/D', (string)$value) ? (int)$value : 0;
+};
+$findBoard = static function (int $boardNo, bool $lock = false) use ($db, $NO_SITE_UNIQUE_KEY): array {
+    $stmt = $db->prepare('SELECT * FROM nb_board_manage WHERE no = ? AND sitekey = ?' . ($lock ? ' FOR UPDATE' : ''));
+    $stmt->execute([$boardNo, $NO_SITE_UNIQUE_KEY]);
+    $board = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$board) throw new RuntimeException('게시판을 찾을 수 없습니다.');
+    return $board;
+};
+$findPost = static function (int $id, int $boardNo = 0, bool $lock = false) use ($db, $NO_SITE_UNIQUE_KEY): array {
+    $stmt = $db->prepare('SELECT * FROM nb_board WHERE no = ? AND sitekey = ?' . ($boardNo ? ' AND board_no = ?' : '') . ($lock ? ' FOR UPDATE' : ''));
+    $stmt->execute($boardNo ? [$id, $NO_SITE_UNIQUE_KEY, $boardNo] : [$id, $NO_SITE_UNIQUE_KEY]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) throw new RuntimeException('게시물을 찾을 수 없습니다.');
+    return $row;
+};
+$writeRow = static function (array $data, ?int $id = null, ?int $sourceBoard = null) use ($db, $NO_SITE_UNIQUE_KEY): void {
+    if ($id === null) {
+        $keys = array_keys($data);
+        $stmt = $db->prepare('INSERT INTO nb_board (`' . implode('`,`', $keys) . '`) VALUES (' . implode(',', array_fill(0, count($keys), '?')) . ')');
+        if (!$stmt->execute(array_values($data))) throw new RuntimeException('등록에 실패했습니다.');
+    } else {
+        $scope = $sourceBoard ?? $data['board_no'];
+        $set = implode(',', array_map(static fn($key) => "`{$key}` = ?", array_keys($data)));
+        $stmt = $db->prepare('UPDATE nb_board SET ' . $set . ' WHERE no = ? AND sitekey = ? AND board_no = ?');
+        if (!$stmt->execute([...array_values($data), $id, $NO_SITE_UNIQUE_KEY, $scope])) throw new RuntimeException('수정에 실패했습니다.');
+    }
+};
+// Upload helpers throw instead of exiting, so every already-created file can be rolled back.
+$upload = static function (array $file) use (&$newFiles, $UPLOAD_DIR_BOARD): array {
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $name = bin2hex(random_bytes(16)) . '.' . $ext;
+    if (!is_dir($UPLOAD_DIR_BOARD) && !mkdir($UPLOAD_DIR_BOARD, 0755, true) && !is_dir($UPLOAD_DIR_BOARD)) throw new RuntimeException('업로드 경로를 생성하지 못했습니다.');
+    if (!move_uploaded_file($file['tmp_name'], $UPLOAD_DIR_BOARD . '/' . $name)) throw new RuntimeException('파일 업로드에 실패했습니다.');
+    $newFiles[] = $name;
+    if (in_array($ext, ['jpg', 'jpeg', 'png'], true) && class_exists('ImageHelper')) ImageHelper::generateWebpVariant($UPLOAD_DIR_BOARD . '/' . $name);
+    return ['saved' => $name, 'origin' => $file['name']];
+};
+$copyFile = static function (string $name) use (&$newFiles, $UPLOAD_DIR_BOARD): string {
+    if ($name !== basename($name) || !is_file($UPLOAD_DIR_BOARD . '/' . $name)) throw new RuntimeException('복사할 파일을 찾을 수 없습니다.');
+    $copy = bin2hex(random_bytes(16)) . '.' . pathinfo($name, PATHINFO_EXTENSION);
+    if (!copy($UPLOAD_DIR_BOARD . '/' . $name, $UPLOAD_DIR_BOARD . '/' . $copy)) throw new RuntimeException('파일 복사에 실패했습니다.');
+    $newFiles[] = $copy;
+    if (class_exists('ImageHelper') && in_array(strtolower(pathinfo($copy, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png'], true)) ImageHelper::generateWebpVariant($UPLOAD_DIR_BOARD . '/' . $copy);
+    return $copy;
+};
+// Inline editor images are shared on copy. Never remove a file still referenced by any post/locale.
+$removeUnreferenced = static function (string $name) use ($db, $fileFields, $UPLOAD_DIR_BOARD): void {
+    if ($name === '' || basename($name) !== $name) return;
+    $conditions = array_map(static fn($field) => "`{$field}` = ?", $fileFields);
+    $stmt = $db->prepare('SELECT 1 FROM nb_board WHERE ' . implode(' OR ', $conditions) . ' OR contents LIKE ? LIMIT 1');
+    $stmt->execute([...array_fill(0, count($fileFields), $name), '%' . $name . '%']);
+    if ($stmt->fetchColumn()) return;
+    $stmt = $db->prepare('SELECT 1 FROM nb_board_locale WHERE contents LIKE ? LIMIT 1');
+    $stmt->execute(['%' . $name . '%']);
+    if (!$stmt->fetchColumn()) imageDelete($UPLOAD_DIR_BOARD . '/' . $name);
 };
 
-if ($mode == "save") {
-    $board_no    = isset($_POST['board_no']) && $_POST['board_no'] !== '' ? (int)$_POST['board_no'] : 0;
-    $direct_url  = htmlspecialchars($_POST['direct_url'] ?? '', ENT_QUOTES, 'UTF-8');
-    $write_name  = htmlspecialchars($_POST['write_name'] ?? '', ENT_QUOTES, 'UTF-8');
-
-    // locale 별 title / contents 수집
-    $localeTitles = [];
-    foreach ($SUPPORTED_LOCALES as $lc) {
-        $localeTitles[$lc] = htmlspecialchars((string)($_POST["title_{$lc}"] ?? ''), ENT_QUOTES, 'UTF-8');
-    }
-    $localeContents = $decodeLocaleContents($_POST, $SUPPORTED_LOCALES);
-
-    // legacy 컬럼은 default locale 값으로 미러링
-    $title    = $localeTitles[$DEFAULT_LOCALE] ?? '';
-    $contents = $localeContents[$DEFAULT_LOCALE] ?? '';
-    $category_no = isset($_POST['category_no']) && $_POST['category_no'] !== '' ? (int)$_POST['category_no'] : 0;
-    $is_notice   = ($_POST['is_notice'] ?? 'N') === 'Y' ? 'Y' : 'N';
-    $regdate     = $_POST['regdate'] ?? null;
-
-    // extra1 ~ extra30
-    $extras = [];
-    for ($i = 1; $i <= 30; $i++) $extras["extra$i"] = $_POST["extra$i"] ?? '';
-
-    $user_no     = -1;
-    $allow       = $board_file_allow;
-    $uploads_dir = $UPLOAD_DIR_BOARD;
-
-    // 썸네일 업로드 — imageUpload 내부에서 jpg/png는 .webp 파생본까지 자동 생성한다.
-    $origin_file = '';
-    $uploadResult = imageUpload($uploads_dir, $_FILES['thumb_image'] ?? null, $origin_file, false, $allow);
-    $thumb_image_saved = $uploadResult['saved'] ?? null;
-
-    // 첨부파일 업로드 (최대 5개)
-    $file_attachments = [];
-    for ($i = 1; $i <= 5; $i++) {
-        if (isset($_FILES["addFile$i"]) && $_FILES["addFile$i"]['error'] === UPLOAD_ERR_OK) {
-            $uploadResult = imageUpload($uploads_dir, $_FILES["addFile$i"], $origin_file, true, $allow);
-            $file_attachments[$i] = [
-                'saved'  => $uploadResult['saved']  ?? null,
-                'origin' => $uploadResult['origin'] ?? null,
-            ];
+try {
+    if (in_array($mode, ['save', 'edit', 'delete', 'delete.array', 'board.copy'], true)) {
+        $requireTransactions();
+        $boardNo = $positiveId($_POST['board_no'] ?? 0);
+        $id = $positiveId($_POST['no'] ?? 0);
+        $targets = [];
+        if (in_array($mode, ['save', 'edit'], true)) {
+            if (!$boardNo) throw new RuntimeException('게시판을 선택해 주세요.');
+            $findBoard($boardNo);
         }
-    }
-
-    try {
-        $db = DB::getInstance();
-        $db->exec("LOCK TABLES nb_board WRITE");
-
-        // sort_no 맨 위로 밀기
-        $shift = $db->prepare("UPDATE nb_board SET sort_no = sort_no + 1 WHERE sitekey = :sitekey");
-        $shift->execute([':sitekey' => $NO_SITE_UNIQUE_KEY]);
-
-        // INSERT
-        $sql = "
-          INSERT INTO nb_board (
-            sitekey, board_no, user_no, category_no, title, contents, regdate,
-            is_notice, write_name, direct_url, thumb_image,
-            file_attach_1, file_attach_2, file_attach_3, file_attach_4, file_attach_5,
-            file_attach_origin_1, file_attach_origin_2, file_attach_origin_3, file_attach_origin_4, file_attach_origin_5,
-            sort_no,
-            extra1, extra2, extra3, extra4, extra5, extra6, extra7, extra8, extra9, extra10,
-            extra11, extra12, extra13, extra14, extra15, extra16, extra17, extra18, extra19, extra20,
-            extra21, extra22, extra23, extra24, extra25, extra26, extra27, extra28, extra29, extra30
-          ) VALUES (
-            :sitekey, :board_no, :user_no, :category_no, :title, :contents, COALESCE(:regdate, NOW()),
-            :is_notice, :write_name, :direct_url, :thumb_image,
-            :file_attach_1, :file_attach_2, :file_attach_3, :file_attach_4, :file_attach_5,
-            :file_attach_origin_1, :file_attach_origin_2, :file_attach_origin_3, :file_attach_origin_4, :file_attach_origin_5,
-            1,
-            :extra1, :extra2, :extra3, :extra4, :extra5, :extra6, :extra7, :extra8, :extra9, :extra10,
-            :extra11, :extra12, :extra13, :extra14, :extra15, :extra16, :extra17, :extra18, :extra19, :extra20,
-            :extra21, :extra22, :extra23, :extra24, :extra25, :extra26, :extra27, :extra28, :extra29, :extra30
-          )
-        ";
-        $ins = $db->prepare($sql);
-
-        $params = [
-          ':sitekey' => $NO_SITE_UNIQUE_KEY,
-          ':board_no' => $board_no,
-          ':user_no' => $user_no,
-          ':category_no' => $category_no,
-          ':title' => $title,
-          ':contents' => $contents,
-          ':regdate' => $regdate ?: null,
-          ':is_notice' => $is_notice,
-          ':write_name' => $write_name,
-          ':direct_url' => $direct_url,
-          ':thumb_image' => $thumb_image_saved,
-          ':file_attach_1' => $file_attachments[1]['saved'] ?? null,
-          ':file_attach_2' => $file_attachments[2]['saved'] ?? null,
-          ':file_attach_3' => $file_attachments[3]['saved'] ?? null,
-          ':file_attach_4' => $file_attachments[4]['saved'] ?? null,
-          ':file_attach_5' => $file_attachments[5]['saved'] ?? null,
-          ':file_attach_origin_1' => $file_attachments[1]['origin'] ?? null,
-          ':file_attach_origin_2' => $file_attachments[2]['origin'] ?? null,
-          ':file_attach_origin_3' => $file_attachments[3]['origin'] ?? null,
-          ':file_attach_origin_4' => $file_attachments[4]['origin'] ?? null,
-          ':file_attach_origin_5' => $file_attachments[5]['origin'] ?? null,
-        ];
-        for ($i = 1; $i <= 30; $i++) {
-          $params[":extra{$i}"] = $extras["extra{$i}"];
+        if (in_array($mode, ['edit', 'delete', 'board.copy'], true)) {
+            if (!$id) throw new RuntimeException('잘못된 게시물 번호입니다.');
+            $targets[] = $findPost($id, $mode === 'edit' ? 0 : $boardNo);
+            if ($mode !== 'edit') $boardNo = (int)$targets[0]['board_no'];
+        } elseif ($mode === 'delete.array') {
+            $ids = $_POST['board_file_check_no'] ?? [];
+            if (!is_array($ids) || !$ids) throw new RuntimeException('삭제할 항목이 없습니다.');
+            foreach (array_unique($ids) as $rawId) {
+                $targetId = $positiveId($rawId);
+                if (!$targetId) throw new RuntimeException('잘못된 게시물 번호입니다.');
+                $targets[] = $findPost($targetId, $boardNo);
+            }
         }
-
-        $ins->execute($params);
-        $newBoardId = (int)$db->lastInsertId();
-
-        $db->exec("UNLOCK TABLES");
-
-        // nb_board_locale: locale 별 행 upsert (write_name + extras 는 모든 locale 에 동일 값)
-        if ($newBoardId > 0) {
+        $payload = [];
+        $localePayloads = [];
+        $validatedUploads = [];
+        if (in_array($mode, ['save', 'edit'], true)) {
+            $existingLocales = $mode === 'edit' ? BoardLocaleModel::findAllByBoardId($id) : [];
             foreach ($SUPPORTED_LOCALES as $lc) {
-                $localeData = [
-                    'title'      => $localeTitles[$lc] ?? '',
-                    'contents'   => $localeContents[$lc] ?? '',
-                    'write_name' => $write_name,
-                ];
-                for ($i = 1; $i <= 30; $i++) {
-                    $localeData["extra{$i}"] = $extras["extra{$i}"] ?? '';
+                $existingLocale = $existingLocales[$lc] ?? ($lc === $DEFAULT_LOCALE ? ($targets[0] ?? []) : []);
+                $localeTitle = $_POST["title_{$lc}"] ?? ($existingLocale['title'] ?? '');
+                if (!is_string($localeTitle)) throw new RuntimeException('제목을 확인해 주세요.');
+                $raw = $_POST["contents_{$lc}"] ?? ($existingLocale['contents'] ?? '');
+                if (!is_string($raw)) throw new RuntimeException('본문을 확인해 주세요.');
+                if (($_POST["contents_encoding_{$lc}"] ?? '') === 'base64') {
+                    $raw = base64_decode($raw, true);
+                    if ($raw === false) throw new RuntimeException('본문 형식을 확인해 주세요.');
                 }
-                BoardLocaleModel::upsert($newBoardId, $lc, $localeData);
+                $localePayloads[$lc] = ['title' => trim($localeTitle), 'contents' => $raw, 'write_name' => (string)($_POST['write_name'] ?? ($targets[0]['write_name'] ?? ''))];
+                for ($i = 1; $i <= 30; $i++) $localePayloads[$lc]["extra{$i}"] = (string)($_POST["extra{$i}"] ?? ($existingLocale["extra{$i}"] ?? $targets[0]["extra{$i}"] ?? ''));
+            }
+            if (trim(strip_tags($localePayloads[$DEFAULT_LOCALE]['title'] ?? '')) === '') throw new RuntimeException('제목을 입력해 주세요.');
+            if ((TextHelper::utf8Length($localePayloads[$DEFAULT_LOCALE]['title']) ?? 201) > 200) throw new RuntimeException('제목은 200자 이하로 입력해 주세요.');
+            $base = $localePayloads[$DEFAULT_LOCALE];
+            $payload = ['board_no' => $boardNo, 'title' => $base['title'], 'contents' => $base['contents'], 'write_name' => $base['write_name'], 'category_no' => (int)($_POST['category_no'] ?? 0), 'is_notice' => ($_POST['is_notice'] ?? 'N') === 'Y' ? 'Y' : 'N', 'direct_url' => (string)($_POST['direct_url'] ?? ''), 'regdate' => ($_POST['regdate'] ?? '') ?: ($targets[0]['regdate'] ?? date('Y-m-d H:i:s'))];
+            for ($i = 1; $i <= 30; $i++) $payload["extra{$i}"] = $base["extra{$i}"];
+            if ($payload['category_no'] > 0) {
+                $stmt = $db->prepare('SELECT 1 FROM nb_board_category WHERE no = ? AND sitekey = ? AND board_no = ?');
+                $stmt->execute([$payload['category_no'], $NO_SITE_UNIQUE_KEY, $boardNo]);
+                if (!$stmt->fetchColumn()) throw new RuntimeException('분류를 확인해 주세요.');
+            }
+            foreach (['thumb_image', 'addFile1', 'addFile2', 'addFile3', 'addFile4', 'addFile5'] as $field) {
+                $file = $_FILES[$field] ?? [];
+                $error = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+                if ($error === UPLOAD_ERR_NO_FILE) continue;
+                if ($error !== UPLOAD_ERR_OK || !is_string($file['name'] ?? null) || !is_string($file['tmp_name'] ?? null) || !is_uploaded_file($file['tmp_name'])) throw new RuntimeException('파일 업로드 상태를 확인해 주세요.');
+                if ((int)$file['size'] > 10485760) throw new RuntimeException('파일은 10MB 이하로 등록해 주세요.');
+                if (!in_array(strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)), $board_file_allow, true)) throw new RuntimeException('허용되지 않는 파일입니다.');
+                $validatedUploads[$field] = $file;
             }
         }
-
-        echo json_encode(["result" => "success", "msg" => "정상적으로 등록되었습니다."]);
-    } catch (PDOException $e) {
-        $db->exec("UNLOCK TABLES");
-        echo json_encode(["result" => "fail", "msg" => "처리중 문제가 발생하였습니다.[Error-DB: ".$e->getMessage()."]"]);
-    }
-}
-else if ($mode == "edit") {
-    try {
-        $no         = isset($_POST['no']) ? (int)$_POST['no'] : 0;
-        $board_no   = isset($_POST['board_no']) && $_POST['board_no'] !== '' ? (int)$_POST['board_no'] : 0;
-        $write_name = $_POST['write_name'] ?? '';
-        $category_no= isset($_POST['category_no']) && $_POST['category_no'] !== '' ? (int)$_POST['category_no'] : 0;
-        $is_notice  = (($_POST['is_notice'] ?? '') === 'Y') ? 'Y' : 'N';
-        $regdate    = $_POST['regdate'] ?? null;
-        $direct_url = $_POST['direct_url'] ?? '';
-
-        // locale 별 title / contents 수집
-        $localeTitles = [];
-        foreach ($SUPPORTED_LOCALES as $lc) {
-            $localeTitles[$lc] = (string)($_POST["title_{$lc}"] ?? '');
+        $db->beginTransaction();
+        $boardIds = $mode === 'save' ? [$boardNo] : array_values(array_unique(array_map(static fn($row) => (int)$row['board_no'], $targets)));
+        if ($mode === 'edit') $boardIds = array_values(array_unique([...$boardIds, $boardNo]));
+        sort($boardIds);
+        foreach ($boardIds as $lockBoard) $findBoard($lockBoard, true);
+        foreach ($targets as &$target) $target = $findPost((int)$target['no'], (int)$target['board_no'], true);
+        unset($target);
+        if ($mode === 'save' || $mode === 'board.copy') {
+            $stmt = $db->prepare('UPDATE nb_board SET sort_no = sort_no + 1 WHERE sitekey = ? AND board_no = ?');
+            $stmt->execute([$NO_SITE_UNIQUE_KEY, $boardNo]);
         }
-        $localeContents = $decodeLocaleContents($_POST, $SUPPORTED_LOCALES);
-
-        // legacy 컬럼은 default locale 값으로 미러링 (htmlspecialchars 적용 패턴 유지)
-        $title    = $localeTitles[$DEFAULT_LOCALE] ?? '';
-        $contents = htmlspecialchars((string)($localeContents[$DEFAULT_LOCALE] ?? ''), ENT_QUOTES, 'UTF-8');
-
-        if (!$no || !$board_no) {
-            echo json_encode(["result" => "fail", "msg" => "잘못된 요청입니다."]);
-            exit;
+        if ($mode === 'edit' && (int)$targets[0]['board_no'] !== $boardNo) {
+            $stmt = $db->prepare('UPDATE nb_board SET sort_no = sort_no - 1 WHERE sitekey = ? AND board_no = ? AND sort_no > ?');
+            $stmt->execute([$NO_SITE_UNIQUE_KEY, $targets[0]['board_no'], $targets[0]['sort_no']]);
+            $stmt = $db->prepare('UPDATE nb_board SET sort_no = sort_no + 1 WHERE sitekey = ? AND board_no = ?');
+            $stmt->execute([$NO_SITE_UNIQUE_KEY, $boardNo]);
+            $payload['sort_no'] = 1;
         }
-
-        // extra1 ~ extra30
-        $extraFields = [];
-        for ($i = 1; $i <= 30; $i++) {
-            $extraFields["extra{$i}"] = $_POST["extra{$i}"] ?? '';
-        }
-
-        $uploads_dir = $UPLOAD_DIR_BOARD;
-        $allow       = $board_file_allow;
-        $origin_file = '';
-
-        // 썸네일 업로드(선택) — imageUpload 내부에서 jpg/png는 .webp 파생본까지 자동 생성한다.
-        $thumb_image_saved = null;
-        if (isset($_FILES['thumb_image']) && $_FILES['thumb_image']['error'] === UPLOAD_ERR_OK) {
-            $thumb_result = imageUpload($uploads_dir, $_FILES['thumb_image'], $origin_file, false, $allow);
-            $thumb_image_saved = $thumb_result['saved'] ?? null;
-        }
-
-        // 첨부파일 업로드(선택)
-        $fileAttachments = [];
-        for ($i = 1; $i <= 5; $i++) {
-            if (isset($_FILES["addFile{$i}"]) && $_FILES["addFile{$i}"]['error'] === UPLOAD_ERR_OK) {
-                $uploadResult = imageUpload($uploads_dir, $_FILES["addFile{$i}"], null, true, $allow);
-                $fileAttachments["file_attach_{$i}_saved"]  = $uploadResult['saved']  ?? null;
-                $fileAttachments["file_attach_{$i}_origin"] = $uploadResult['origin'] ?? null;
+        if ($mode === 'save' || $mode === 'edit') {
+            if ($mode === 'save') $payload += ['sitekey' => $NO_SITE_UNIQUE_KEY, 'user_no' => -1, 'sort_no' => 1];
+            $remove = $_POST['attach_file_del'] ?? [];
+            if (!is_array($remove)) throw new RuntimeException('파일 삭제 항목을 확인해 주세요.');
+            if ($mode === 'edit') foreach ($remove as $slot) {
+                if (!in_array((string)$slot, ['0','1','2','3','4','5'], true)) throw new RuntimeException('파일 삭제 항목을 확인해 주세요.');
+                $field = (string)$slot === '0' ? 'thumb_image' : 'file_attach_' . $slot;
+                $oldFiles[] = (string)($targets[0][$field] ?? '');
+                $payload[$field] = null;
+                if ($field !== 'thumb_image') $payload['file_attach_origin_' . $slot] = null;
             }
-        }
-
-        $db = DB::getInstance();
-
-        // 기존 파일 조회
-        $stmt = $db->prepare("SELECT thumb_image, file_attach_1, file_attach_2, file_attach_3, file_attach_4, file_attach_5 FROM nb_board WHERE no = :no");
-        $stmt->execute(['no' => $no]);
-        $oldFiles = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$oldFiles) {
-            echo json_encode(["result" => "fail", "msg" => "정보를 찾을 수 없습니다"]);
-            exit;
-        }
-
-        // 개별 파일 삭제 처리
-        $attach_file_del = $_POST['attach_file_del'] ?? [];
-        foreach ($attach_file_del as $val) {
-            $fileToDelete = null;
-            switch ($val) {
-                case "0": $fileToDelete = $oldFiles['thumb_image']; break;
-                case "1": $fileToDelete = $oldFiles['file_attach_1']; break;
-                case "2": $fileToDelete = $oldFiles['file_attach_2']; break;
-                case "3": $fileToDelete = $oldFiles['file_attach_3']; break;
-                case "4": $fileToDelete = $oldFiles['file_attach_4']; break;
-                case "5": $fileToDelete = $oldFiles['file_attach_5']; break;
+            foreach ($validatedUploads as $input => $file) {
+                $uploaded = $upload($file);
+                $field = $input === 'thumb_image' ? 'thumb_image' : 'file_attach_' . substr($input, 7);
+                $payload[$field] = $uploaded['saved'];
+                if ($input !== 'thumb_image') $payload['file_attach_origin_' . substr($input, 7)] = $uploaded['origin'];
+                if ($mode === 'edit') $oldFiles[] = (string)($targets[0][$field] ?? '');
             }
-            if ($fileToDelete) {
-                imageDelete($UPLOAD_DIR_BOARD . "/" . $fileToDelete);
-                $field = $val === "0" ? "thumb_image" : "file_attach_" . $val;
-                $db->prepare("UPDATE nb_board SET {$field} = NULL WHERE no = :no")->execute(['no' => $no]);
+            $writeRow($payload, $mode === 'edit' ? $id : null, $mode === 'edit' ? (int)$targets[0]['board_no'] : null);
+            $savedId = $mode === 'edit' ? $id : (int)$db->lastInsertId();
+            foreach ($localePayloads as $lc => $localeData) if (!BoardLocaleModel::upsert($savedId, $lc, $localeData)) throw new RuntimeException('언어별 저장에 실패했습니다.');
+        } elseif ($mode === 'board.copy') {
+            $copy = $targets[0];
+            unset($copy['no']);
+            $copy['sort_no'] = 1;
+            $copy['comment_cnt'] = 0;
+            $copy['read_cnt'] = 0;
+            foreach ($fileFields as $field) if (!empty($copy[$field])) $copy[$field] = $copyFile($copy[$field]);
+            // Preserve the exact editor HTML and locale bodies without requiring DOM.
+            $writeRow($copy);
+            BoardLocaleModel::copyForBoard($id, (int)$db->lastInsertId());
+        } else {
+            foreach ($targets as $row) {
+                $deleteId = (int)$row['no'];
+                foreach ($fileFields as $field) $oldFiles[] = (string)($row[$field] ?? '');
+                $stmt = $db->prepare('DELETE FROM nb_board_comment WHERE parent_no = ? AND sitekey = ?');
+                $stmt->execute([$deleteId, $NO_SITE_UNIQUE_KEY]);
+                if (!BoardLocaleModel::deleteByBoardId($deleteId)) throw new RuntimeException('언어별 삭제에 실패했습니다.');
+                $stmt = $db->prepare('DELETE FROM nb_board WHERE no = ? AND sitekey = ? AND board_no = ?');
+                $stmt->execute([$deleteId, $NO_SITE_UNIQUE_KEY, $row['board_no']]);
             }
-        }
-
-        // 새 썸네일 업로드 시 기존 썸네일 삭제 (.webp 파생본도 함께 정리)
-        if ($thumb_image_saved && !empty($oldFiles['thumb_image'])) {
-            $oldThumbAbs = $UPLOAD_DIR_BOARD . "/" . $oldFiles['thumb_image'];
-            imageDelete($oldThumbAbs);
-            ImageHelper::deleteWebpVariant($oldThumbAbs);
-        }
-
-        // 새 첨부 업로드 시 기존 파일 삭제
-        for ($i = 1; $i <= 5; $i++) {
-            $saved = $fileAttachments["file_attach_{$i}_saved"] ?? null;
-            if ($saved && !empty($oldFiles["file_attach_{$i}"])) {
-                imageDelete($UPLOAD_DIR_BOARD . "/" . $oldFiles["file_attach_{$i}"]);
-            }
-        }
-
-        // 업데이트 필드 구성
-        $updateFields = [
-            'board_no'               => $board_no,
-            'title'                  => $title,
-            'write_name'             => $write_name,
-            'contents'               => $contents,
-            'is_notice'              => $is_notice,
-            'direct_url'             => $direct_url,
-            'regdate'                => $regdate,
-            'category_no'            => $category_no,
-        ];
-
-        // extra1~30 반영
-        foreach ($extraFields as $key => $value) {
-            $updateFields[$key] = $value;
-        }
-
-        // 선택 항목
-        if ($thumb_image_saved) {
-            $updateFields['thumb_image'] = $thumb_image_saved;
-        }
-        for ($i = 1; $i <= 5; $i++) {
-            $saved  = $fileAttachments["file_attach_{$i}_saved"]  ?? null;
-            $origin = $fileAttachments["file_attach_{$i}_origin"] ?? null;
-            if ($saved) {
-                $updateFields["file_attach_{$i}"] = $saved;
-                $updateFields["file_attach_origin_{$i}"] = $origin;
-            }
-        }
-
-        // 동적 UPDATE 쿼리
-        $query = "UPDATE nb_board SET ";
-        $query .= implode(", ", array_map(fn($field) => "$field = :$field", array_keys($updateFields)));
-        $query .= " WHERE no = :no";
-
-        $updateFields['no'] = $no;
-
-        $stmt = $db->prepare($query);
-        $result = $stmt->execute($updateFields);
-
-        // nb_board_locale: locale 별 행 upsert
-        if ($result) {
-            foreach ($SUPPORTED_LOCALES as $lc) {
-                $localeData = [
-                    'title'      => $localeTitles[$lc] ?? '',
-                    'contents'   => $localeContents[$lc] ?? '',
-                    'write_name' => $write_name,
-                ];
-                foreach ($extraFields as $k => $v) {
-                    $localeData[$k] = $v;
+            foreach ($boardIds as $scope) {
+                $stmt = $db->prepare('SELECT no FROM nb_board WHERE sitekey = ? AND board_no = ? ORDER BY sort_no ASC, no DESC');
+                $stmt->execute([$NO_SITE_UNIQUE_KEY, $scope]);
+                foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $index => $remainingId) {
+                    $update = $db->prepare('UPDATE nb_board SET sort_no = ? WHERE no = ? AND sitekey = ? AND board_no = ?');
+                    $update->execute([$index + 1, $remainingId, $NO_SITE_UNIQUE_KEY, $scope]);
                 }
-                BoardLocaleModel::upsert($no, $lc, $localeData);
             }
         }
-
-        echo $result
-            ? json_encode(["result" => "success", "msg" => "정상적으로 수정되었습니다."])
-            : json_encode(["result" => "fail", "msg" => "처리중 문제가 발생하였습니다.[Error-DB]"]);
-
-    } catch (Exception $e) {
-        echo json_encode(["result" => "fail", "msg" => "Exception occurred: " . $e->getMessage() ]);
+        if (!$db->commit()) throw new RuntimeException('데이터 저장을 완료하지 못했습니다.');
+        $committed = true;
+        foreach (array_unique($oldFiles) as $name) $removeUnreferenced($name);
+        $messages = ['save' => '정상적으로 등록되었습니다.', 'edit' => '정상적으로 수정되었습니다.', 'board.copy' => '정상적으로 복사 되었습니다.', 'delete' => '정상적으로 삭제되었습니다.', 'delete.array' => '정상적으로 삭제되었습니다.'];
+        $respond(true, $messages[$mode]);
+        exit;
     }
-}
+    if (in_array($mode, ['board.category', 'category.depth', 'board.field'], true)) $findBoard($positiveId($_REQUEST['board_no'] ?? 0));
 
-
-
-
-else if ($mode == "delete") {
-    $no = $_REQUEST['no'];
-
-    try {
-        $db = DB::getInstance();
-
-        // 1. 삭제 전 sort_no 가져오기
-        $stmt = $db->prepare("SELECT sort_no FROM nb_board WHERE no = :no");
-        $stmt->execute([':no' => $no]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $deletedSortNo = $row['sort_no'] ?? null;
-
-        // 2. 파일 삭제
-        $stmt = $db->prepare("SELECT thumb_image, file_attach_1, file_attach_2, file_attach_3, file_attach_4, file_attach_5
-                              FROM nb_board WHERE no = :no");
-        $stmt->execute([':no' => $no]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($data) {
-            foreach ($data as $file) {
-                if ($file) imageDelete($UPLOAD_DIR_BOARD . "/" . $file);
-            }
-        }
-
-        // 3. 글 삭제
-        $stmt = $db->prepare("DELETE FROM nb_board WHERE no = :no");
-        $stmt->execute([':no' => $no]);
-
-        // 4. 연속 sort_no 재정렬
-        $stmt = $db->prepare("UPDATE nb_board 
-                              SET sort_no = sort_no - 1 
-                              WHERE sort_no > :deletedSortNo");
-        $stmt->execute([':deletedSortNo' => $deletedSortNo]);
-
-        // 5. 댓글 삭제
-        $stmt = $db->prepare("DELETE FROM nb_board_comment WHERE parent_no = :parent_no");
-        $stmt->execute([':parent_no' => $no]);
-
-        // 6. locale 행 삭제
-        BoardLocaleModel::deleteByBoardId((int)$no);
-
-        echo json_encode(["result" => "success", "msg" => "정상적으로 삭제되었습니다."]);
-    } catch (PDOException $e) {
-        echo json_encode(["result" => "fail", "msg" => "DB 처리중 오류가 발생하였습니다.[Error: " . $e->getMessage() . "]"]);
-    } catch (Exception $e) {
-        echo json_encode(["result" => "fail", "msg" => $e->getMessage()]);
-    }
-} else if ($mode == "delete.array") {
-    $board_file_check_no = $_POST['board_file_check_no'];
-
-    try {
-        if (empty($board_file_check_no)) {
-            throw new Exception("삭제할 항목이 없습니다.");
-        }
-
-        $db = DB::getInstance();
-
-        // 1. 삭제 대상의 sort_no 가져오기
-        $placeholders = [];
-        $params = [];
-        foreach ($board_file_check_no as $index => $no) {
-            $key = ":no$index";
-            $placeholders[] = $key;
-            $params[$key] = (int)$no;
-        }
-
-        $stmt = $db->prepare("SELECT sort_no FROM nb_board WHERE no IN (" . implode(',', $placeholders) . ")");
-        $stmt->execute($params);
-        $sortNos = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-        if (empty($sortNos)) {
-            throw new Exception("삭제 대상이 존재하지 않습니다.");
-        }
-
-        $minSortNo = min($sortNos);
-        $deletedCount = count($sortNos);
-
-        // 2. 삭제 대상의 파일 삭제
-        $stmt = $db->prepare("SELECT thumb_image, file_attach_1, file_attach_2, file_attach_3, file_attach_4, file_attach_5
-                              FROM nb_board WHERE no IN (" . implode(',', $placeholders) . ")");
-        $stmt->execute($params);
-        $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($files as $data) {
-            foreach ($data as $file) {
-                if ($file) imageDelete($UPLOAD_DIR_BOARD . "/" . $file);
-            }
-        }
-
-        // 3. 레코드 삭제
-        $stmt = $db->prepare("DELETE FROM nb_board WHERE no IN (" . implode(',', $placeholders) . ")");
-        $stmt->execute($params);
-
-        // 4. sort_no 재조정
-        $stmt = $db->prepare("
-            UPDATE nb_board 
-            SET sort_no = sort_no - :deletedCount 
-            WHERE sort_no > :minSortNo
-        ");
-        $stmt->execute([
-            ':deletedCount' => $deletedCount,
-            ':minSortNo' => $minSortNo
-        ]);
-
-        // 5. 댓글 삭제
-        $stmt = $db->prepare("DELETE FROM nb_board_comment WHERE parent_no IN (" . implode(',', $placeholders) . ")");
-        $stmt->execute($params);
-
-        // 6. locale 행 삭제
-        BoardLocaleModel::deleteByBoardIds(array_values($params));
-
-        echo json_encode(["result" => "success", "msg" => "정상적으로 삭제되었습니다."]);
-    } catch (PDOException $e) {
-        echo json_encode(["result" => "fail", "msg" => "DB 처리중 오류가 발생하였습니다.[Error: " . $e->getMessage() . "]"]);
-    } catch (Exception $e) {
-        echo json_encode(["result" => "fail", "msg" => $e->getMessage()]);
-    }
-} else if ($mode == "board.category") {
+if ($mode == "board.category") {
     $board_no = $_REQUEST['board_no'];
     $boardManage_info = getBoardManageInfoByNo($board_no);
     $category_yn = $boardManage_info[0]['category_yn'];
@@ -490,179 +279,16 @@ else if ($mode == "delete") {
 			'rows' => $rows,
 			'msg' => '정상적으로 불러왔습니다.',
 		]);
-} else if ($mode == "board.copy") {
-    function copyAndRenameFile($originalPath) {
-        if (!file_exists($originalPath)) {
-            return false;
+}
+
+} catch (Throwable $e) {
+    if (!$committed) {
+        try {
+            if ($db->inTransaction()) $db->rollBack();
+        } catch (Throwable $rollbackError) {
+            error_log('[board-process] rollback failed');
         }
-
-        $directory = dirname($originalPath);
-        $extension = pathinfo($originalPath, PATHINFO_EXTENSION);
-        $newPath = $directory . '/' . uniqid() . '.' . $extension;
-
-        if (!copy($originalPath, $newPath)) {
-            return false;
-        }
-
-        return basename($newPath);
+        foreach ($newFiles as $name) imageDelete($UPLOAD_DIR_BOARD . '/' . $name);
     }
-
-    function copyAndUpdateImageSrc($htmlContent) {
-        global $UPLOAD_DIR_BOARD;
-        $updatedSrcArray = [];
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $htmlContent);
-$images = $dom->getElementsByTagName('img');
-
-foreach ($images as $img) {
-$originalSrc = $img->getAttribute('src');
-$baseSrc = basename($originalSrc);
-$updatedSrc = copyAndRenameFile($UPLOAD_DIR_BOARD . '/' . $baseSrc);
-
-if (file_exists($originalSrc)) {
-$newSrc = $UPLOAD_DIR_BOARD . '/' . $updatedSrc;
-
-if (copy($originalSrc, $newSrc)) {
-$img->setAttribute('src', '/uploads/board/' . $updatedSrc);
-$updatedSrcArray[] = $updatedSrc;
-}
-}
-}
-
-$updatedHtmlContent = $dom->saveHTML();
-libxml_clear_errors();
-
-return $updatedHtmlContent;
-}
-
-$no = $_REQUEST['no'];
-
-try {
-$sql = "SELECT thumb_image, file_attach_1, file_attach_2, file_attach_3, file_attach_4, file_attach_5, contents FROM
-nb_board WHERE no = :no";
-$stmt = DB::getInstance()->prepare($sql);
-$stmt->execute([':no' => $no]);
-
-$orgData = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$orgData) {
-throw new Exception("정보를 찾을 수 없습니다.");
-}
-
-$newData = [];
-foreach ($orgData as $k => $v) {
-if ($k === 'contents') {
-$contents = stripslashes($v);
-$contents = htmlspecialchars_decode($contents);
-$newContents = copyAndUpdateImageSrc($contents);
-$newData[$k] = htmlspecialchars($newContents, ENT_QUOTES, 'UTF-8', false);
-} else if (!empty($v)) {
-$newData[$k] = copyAndRenameFile($UPLOAD_DIR_BOARD . '/' . $v);
-} else {
-$newData[$k] = '';
-}
-}
-
-$query = "INSERT INTO nb_board (
-sitekey,
-board_no,
-user_no,
-category_no,
-title,
-contents,
-regdate,
-is_notice,
-write_name,
-direct_url,
-thumb_image,
-file_attach_1,
-file_attach_2,
-file_attach_3,
-file_attach_4,
-file_attach_5,
-file_attach_origin_1,
-file_attach_origin_2,
-file_attach_origin_3,
-file_attach_origin_4,
-file_attach_origin_5,
-extra1,
-extra2,
-extra3,
-extra4,
-extra5,
-extra6,
-extra7,
-extra8,
-extra9,
-extra10,
-extra11,
-extra12,
-extra13,
-extra14,
-extra15
-)
-SELECT
-sitekey,
-board_no,
-user_no,
-category_no,
-title,
-:contents,
-regdate,
-is_notice,
-write_name,
-direct_url,
-:thumb_image,
-:file_attach_1,
-:file_attach_2,
-:file_attach_3,
-:file_attach_4,
-:file_attach_5,
-file_attach_origin_1,
-file_attach_origin_2,
-file_attach_origin_3,
-file_attach_origin_4,
-file_attach_origin_5,
-extra1,
-extra2,
-extra3,
-extra4,
-extra5,
-extra6,
-extra7,
-extra8,
-extra9,
-extra10,
-extra11,
-extra12,
-extra13,
-extra14,
-extra15
-FROM nb_board WHERE no = :no";
-
-$pdo = DB::getInstance();
-$stmt = $pdo->prepare($query);
-$stmt->execute([
-':contents' => $newData['contents'],
-':thumb_image' => $newData['thumb_image'],
-':file_attach_1' => $newData['file_attach_1'],
-':file_attach_2' => $newData['file_attach_2'],
-':file_attach_3' => $newData['file_attach_3'],
-':file_attach_4' => $newData['file_attach_4'],
-':file_attach_5' => $newData['file_attach_5'],
-':no' => $no
-]);
-
-// nb_board_locale 행도 동일 패턴으로 복제 (모든 locale 의 contents 는 default locale 와 동일 — 추후 admin 이 locale 별 편집)
-$copiedId = (int)$pdo->lastInsertId();
-if ($copiedId > 0) {
-    BoardLocaleModel::copyForBoard((int)$no, $copiedId);
-}
-
-echo json_encode(["result" => "success", "msg" => "정상적으로 복사 되었습니다."]);
-} catch (PDOException $e) {
-echo json_encode(["result" => "fail", "msg" => "DB 처리중 오류가 발생하였습니다.[Error: " . $e->getMessage() . "]"]);
-} catch (Exception $e) {
-echo json_encode(["result" => "fail", "msg" => $e->getMessage()]);
-}
+    $respond(false, $e instanceof PDOException ? '데이터 저장 중 오류가 발생했습니다.' : $e->getMessage());
 }

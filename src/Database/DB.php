@@ -18,13 +18,18 @@ class DB
             return self::$instance;
         }
 
-        // 1) 설정 읽기 (환경변수 우선, 없으면 정의된 상수 사용, 그래도 없으면 기본값)
-        $host    = defined('DB_HOST') ? DB_HOST : 'db';
-        $port    = defined('DB_PORT') ? DB_PORT : 3306;
-        $name    = defined('DB_NAME') ? DB_NAME : 'nineonelabs';
-        $user    = defined('DB_USER') ? DB_USER : 'user';
-        $pass    = defined('DB_PASS') ? DB_PASS : 'password';
-        $charset = defined('DB_CHARSET') ? DB_CHARSET : 'utf8mb4';
+        foreach (['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS', 'DB_CHARSET'] as $setting) {
+            if (!defined($setting)) {
+                throw new \RuntimeException('Database configuration is not initialized.');
+            }
+        }
+
+        $host    = DB_HOST;
+        $port    = DB_PORT;
+        $name    = DB_NAME;
+        $user    = DB_USER;
+        $pass    = DB_PASS;
+        $charset = DB_CHARSET;
         $socket  = defined('DB_UNIX_SOCKET') ? DB_UNIX_SOCKET : '';
 
         // 2) DSN 구성 (Unix Socket 우선)

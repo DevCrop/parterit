@@ -31,6 +31,11 @@ try {
 
         $validator->require('title', $data['title'], '제목');
 
+        if ($validator->fails()) {
+            echo json_encode(['success' => false, 'message' => implode("\n", $validator->getErrors())]);
+            exit;
+        }
+
         $image = imageUpload($upload_path, $_FILES['popup_image'] ?? []);
         if (empty($image['saved'])) {
             $validator->require('popup_image', '', '팝업 이미지');
@@ -46,9 +51,23 @@ try {
             exit;
         }
 
-        PopupModel::bumpSortNosOnInsert($data['popup_path']);
         $data['sort_no'] = 1;
-        $result = PopupModel::insert($data);
+        $db = DB::getInstance();
+        try {
+            $db->beginTransaction();
+            PopupModel::bumpSortNosOnInsert($data['popup_path']);
+            $result = PopupModel::insert($data);
+            if ($result) {
+                $db->commit();
+            } else {
+                $db->rollBack();
+                imageDelete($upload_path . '/' . $data['popup_image']);
+            }
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            imageDelete($upload_path . '/' . $data['popup_image']);
+            throw $e;
+        }
 
         echo json_encode([
             'success' => $result,
@@ -87,23 +106,14 @@ try {
         }
 
         $oldSortNo = (int)$existing['sort_no'];
-        if ($newSortNo !== $oldSortNo && $newSortNo > 0) {
-            PopupModel::shiftSortNosForUpdate($oldSortNo, $newSortNo, $id);
+        $uploadError = $_FILES['popup_image']['error'] ?? UPLOAD_ERR_NO_FILE;
+        $hasNewImage = $uploadError === UPLOAD_ERR_OK;
+
+        if ($uploadError !== UPLOAD_ERR_OK && $uploadError !== UPLOAD_ERR_NO_FILE) {
+            echo json_encode(['success' => false, 'message' => '이미지 업로드에 실패했습니다. 파일 크기와 업로드 상태를 확인해 주세요.']);
+            exit;
         }
-
-        $hasNewImage = !empty($_FILES['popup_image']) &&
-            isset($_FILES['popup_image']['error']) &&
-            $_FILES['popup_image']['error'] === UPLOAD_ERR_OK;
-
-        if ($hasNewImage) {
-            if (!empty($existing['popup_image']) && file_exists($upload_path . '/' . $existing['popup_image'])) {
-                imageDelete($upload_path . '/' . $existing['popup_image']);
-            }
-            $image = imageUpload($upload_path, $_FILES['popup_image']);
-            if (!empty($image['saved'])) {
-                $data['popup_image'] = $image['saved'];
-            }
-        } elseif (empty($existing['popup_image'])) {
+        if (!$hasNewImage && empty($existing['popup_image'])) {
             $validator->require('popup_image', '', '팝업 이미지');
         }
 
@@ -115,7 +125,46 @@ try {
             exit;
         }
 
-        $result = PopupModel::update($id, $data);
+        $newImage = null;
+        if ($hasNewImage) {
+            $image = imageUpload($upload_path, $_FILES['popup_image']);
+            if (empty($image['saved'])) {
+                echo json_encode(['success' => false, 'message' => '이미지 업로드에 실패했습니다.']);
+                exit;
+            }
+            $newImage = $image['saved'];
+            $data['popup_image'] = $newImage;
+        }
+
+        $db = DB::getInstance();
+        try {
+            $db->beginTransaction();
+            if ($newSortNo !== $oldSortNo && $newSortNo > 0) {
+                PopupModel::shiftSortNosForUpdate($oldSortNo, $newSortNo, $id);
+            }
+            $result = PopupModel::update($id, $data);
+            if ($result) {
+                $db->commit();
+            } else {
+                $db->rollBack();
+            }
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            if ($newImage !== null && $newImage !== ($existing['popup_image'] ?? null)) {
+                imageDelete($upload_path . '/' . $newImage);
+            }
+            throw $e;
+        }
+
+        if ($newImage !== null && $newImage !== ($existing['popup_image'] ?? null)) {
+            if ($result && !empty($existing['popup_image'])) {
+                imageDelete($upload_path . '/' . $existing['popup_image']);
+            } elseif (!$result) {
+                imageDelete($upload_path . '/' . $newImage);
+            }
+        }
 
         echo json_encode([
             'success' => $result,
@@ -129,11 +178,17 @@ try {
         if (!$id) throw new Exception("ID가 없습니다.");
 
         $existing = PopupModel::find($id);
-        if ($existing) {
-            imageDelete($upload_path . '/' . $existing['popup_image']);
+        $db = DB::getInstance();
+        try {
+            $db->beginTransaction();
+            $result = PopupModel::delete($id);
+            if ($result) $db->commit();
+            else $db->rollBack();
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            throw $e;
         }
-
-        $result = PopupModel::delete($id);
+        if ($result && !empty($existing['popup_image'])) imageDelete($upload_path . '/' . $existing['popup_image']);
 
         echo json_encode([
             'success' => $result,
@@ -149,14 +204,24 @@ try {
             throw new Exception("삭제할 ID 목록이 없습니다.");
         }
 
+        $existingImages = [];
         foreach ($ids as $id) {
             $existing = PopupModel::find((int)$id);
-            if ($existing) {
-                imageDelete($upload_path . '/' . $existing['popup_image']);
-            }
+            if (!empty($existing['popup_image'])) $existingImages[] = $existing['popup_image'];
         }
-
-        $result = PopupModel::deleteMultiple($ids);
+        $db = DB::getInstance();
+        try {
+            $db->beginTransaction();
+            $result = PopupModel::deleteMultiple($ids);
+            if ($result) $db->commit();
+            else $db->rollBack();
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            throw $e;
+        }
+        if ($result) {
+            foreach ($existingImages as $existingImage) imageDelete($upload_path . '/' . $existingImage);
+        }
 
         echo json_encode([
             'success' => $result,
@@ -204,8 +269,6 @@ try {
             exit;
         }
 
-        PopupModel::shiftSortNosForUpdate($oldNo, $newNo, $id);
-
         $dataToUpdate = [
             'title'        => $currentData['title'],
             'popup_type'   => 1,
@@ -222,7 +285,16 @@ try {
             'sort_no'      => $newNo,
         ];
 
-        $updateResult = PopupModel::update($id, $dataToUpdate);
+        try {
+            $db->beginTransaction();
+            PopupModel::shiftSortNosForUpdate($oldNo, $newNo, $id);
+            $updateResult = PopupModel::update($id, $dataToUpdate);
+            if ($updateResult) $db->commit();
+            else $db->rollBack();
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            throw $e;
+        }
 
         echo json_encode([
             'success' => (bool)$updateResult,
@@ -233,7 +305,7 @@ try {
 
     echo json_encode(['success' => false, 'message' => '유효하지 않은 요청입니다.']);
     exit;
-} catch (Exception $e) {
+} catch (Throwable $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,

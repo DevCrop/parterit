@@ -89,7 +89,7 @@ class Role
 
     public function isReadOnly(): bool
     {
-        return $this->is('external');
+        return !$this->in(['superadmin', 'manager']);
     }
 
     public function requireLogin(): void

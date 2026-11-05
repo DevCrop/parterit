@@ -22,7 +22,9 @@ export class PopupController {
     root.querySelectorAll("[data-popup-slide]").forEach((slide) => {
       const id = slide.getAttribute("data-popup-id");
       if (!id) return;
-      if (window.localStorage.getItem(this.#storageKey(id)) === today) {
+      let suppressed = false;
+      try { suppressed = window.localStorage.getItem(this.#storageKey(id)) === today; } catch (_) { /* Storage can be disabled; the popup must remain closable. */ }
+      if (suppressed) {
         slide.remove();
       }
     });
@@ -67,7 +69,9 @@ export class PopupController {
       const today = this.#todayKey();
       root.querySelectorAll("[data-popup-slide]").forEach((slide) => {
         const id = slide.getAttribute("data-popup-id");
-        if (id) window.localStorage.setItem(this.#storageKey(id), today);
+        if (id) {
+          try { window.localStorage.setItem(this.#storageKey(id), today); } catch (_) { /* Closing works even when persistence is unavailable. */ }
+        }
       });
     }
 
@@ -80,7 +84,7 @@ export class PopupController {
 
   #storageKey(id) {
     const path = window.location.pathname.replace(/\/+$/, "") || "/";
-    return `dkh-popup:${path}:${id}`;
+    return `partnerit-popup:${path}:${id}`;
   }
 
   #todayKey() {

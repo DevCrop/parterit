@@ -39,7 +39,8 @@ final class BrochureRequestService
         foreach (['company' => 100, 'name' => 100, 'phone' => 30, 'email' => 190, 'message' => 2000] as $field => $max) {
             $value = $request->post($field, '');
             $data[$field] = is_string($value) ? trim($value) : '';
-            if (!is_string($value) || mb_strlen($data[$field]) > $max || ($field !== 'message' && $data[$field] === '')) {
+            $length = \TextHelper::utf8Length($data[$field]);
+            if (!is_string($value) || $length === null || $length > $max || ($field !== 'message' && $data[$field] === '')) {
                 $errors[$field] = '필수 항목과 입력 길이를 확인해 주세요.';
             }
         }
@@ -75,7 +76,7 @@ final class BrochureRequestService
                     'sitekey' => NB_SITEKEY, 'company' => $data['company'], 'name' => $data['name'],
                     'phone' => $data['phone'], 'email' => $data['email'], 'message' => $data['message'],
                     'version' => \ProjectHelper::config('brochure.consent_version', '20261007'), 'key' => $submission,
-                    'ip' => $ip, 'agent' => mb_substr((string) $request->header('User-Agent', ''), 0, 255),
+                    'ip' => $ip, 'agent' => \TextHelper::utf8Prefix((string) $request->header('User-Agent', ''), 255),
                 ]);
                 $_SESSION['brochure_last_submit'] = time();
             }

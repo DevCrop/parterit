@@ -65,19 +65,40 @@ if (!defined('LOCALES')) {
 /** 사이트 기본 언어(쿠키·Accept-Language 없을 때) */
 define('DEFAULT_LOCALE', defined('SITE_DEFAULT_LOCALE') ? SITE_DEFAULT_LOCALE : 'ko');
 
+/** Read private configuration once; never include its values in parse errors. */
+$readEnvFile = static function (): array {
+    $envFile = ROOT_PATH . '/.env';
+    if (!is_readable($envFile)) {
+        return [];
+    }
+
+    $parsedEnv = @parse_ini_file($envFile, false, INI_SCANNER_RAW);
+    if (!is_array($parsedEnv)) {
+        throw new RuntimeException('Environment configuration could not be parsed.');
+    }
+
+    return $parsedEnv;
+};
+$fileEnvironment = null;
+
 /**
- * 환경 판별 (우선순위):
- *  1) 서버측 환경변수 APP_ENV (Apache `SetEnv APP_ENV production` / PHP-FPM env) — 있으면 최우선·스푸핑 안전.
- *  2) 없으면 호스트로 판별 — 로컬 개발 호스트(localhost·루프백·docker)만 development, 그 외 실도메인은 production.
- * → 실서버는 별도 설정 없이 업로드만으로 production 동작.
- * 주의: APP_ENV 미설정 시 실서버에 `Host: localhost` 로 들어오면 dev 로 빠지는 잔여 리스크 →
- *       운영에선 vhost 에 `SetEnv APP_ENV production` 을 넣어 1)로 고정하는 것을 권장.
+ * APP_ENV priority: server environment > private .env > request host fallback.
+ * Explicit development never loads the private file; its DB values stay ignored.
+ * Production deployments should set APP_ENV=production in the server or .env,
+ * since a reverse proxy may forward localhost as the backend Host.
  */
-define('ENV', (function () {
+define('ENV', (function () use ($readEnvFile, &$fileEnvironment) {
     $e = $_SERVER['APP_ENV'] ?? getenv('APP_ENV');
     if ($e === ENV_PRODUCTION || $e === ENV_DEVELOPMENT) {
         return $e;
     }
+
+    $fileEnvironment = $readEnvFile();
+    $e = $fileEnvironment['APP_ENV'] ?? '';
+    if ($e === ENV_PRODUCTION || $e === ENV_DEVELOPMENT) {
+        return $e;
+    }
+
     $host = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
     $devHosts = ['localhost', '127.0.0.1', '::1', 'web'];
     return ($host === '' || in_array($host, $devHosts, true)) ? ENV_DEVELOPMENT : ENV_PRODUCTION;
@@ -103,45 +124,31 @@ define('FORCE_HTTP_SCHEME', true);
  * 로컬/운영 환경 모두에서 DB 접속 정보를 여기서 관리합니다.
  * (실 서버에서는 환경변수나 .env를 통해 덮어씌워 사용 권장)
  */
-if (ENV === ENV_PRODUCTION) {
-    $productionEnv = [];
-    $envFile = ROOT_PATH . '/.env';
-    if (is_readable($envFile)) {
-        $parsedEnv = parse_ini_file($envFile, false, INI_SCANNER_RAW);
-        $productionEnv = is_array($parsedEnv) ? $parsedEnv : [];
+$productionEnv = ENV === ENV_PRODUCTION ? ($fileEnvironment ?? $readEnvFile()) : [];
+
+$envValue = static function (string $key, string $fallback = '') use ($productionEnv): string {
+    $serverValue = $_SERVER[$key] ?? getenv($key);
+    if (is_string($serverValue) && trim($serverValue) !== '') {
+        return trim($serverValue);
     }
 
-    $envValue = static function (string $key, string $fallback = '') use ($productionEnv): string {
-        $serverValue = $_SERVER[$key] ?? getenv($key);
-        if (is_string($serverValue) && trim($serverValue) !== '') {
-            return trim($serverValue);
-        }
+    return trim((string) ($productionEnv[$key] ?? $fallback));
+};
 
-        return trim((string) ($productionEnv[$key] ?? $fallback));
-    };
-
-    $dbHost = $envValue('DB_HOST', '127.0.0.1');
-    $dbName = $envValue('DB_NAME');
-    $dbUser = $envValue('DB_USER');
-    $dbPass = $envValue('DB_PASS');
-    if ($dbName === '' || $dbUser === '' || $dbPass === '') {
-        throw new RuntimeException('Production database credentials are not configured.');
-    }
-
-    define('DB_HOST', $dbHost);
-    define('DB_PORT', max(1, (int) $envValue('DB_PORT', '3306')));
-    define('DB_NAME', $dbName);
-    define('DB_USER', $dbUser);
-    define('DB_PASS', $dbPass);
-    define('DB_CHARSET', $envValue('DB_CHARSET', 'utf8mb4'));
-} else if (ENV === ENV_DEVELOPMENT) {
-    define('DB_HOST', 'db');
-    define('DB_PORT', 3306);
-    define('DB_NAME', 'nineonelabs');
-    define('DB_USER', 'user');
-    define('DB_PASS', 'password');
-    define('DB_CHARSET', 'utf8mb4');
+$dbHost = $envValue('DB_HOST', ENV === ENV_DEVELOPMENT ? 'db' : '127.0.0.1');
+$dbName = $envValue('DB_NAME');
+$dbUser = $envValue('DB_USER');
+$dbPass = $envValue('DB_PASS');
+if ($dbName === '' || $dbUser === '' || $dbPass === '') {
+    throw new RuntimeException('Database credentials are not configured.');
 }
+
+define('DB_HOST', $dbHost);
+define('DB_PORT', max(1, (int) $envValue('DB_PORT', '3306')));
+define('DB_NAME', $dbName);
+define('DB_USER', $dbUser);
+define('DB_PASS', $dbPass);
+define('DB_CHARSET', $envValue('DB_CHARSET', 'utf8mb4'));
 
 /** nb_request.sitekey 등 DB 레코드 구분용 (nb_siteinfo.sitekey 와 동일 권장) */
 if (!defined('NB_SITEKEY')) {

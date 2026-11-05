@@ -81,7 +81,7 @@ include_once "../../inc/admin.js.php";
                                     <div class="no-admin-content">
                                         <input type="password" name="upwd" id="upwd" class="no-input--detail"
                                             placeholder="비밀번호를 입력하세요" required minlength="8" maxlength="30"
-                                            title="비밀번호 정책에 맞게 입력해주세요.">
+                                            title="8자 이상, 영문 대문자·소문자·숫자·특수문자 중 3종 이상 입력해주세요.">
                                     </div>
                                 </div>
 
@@ -107,7 +107,7 @@ include_once "../../inc/admin.js.php";
                                     <h3 class="no-admin-title"><label for="email">이메일</label></h3>
                                     <div class="no-admin-content">
                                         <input type="email" name="email" id="email" class="no-input--detail"
-                                            placeholder="예: admin@example.com" required>
+                                            placeholder="예: admin@example.com (선택)">
                                     </div>
                                 </div>
 
@@ -115,8 +115,8 @@ include_once "../../inc/admin.js.php";
                                     <h3 class="no-admin-title"><label for="phone">연락처</label></h3>
                                     <div class="no-admin-content">
                                         <input type="tel" name="phone" id="phone" class="no-input--detail"
-                                            data-phone="true" placeholder="숫자만 입력 (예: 01012345678)"
-                                            pattern="^01[016789][0-9]{7,8}$"
+                                            data-phone="true" placeholder="예: 010-1234-5678"
+                                            pattern="[0-9]{3}-[0-9]{3,4}-[0-9]{4}"
                                             title="올바른 연락처를 입력해주세요. (예: 01012345678)">
                                     </div>
                                 </div>

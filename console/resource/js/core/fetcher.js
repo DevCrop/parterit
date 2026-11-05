@@ -14,8 +14,8 @@ export async function fetcher(url, data = {}, method = "POST") {
   const res = await fetch(url, config);
   const json = await res.json();
 
-  if (!res.ok || json.success === false) {
-    throw new Error(json.message || "요청 실패");
+  if (!res.ok || json.success === false || json.result === "fail") {
+    throw new Error(json.message || json.msg || "요청 실패");
   }
 
   return json;

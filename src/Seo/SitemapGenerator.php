@@ -148,7 +148,7 @@ class SitemapGenerator
         }
 
         global $NO_SITE_UNIQUE_KEY;
-        $sitekey = $NO_SITE_UNIQUE_KEY ?? 'DKHOLD';
+        $sitekey = $NO_SITE_UNIQUE_KEY ?? (defined('SITE_SITEKEY') ? (string) \SITE_SITEKEY : '');
 
         try {
             $pdo = \DB::getInstance();

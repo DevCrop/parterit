@@ -2,7 +2,7 @@
 require_once __DIR__ . '/partnerit-stories-data.php';
 
 $cmsStories = partnerit_customer_stories();
-$featuredStories = partnerit_featured_customer_stories($cmsStories);
+$featuredStories = array_slice(partnerit_featured_customer_stories($cmsStories), 0, 5);
 $featuredIds = array_map(static fn(array $story): int => (int) ($story['id'] ?? 0), $featuredStories);
 
 $allStories = $cmsStories !== []

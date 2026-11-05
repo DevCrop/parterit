@@ -293,8 +293,8 @@ $searchParam = http_build_query([
                                                     }
                                                 }
                                                 $interestSummary = $interestLabels !== [] ? implode(', ', $interestLabels) : '-';
-                                                if (mb_strlen($interestSummary) > 60) {
-                                                    $interestSummary = mb_substr($interestSummary, 0, 57) . '…';
+                                                if ((TextHelper::utf8Length($interestSummary) ?? 0) > 60) {
+                                                    $interestSummary = TextHelper::utf8Prefix($interestSummary, 57) . '…';
                                                 }
                                                 ?>
                                             <tr>

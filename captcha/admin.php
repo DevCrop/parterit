@@ -1,5 +1,12 @@
 <?php
 
+require_once dirname(__DIR__) . '/inc/lib/helper/CaptchaHelper.php';
+CaptchaHelper::noCache();
+if (!function_exists('imagecreatetruecolor')) {
+    CaptchaHelper::sendPng(100, [30, 30, 30]);
+    exit;
+}
+
 $image = imagecreatetruecolor(100, 30);
 if (!$image) {
     http_response_code(500);

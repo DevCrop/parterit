@@ -6,6 +6,14 @@ services:
       - ./:/var/www/html
     ports:
       - "8888:80"
+    environment:
+      APP_ENV: development
+      DB_HOST: db
+      DB_PORT: '3306'
+      DB_NAME: nineonelabs
+      DB_USER: user
+      DB_PASS: password
+      DB_CHARSET: utf8mb4
     depends_on:
       - db
       - phpmyadmin

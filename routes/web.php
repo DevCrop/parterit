@@ -1,7 +1,7 @@
 <?php
 
 if (!isset($NO_SITE_UNIQUE_KEY)) {
-    $NO_SITE_UNIQUE_KEY = "DKHOLD";
+    $NO_SITE_UNIQUE_KEY = SITE_SITEKEY;
 }
 
 /** @var \Routing\Router $router */

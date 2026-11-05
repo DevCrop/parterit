@@ -132,141 +132,65 @@ if ($mode == "setting.config.save") {
     $role->requireLogin();
     $role->requireCanModify();
 
-    // Default values for missing POST data
-    $title = isset($_POST['title']) ? $_POST['title'] : '';
-    $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
-    $hp = isset($_POST['hp']) ? $_POST['hp'] : '';
-    $fax = isset($_POST['fax']) ? $_POST['fax'] : '';
-    $email = isset($_POST['email']) ? $_POST['email'] : '';
-    $customercenter_able_time = isset($_POST['customercenter_able_time']) ? $_POST['customercenter_able_time'] : '';
-    $company_able_time = isset($_POST['company_able_time']) ? $_POST['company_able_time'] : '';
-    $google_map_key = isset($_POST['google_map_key']) ? $_POST['google_map_key'] : '';
-    $footer_name = isset($_POST['footer_name']) ? $_POST['footer_name'] : '';
-    $footer_address = isset($_POST['footer_address']) ? $_POST['footer_address'] : '';
-    $footer_phone = isset($_POST['footer_phone']) ? $_POST['footer_phone'] : '';
-    $footer_hp = isset($_POST['footer_hp']) ? $_POST['footer_hp'] : '';
-    $footer_fax = isset($_POST['footer_fax']) ? $_POST['footer_fax'] : '';
-    $footer_email = isset($_POST['footer_email']) ? $_POST['footer_email'] : '';
-    $footer_owner = isset($_POST['footer_owner']) ? $_POST['footer_owner'] : '';
-    $footer_ssn = isset($_POST['footer_ssn']) ? $_POST['footer_ssn'] : '';
-    $footer_policy_charger = isset($_POST['footer_policy_charger']) ? $_POST['footer_policy_charger'] : '';
-    // Handle file uploads with checks
-    $logo_top_filename = isset($_POST['logo_top_filename']) ? $_POST['logo_top_filename'] : '';
-    $logo_footer_filename = isset($_POST['logo_footer_filename']) ? $_POST['logo_footer_filename'] : '';
-
-    $dir_logo = $UPLOAD_SITEINFO_DIR_LOGO;
-
-    $logo_top = '';
-    $logo_footer = '';
-
-    // Handle logo file uploads
-    if (isset($_FILES['logo_top'])) {
-        $uploadResult = imageUpload($dir_logo, $_FILES['logo_top'], $logo_top_filename, false);
-        $logo_top = $uploadResult['saved'];
+    // A partial form must never erase fields that it did not submit.
+    $fields = [
+        'title', 'phone', 'hp', 'fax', 'email',
+        'customercenter_able_time', 'company_able_time', 'google_map_key',
+        'footer_name', 'footer_address', 'footer_phone', 'footer_hp',
+        'footer_fax', 'footer_email', 'footer_owner', 'footer_ssn', 'footer_policy_charger',
+    ];
+    $values = [];
+    foreach ($fields as $field) {
+        if (!array_key_exists($field, $_POST)) {
+            continue;
+        }
+        if (!is_string($_POST[$field])) {
+            echo json_encode(['result' => 'fail', 'msg' => '입력값 형식이 올바르지 않습니다.']);
+            exit;
+        }
+        $values[$field] = $_POST[$field];
     }
 
-    if (isset($_FILES['logo_footer'])) {
-        $uploadResult = imageUpload($dir_logo, $_FILES['logo_footer'], $logo_footer_filename, false);
-        $logo_footer = $uploadResult['saved'];
+    foreach (['logo_top', 'logo_footer'] as $field) {
+        $file = $_FILES[$field] ?? null;
+        if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            continue;
+        }
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            echo json_encode(['result' => 'fail', 'msg' => '로고 업로드에 실패했습니다.']);
+            exit;
+        }
+        // Keep the previous file until the database has accepted the new name.
+        $upload = imageUpload($UPLOAD_SITEINFO_DIR_LOGO, $file, '', false);
+        if (empty($upload['saved'])) {
+            echo json_encode(['result' => 'fail', 'msg' => '로고 업로드에 실패했습니다.']);
+            exit;
+        }
+        $values[$field] = $upload['saved'];
     }
 
-    // Check if entry exists in the database
-    $stmt = $pdo->prepare("SELECT a.no FROM nb_siteinfo a WHERE a.sitekey = :sitekey");
+    if (!$values) {
+        echo json_encode(['result' => 'fail', 'msg' => '저장할 정보가 없습니다.']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare('SELECT no FROM nb_siteinfo WHERE sitekey = :sitekey');
     $stmt->execute(['sitekey' => $NO_SITE_UNIQUE_KEY]);
-    $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($data) {
-        // Update existing record (사이트 정보 + 푸터 + 로고만, meta 영역은 SEO 관리에서 처리)
-        $query = "UPDATE nb_siteinfo SET
-                    title = :title,
-                    phone = :phone,
-                    hp = :hp,
-                    fax = :fax,
-                    email = :email,
-                    customercenter_able_time = :customercenter_able_time,
-                    company_able_time = :company_able_time,
-                    google_map_key = :google_map_key,
-                    footer_name = :footer_name,
-                    footer_address = :footer_address,
-                    footer_phone = :footer_phone,
-                    footer_hp = :footer_hp,
-                    footer_fax = :footer_fax,
-                    footer_email = :footer_email,
-                    footer_owner = :footer_owner,
-                    footer_ssn = :footer_ssn,
-                    footer_policy_charger = :footer_policy_charger";
-
-        if ($logo_top) $query .= ", logo_top = :logo_top";
-        if ($logo_footer) $query .= ", logo_footer = :logo_footer";
-
-        $query .= " WHERE sitekey = :sitekey";
-
-        $stmt = $pdo->prepare($query);
-        $params = compact(
-            'title',
-            'phone',
-            'hp',
-            'fax',
-            'email',
-            'customercenter_able_time',
-            'company_able_time',
-            'google_map_key',
-            'footer_name',
-            'footer_address',
-            'footer_phone',
-            'footer_hp',
-            'footer_fax',
-            'footer_email',
-            'footer_owner',
-            'footer_ssn',
-            'footer_policy_charger'
-        );
-        $params['sitekey'] = $NO_SITE_UNIQUE_KEY;
-        if ($logo_top) $params['logo_top'] = $logo_top;
-        if ($logo_footer) $params['logo_footer'] = $logo_footer;
-
-        $result = $stmt->execute($params);
-
-        echo json_encode(["result" => $result ? "success" : "fail", "msg" => $result ? "정상적으로 수정되었습니다." : "처리중 문제가 발생하였습니다.[Error-DB]"]);
+    $exists = $stmt->fetchColumn() !== false;
+    if ($exists) {
+        // Column names come exclusively from the whitelist above.
+        $assignments = array_map(static fn($field) => "$field = :$field", array_keys($values));
+        $query = 'UPDATE nb_siteinfo SET ' . implode(', ', $assignments) . ' WHERE sitekey = :sitekey';
     } else {
-        // Insert new record (meta 영역은 SEO 관리에서 처리)
-        $query = "INSERT INTO nb_siteinfo (
-                    sitekey, title, logo_top, logo_footer,
-                    phone, hp, fax, email, customercenter_able_time, company_able_time,
-                    google_map_key, footer_name, footer_address, footer_phone, footer_hp,
-                    footer_fax, footer_email, footer_owner, footer_ssn, footer_policy_charger
-                  ) VALUES (
-                    :sitekey, :title, :logo_top, :logo_footer,
-                    :phone, :hp, :fax, :email, :customercenter_able_time, :company_able_time,
-                    :google_map_key, :footer_name, :footer_address, :footer_phone, :footer_hp,
-                    :footer_fax, :footer_email, :footer_owner, :footer_ssn, :footer_policy_charger
-                  )";
-
-        $stmt = $pdo->prepare($query);
-        $params = compact(
-            'title',
-            'logo_top',
-            'logo_footer',
-            'phone',
-            'hp',
-            'fax',
-            'email',
-            'customercenter_able_time',
-            'company_able_time',
-            'google_map_key',
-            'footer_name',
-            'footer_address',
-            'footer_phone',
-            'footer_hp',
-            'footer_fax',
-            'footer_email',
-            'footer_owner',
-            'footer_ssn',
-            'footer_policy_charger'
-        );
-        $params['sitekey'] = $NO_SITE_UNIQUE_KEY;
-
-        $result = $stmt->execute($params);
-        echo json_encode(["result" => $result ? "success" : "fail", "msg" => $result ? "정상적으로 등록 되었습니다." : "처리중 문제가 발생하였습니다.[Error-DB]"]);
+        $values += array_fill_keys(array_merge($fields, ['logo_top', 'logo_footer']), '');
+        $columns = array_keys($values);
+        $query = 'INSERT INTO nb_siteinfo (sitekey, ' . implode(', ', $columns) . ') VALUES (:sitekey, :'
+            . implode(', :', $columns) . ')';
     }
+    $values['sitekey'] = $NO_SITE_UNIQUE_KEY;
+    $result = $pdo->prepare($query)->execute($values);
+    echo json_encode([
+        'result' => $result ? 'success' : 'fail',
+        'msg' => $result ? '정상적으로 저장되었습니다.' : '처리중 문제가 발생하였습니다.[Error-DB]',
+    ]);
 }

@@ -31,9 +31,10 @@ $stmt = $db->prepare("
       AND (
             is_unlimited = 1
             OR (
-                is_unlimited = 0
+                is_unlimited IN (0, 2)
                 AND (start_at IS NULL OR start_at <= NOW())
-                AND (end_at   IS NULL OR end_at   >= NOW())
+              AND (end_at IS NULL OR end_at >= NOW()
+                   OR (CHAR_LENGTH(end_at) = 10 AND end_at >= CURRENT_DATE()))
             )
           )
     ORDER BY sort_no ASC, id ASC

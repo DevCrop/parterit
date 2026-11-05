@@ -105,8 +105,8 @@ include_once "../../inc/admin.js.php";
                                     <h3 class="no-admin-title"><label for="upwd">비밀번호</label></h3>
                                     <div class="no-admin-content">
                                         <input type="password" name="upwd" id="upwd" class="no-input--detail"
-                                            placeholder="수정할 경우 새 비밀번호 입력" <?= $id ? '' : 'required' ?> minlength="6"
-                                            maxlength="30" title="6자 이상 입력해주세요.">
+                                            placeholder="변경할 때만 입력 (비워두면 기존 비밀번호 유지)" <?= $id ? '' : 'required' ?> minlength="8"
+                                            maxlength="30" title="8자 이상, 영문 대문자·소문자·숫자·특수문자 중 3종 이상 입력해주세요.">
                                     </div>
                                 </div>
 
@@ -116,7 +116,7 @@ include_once "../../inc/admin.js.php";
                                     <div class="no-admin-content">
                                         <input type="password" name="upwd_confirm" id="upwd_confirm"
                                             class="no-input--detail" placeholder="비밀번호를 다시 입력해주세요"
-                                            <?= $id ? '' : 'required' ?> minlength="6" maxlength="30"
+                                            <?= $id ? '' : 'required' ?> minlength="8" maxlength="30"
                                             title="비밀번호를 동일하게 입력해주세요.">
                                     </div>
                                 </div>
@@ -139,7 +139,7 @@ include_once "../../inc/admin.js.php";
                                     <div class="no-admin-content">
                                         <input type="email" name="email" id="email" class="no-input--detail"
                                             value="<?= htmlspecialchars($account['email'] ?? '', ENT_QUOTES, 'UTF-8', false) ?>"
-                                            placeholder="예: admin@example.com" required>
+                                            placeholder="예: admin@example.com (선택)">
                                     </div>
                                 </div>
 
@@ -149,7 +149,7 @@ include_once "../../inc/admin.js.php";
                                     <div class="no-admin-content">
                                         <input type="tel" name="phone" id="phone" class="no-input--detail"
                                             value="<?= htmlspecialchars($account['phone'] ?? '', ENT_QUOTES, 'UTF-8', false) ?>" data-phone="true"
-                                            placeholder="숫자만 입력 (예: 01012345678)" pattern="^01[016789][0-9]{7,8}$"
+                                            placeholder="예: 010-1234-5678" pattern="[0-9]{3}-[0-9]{3,4}-[0-9]{4}"
                                             title="올바른 휴대폰 번호를 입력해주세요. (예: 01012345678)">
                                     </div>
                                 </div>

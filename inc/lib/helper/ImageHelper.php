@@ -86,7 +86,7 @@ final class ImageHelper
      * <picture> 태그를 출력한다 — webp 짝꿍이 있으면 <source>를 끼우고, 없으면 <img>만 반환.
      *
      * 입력 형태:
-     *   - 'logo/client_logo_1.png'         → resource/images 기준 상대경로 (image_path와 동일)
+     *   - 'logo/partnerit-header.svg'      → resource/images 기준 상대경로 (image_path와 동일)
      *   - '/resource/images/sub/x.jpg'     → 절대경로 (base_path)
      *   - 'https://cdn.example.com/x.jpg'  → 외부 URL (picture로 감싸지 않고 img만)
      *

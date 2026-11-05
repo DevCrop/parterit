@@ -1,11 +1,10 @@
-# Apache 모듈 활성화 및 심볼릭 링크 허용
-<FilesMatch "^\.env(?:\..*)?$">
-    Require all denied
-</FilesMatch>
+# mod_rewrite is required. Keep secrets blocked even with AllowOverride FileInfo.
+# Without mod_rewrite, this directive fails closed instead of exposing .env.
+RewriteEngine On
+RewriteRule (^|/)\.env(?:[./]|$) - [F,END,NC]
 
 <IfModule mod_rewrite.c>
-    Options +FollowSymLinks
-    RewriteEngine On
+    # FollowSymLinks/SymLinksIfOwnerMatch must be enabled in the server Directory.
 
     # Retired template editors are not part of the Summernote CMS.
     RewriteRule ^resource/vendor/(smarteditor2(?:/|$)|tinymce/plugins/jbimages(?:/|$)) - [F,L,NC]

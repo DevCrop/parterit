@@ -36,6 +36,23 @@ try {
     $input = $_POST;
     $mode = $input['mode'] ?? '';
 
+    if (in_array($mode, ['save', 'update'], true)) {
+        foreach (['uid', 'uname', 'email', 'phone', 'upwd', 'upwd_confirm', 'active_status'] as $field) {
+            if (isset($input[$field]) && !is_string($input[$field])) {
+                http_response_code(422);
+                echo json_encode(['success' => false, 'message' => '입력값 형식이 올바르지 않습니다.']);
+                exit;
+            }
+        }
+        $input['email'] = trim($input['email'] ?? '');
+        $input['phone'] = trim($input['phone'] ?? '');
+        if (!preg_match('/^[A-Za-z0-9_]{4,20}$/D', $input['uid'] ?? '') || !in_array($input['active_status'] ?? 'Y', ['Y', 'N'], true)) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => '아이디 또는 사용 상태를 확인해 주세요.']);
+            exit;
+        }
+    }
+
     if ($mode === 'save') {
         $validator = new Validator();
         $validator->require('uid', $input['uid'] ?? '', '아이디');
@@ -70,7 +87,7 @@ try {
             exit;
         }
 
-        if (AccountModel::exists(['email' => $input['email']])) {
+        if ($input['email'] !== '' && AccountModel::exists(['email' => $input['email']])) {
             echo json_encode([
                 'success' => false,
                 'message' => '이미 사용 중인 이메일입니다.'
@@ -78,7 +95,7 @@ try {
             exit;
         }
 
-        if (AccountModel::exists(['phone' => $input['phone']])) {
+        if ($input['phone'] !== '' && AccountModel::exists(['phone' => $input['phone']])) {
             echo json_encode([
                 'success' => false,
                 'message' => '이미 사용 중인 연락처입니다.'
@@ -133,6 +150,12 @@ try {
             exit;
         }
 
+        if ((int) $id === $currentAdminNo) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => '현재 로그인한 계정은 삭제할 수 없습니다.']);
+            exit;
+        }
+
         $deleted = AccountModel::delete($id);
 
         echo json_encode([
@@ -175,11 +198,11 @@ try {
             echo json_encode(['success' => false, 'message' => '이미 사용 중인 아이디입니다.']);
             exit;
         }
-        if (AccountModel::existsExceptSelf(['email' => $input['email']], $id)) {
+        if ($input['email'] !== '' && AccountModel::existsExceptSelf(['email' => $input['email']], $id)) {
             echo json_encode(['success' => false, 'message' => '이미 사용 중인 이메일입니다.']);
             exit;
         }
-        if (AccountModel::existsExceptSelf(['phone' => $input['phone']], $id)) {
+        if ($input['phone'] !== '' && AccountModel::existsExceptSelf(['phone' => $input['phone']], $id)) {
             echo json_encode(['success' => false, 'message' => '이미 사용 중인 연락처입니다.']);
             exit;
         }
@@ -229,6 +252,12 @@ try {
             exit;
         }
 
+        if ($currentAdminNo === (int)$id && ($input['active_status'] ?? 'Y') !== 'Y') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => '현재 로그인한 계정은 사용 중지할 수 없습니다.']);
+            exit;
+        }
+
         if (!$role->canEdit() && $currentRoleId !== $newRoleId) {
             http_response_code(403);
             echo json_encode([
@@ -266,6 +295,12 @@ try {
 
         if (!is_array($ids) || empty($ids)) {
             echo json_encode(['success' => false, 'message' => '삭제할 항목이 없습니다.']);
+            exit;
+        }
+
+        if (in_array($currentAdminNo, array_map('intval', $ids), true)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => '선택 항목에 현재 로그인한 계정이 포함되어 있습니다.']);
             exit;
         }
 

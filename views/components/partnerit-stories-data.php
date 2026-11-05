@@ -23,7 +23,10 @@ if (!function_exists('partnerit_customer_stories')) {
                 return $stories;
             }
 
-            foreach (getBoardForFront($boardNo, 100) as $row) {
+            $count = DB::getInstance()->prepare('SELECT COUNT(*) FROM nb_board WHERE sitekey = :sitekey AND board_no = :board_no');
+            $count->execute(['sitekey' => $GLOBALS['NO_SITE_UNIQUE_KEY'], 'board_no' => $boardNo]);
+            $total = (int) $count->fetchColumn();
+            foreach ($total > 0 ? getBoardForFront($boardNo, $total) : [] as $row) {
                 $stories[] = partnerit_customer_story_from_row($row);
             }
         } catch (Throwable $exception) {
@@ -89,10 +92,15 @@ if (!function_exists('partnerit_customer_story_by_id')) {
             return null;
         }
 
-        foreach (partnerit_customer_stories() as $story) {
-            if ((int) ($story['id'] ?? 0) === $id) {
-                return $story;
+        try {
+            $board = getBoardInfoByName('고객사례');
+            $boardNo = (int) ($board[0]['no'] ?? 0);
+            if ($boardNo > 0) {
+                $row = getBoardPostByNo($id, $boardNo);
+                return $row ? partnerit_customer_story_from_row($row) : null;
             }
+        } catch (Throwable $exception) {
+            return null;
         }
 
         return null;

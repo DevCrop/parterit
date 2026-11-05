@@ -76,7 +76,7 @@ class SeoManager
             $context->baseUrl(),
             !empty($siteInfo['meta_thumb'])
                 ? (\BASE_PATH . '/uploads/meta/' . $siteInfo['meta_thumb'])
-                : (\BASE_PATH . '/resource/images/main/hero_poster.png')
+                : (\BASE_PATH . '/resource/images/main/hero/laptop-composition.png')
         );
 
         $metaImage = $this->resolveAbsoluteUrl(
@@ -90,7 +90,7 @@ class SeoManager
             $context->baseUrl(),
             !empty($siteInfo['meta_favicon_ico'])
                 ? (\BASE_PATH . '/uploads/meta/' . $siteInfo['meta_favicon_ico'])
-                : (\BASE_PATH . '/resource/images/favicon.png')
+                : (\BASE_PATH . '/resource/images/logo/partnerit-favicon.svg')
         );
 
         $googleVerifications = $siteInfo['google_site_verification'] ?? [];

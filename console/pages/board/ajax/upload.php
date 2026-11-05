@@ -94,10 +94,25 @@ if ($method === 'delete') {
     $link = trim((string) ($_POST['link'] ?? ''), '/');
     $targetPath = $link !== '' ? realpath($root . '/' . $link) : false;
     $uploadDirReal = realpath($uploadDir);
-    $isInsideUploadDir = $targetPath && $uploadDirReal && strpos($targetPath, $uploadDirReal) === 0;
+    $isInsideUploadDir = $targetPath && $uploadDirReal && strpos($targetPath, rtrim($uploadDirReal, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) === 0;
 
     if ($link !== '' && strpos($link, 'uploads/board/') === 0 && $isInsideUploadDir && file_exists($targetPath)) {
-        $response = ['success' => (bool) $store->deletePath($targetPath)];
+        // Copies may share inline editor images. A saved article must never lose its file.
+        $filename = basename($targetPath);
+        $fileFields = ['thumb_image', 'file_attach_1', 'file_attach_2', 'file_attach_3', 'file_attach_4', 'file_attach_5'];
+        $db = DB::getInstance();
+        $conditions = array_map(static fn($field) => "`$field` = ?", $fileFields);
+        $check = $db->prepare('SELECT 1 FROM nb_board WHERE ' . implode(' OR ', $conditions) . ' OR contents LIKE ? LIMIT 1');
+        $check->execute([...array_fill(0, count($fileFields), $filename), '%' . $filename . '%']);
+        $referenced = (bool) $check->fetchColumn();
+        if (!$referenced) {
+            $check = $db->prepare('SELECT 1 FROM nb_board_locale WHERE contents LIKE ? LIMIT 1');
+            $check->execute(['%' . $filename . '%']);
+            $referenced = (bool) $check->fetchColumn();
+        }
+        $response = $referenced
+            ? ['success' => true, 'retained' => true]
+            : ['success' => (bool) $store->deletePath($targetPath)];
     } else {
         $response = ['success' => false];
     }

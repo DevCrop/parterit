@@ -1126,3 +1126,233 @@
 8. 리스크와 조치: 저장소가 PUBLIC임을 gh repo view로 확인하여 접속 호스트·계정·사설 DB 주소·허용 IP도 공개 문서에서 치환했다. root/resource vendor, 운영 DB/uploads 및 일부 영상은 Git만으로 복원되지 않으므로 별도 전달 절차를 명시했다. Windows 기본 PHP 8.4.24 대신 기존 8.4.27 이미지를 네트워크 없이 사용. 실행 후 자동 제거되는 검사 컨테이너만 사용했고 개발 서버나 다른 프로젝트에 변경 없음.
 9. 실제 검증: fetch 후 기존 HEAD/origin 차이 0/0. build.js write:false 재현 오류0/경고0, 출력4개와 현재 dist 바이트 일치. map 내 프로젝트 소스 불일치0. PHP 8.4.27 docker run의 --lint는 781파일 issues0, 동일 이미지 호환 검사23개 pass. Composer validate 유효(기존 라이선스/빈 PSR-4 권고2), check-platform-reqs 성공. PHP ZIP 625,624 bytes/SHA-256 B605FFE04B9407D784EC2D7571765257F534BB14E605942BC54D621DDBDEB3CE, runtime498파일 불일치0. 공개 문서 상대 링크 누락0, git diff --check 오류0. UI 신규 변경이 없어 10/26 PC·모바일 결과를 재사용하며 11/5 신규 브라우저·실서버 검사를 했다고 주장하지 않는다.
 10. 게시 범위: 기존 codex/final-qa-20261007 브랜치에 명시 경로만 commit/일반 push하고 기존 PR #1에 반영한다. 원격 SHA 대조 결과는 최종 응답에 보고한다. main 병합·신규 서버 업로드·DB import·도메인 전환은 미수행.
+
+## 2026-11-05 — 신규 서버용 전체 런타임 파일 패키지 계획
+
+- 요구사항: 사용자가 FileZilla 접속 후 /www에 직접 올릴 파일만 요청. 코드의 PHP 8.4 적용 여부도 확인 요청.
+- 현재 문제/기대: PHP 업데이트 ZIP은 전체 사이트가 아니므로, 기존 검증된 PHP 8.4.27 런타임·현재 dist·사이트/관리자 자산을 포함한 새 www 패키지를 제공한다.
+- 보존/제약: 원본 소스·DB·업로드·외부 서버는 변경하지 않는다. 신규 서버의 실제 PHP 패치 버전은 미검증. .env/자격 증명·SSH 키·덤프는 파일 패키지에 넣지 않는다.
+- 영향 분석: Backend 기존 runtime 복사만; Frontend 최신 dist 및 참조 라이브러리 복사; Data 공개 시안과 SHA가 일치하는 로컬 고객사례 PNG 3개만 포함/운영 DB 이관 별도; i18n 기존 언어 파일 유지; Test 패키지 SHA·민감/개발 경로·PHP 검사·정적 의존성; Docs 본 기록과 패키지 밖 전달 안내/manifest.
+- 계획1 산출물: release/partnerit-www-php8427-20261105/의 www 폴더, 동일 www만 들어간 ZIP, 패키지 밖 전달 안내/manifest.
+- 계획2 연관: composer.json/lock, vendor, config/setup.php, .htaccess/.user.ini, views/layouts/main.php, console/inc/admin.*.php, PHP QA 기록 및 현재 build 결과.
+- 계획3 흐름: 운영 allowlist로 선택 → 깨끗한 새 www에 복사 → 원본/복사/ZIP SHA 대조 → PHP 8.4.27 검사 → 전달. 원본 삭제·서버 쓰기 없음.
+- 계획4 DB: SQL과 .env는 제외, 실제 최신 운영 DB 및 운영 업로드 추가 이관은 별도 단계. 세 로컬 PNG는 resource/images 시안 파일과 내용이 동일함을 확인.
+- 계획5 기능: 페이지/API/문구 변경 없음. 실제 참조된 SFTP 대상 runtime만 제공하고 사용하지 않는 editor·라이브러리 예제·개발 소스·옛 영상은 복사하지 않는다.
+- 계획6 리스크: 브라우저/CMS 라이브러리 누락 방지를 위해 활성 vendor 7종의 전체 배포 디렉터리를 보존하고 상대 폰트·이미지·관리자 ES module 의존성을 검사한다. 쓰기 경로/DB/실제 PHP 설정은 서버 이관 시 별도 확인.
+- 계획7 검사: 명시 경로/파일 수/바이트/sha, 각 파일 원본 동일성, 민감 문자열·개발 파일 제외, 실제 /resource 및 console 모듈 경로 검사. 현재 검증된 8.4.27 이미지에서 패키지 PHP 문법·vendor 검사. UI 변경이 없어 10/26 브라우저 근거 재사용.
+- 계획8 문서: 실제 전달 경로/적용 방법/버전 확인 한계·DB/환경설정 별도라는 점을 짧게 안내하고 검증 결과를 append-only로 기록한다.
+
+### 패키지 완료·실행 기록
+
+1. 날짜: 2026-11-05.
+2. 작업명: FileZilla용 신규 서버 전체 런타임 패키지 제공.
+3. 목적: 사용자가 /www에 직접 업로드할 파일만 분리하고 PHP 8.4.27 적용 여부를 검증.
+4. 변경/산출물: release/partnerit-www-php8427-20261105.zip 및 같은 이름 폴더의 www, 패키지 밖 manifest.json/validation.json/배포안내.txt/server-settings/php-security.ini. 런타임 원본 코드 변경 없음.
+5. 연관: 원본 commit a0d5fe8023a87503c37d3b77dd3d10bc3f66b3c1, root vendor, 최신 dist, 공개/관리자 레이아웃, 업로드 PNG 3개, 기존 CLI 검사 스크립트.
+6. 내용: runtime 3,019파일/188,785,021 bytes, 활성 브라우저 vendor 7종, uploads 시안 3장 및 보호 규칙 포함. JS/SCSS 원본·미사용 에디터·오래된 영상·개발자료·.env·DB·키·로그 제외. 원본/복사본/ZIP SHA-256 불일치 0. 업로드 폴더 이외의 안내·검사 파일은 ZIP에 넣지 않음.
+7. 영향: Backend/Frontend 기존 검증 내용 복사만, Data 운영 DB 변경 없음, i18n 유지. source/upload 삭제 없음, 신규 서버 접속·쓰기·배포 없음.
+8. 리스크: 실제 고객 서버 웹 PHP 패치 버전/ini/권한·DB/최신 운영 업로드는 별도 적용 필요. 정적 참조 검사에서 원본에 이미 없던 관리자 레거시 CSS/Bootstrap 폰트 참조 10회를 구분 기록했다. 최초 검사는 이를 새 패키지 누락과 구분하지 못해 중단했고, 원본 파일 존재 여부로 판정을 보완한 뒤 새로운 누락 0을 확인했다. 기존 코드·디자인에 임의 수정 없음.
+9. 검사: PHP 8.4.27 네트워크 없는 일회성 컨테이너에서 패키지 699 PHP 문법 issues0·호환 검사23 pass. 기존 검사 스크립트의 root만 /var/www/html로 지정한 패키지 밖 사본 재사용. 정적/vendor/관리자 모듈/CSS 참조269회, 새로운 누락0. 실제 서버 비밀 문자열·금지 경로0, 메인 3x PNG·소개서 PDF(5,300,167 bytes) 존재. ZIP testzip 오류0 및 내부 경로/파일수/내용 hash 대조 완료. 새로운 브라우저 QA나 신규 서버 동작 검사를 했다고 주장하지 않음.
+10. 전달: ZIP 149,409,744 bytes, SHA-256 F4BAB7D7BFB47E4F31D4CEB3DD2522D9BF799B3CB452BD79102BE9E639091307. www 안의 내용만 원격 /www에 업로드하며 결과 /www/index.php. DB·비공개 .env는 별도 단계. 패키징 작업의 Git push는 요청하지 않아 수행하지 않음.
+
+## 2026-11-05 — 타 프로젝트 잔재 제거 및 정제 업로드본 계획
+
+- 요구: 앞서 전달한 ZIP의 타 프로젝트 잔재와 개발 기본값을 정리하고 업로드 가능한 새 파일을 준비. DB 준비는 다음 단계.
+- 문제: 실제 ZIP 이미지에 DK/Seegene/QuidelOrtho 및 미사용 관리자 제작사 로고가 남음. 실계정은 발견되지 않았으나 개발 DB 기본명과 쓰이지 않는 색상/컴포넌트도 존재.
+- 기대: 파트너잇 활성 콘텐츠·PHP 8.4.27·관리자/소개서 기능을 보존한 소스와 재현 가능한 정제 패키지. 로컬/실서버의 실제 DB 변경·import·계정 생성은 하지 않음.
+- 보존: 고객 원본 sources, 운영 DB/업로드, 비공개 키/.env/접속 안내, 고객사례 시안과 파트너 로고 마퀴 및 타 프로젝트 컨테이너. DKHOLD는 CMS 내부 join 키 1곳만 정본으로 유지.
+- 제약: 명확한 브랜드 잔재·미사용 파일만 참조와 경로를 확인해 제거. 현재 활성 디자인 재기획·고객 문구·가격 변경 없음. PHP 소스는 실제 운영 비밀번호/호스트를 하드코딩하지 않음.
+- 영향: Backend DB 설정 의존성과 SEO fallback 정리, Frontend 미사용 토큰/템플릿 제거 후 재빌드, Data 원본 이미지 제외 외 DB 영향 없음, i18n 기존 한국어 유지, Test PHP/설정 계약/격리 HTTP/브라우저/압축 검증, Docs handoff/서버명세/이력/패키지 manifest 갱신.
+- 계획1 수정: config/setup.php, src/Database/DB.php, docker-compose.yml(기존 개발 DB 환경 주입), license 및 sitekey 중복, SEO fallback, 미사용 colors/partners-grid, 확정 에셋. 새 정제 release 폴더·ZIP을 만들고 이전 ZIP은 사용 금지로 표시.
+- 계획2 연관: config/project_profile.php/site_config.php, bootstrap, 후기/파트너 활성 컴포넌트, 관리자 로고·정적 의존성, 기존 PHP 호환 검사/격리 QA Compose.
+- 계획3 흐름: read-only 이미지/문서 감사와 소스 참조 확인 → 최소 정리 → 현재 소스 build → 새 www package → 격리 PHP 8.4.27 환경의 읽기 HTTP/화면 검사 → 최종 hash·민감/브랜드 검사 → 전달.
+- 계획4 DB: 모든 SQL·스키마·기존 행·실계정은 이번 작업 제외. 개발 DB 실제 이름은 Compose/QA 환경으로 주입해 기존 volume을 유지하고 런타임 소스의 임의 fallback 접속값은 제거.
+- 계획5 기능: 메일 실계정 빈값/발송 OFF 유지, 실제 서비스 기능 추가 없음. sitekey는 설정 상수만 참조하고 기존 값은 바꾸지 않아 데이터 연결 유지.
+- 계획6 위험: 잘못된 에셋 삭제/설정 변경으로 로딩·DB 접속이 깨질 수 있음. 참조 검사, 변경 파일 diff, 환경값 우선순위/누락 시 안전 실패 검사, 기존 QA DB의 읽기 경로 확인으로 검증. 잔재는 작업용 백업/이전 commit으로 복구 가능하게 보존.
+- 계획7 테스트: 최신 build, PHP lint/호환23, DB 설정 성공·실패·우선순위와 sitekey/SEO fallback 확인, 격리 공개/관리자/법적 페이지와 모바일 검수, 전 파일 민감·타사 문자열·파일명과 이미지 감사, 원본/복사/ZIP SHA 대조. 운영 서버에는 쓰지 않음.
+- 계획8 문서: 실제 삭제/유지 항목·남은 DB 이관·서버 설정 확인 범위 및 새 최종 파일 경로를 README/검수 기록에 남기고 기존 ZIP을 폐기 대상 표시. Git push는 별도 요청이 없어 수행하지 않음.
+
+### 정제 완료·검증 결과
+
+1. 날짜: 2026-11-05.
+2. 작업명: 타 프로젝트 잔재 제거 및 새 www 파일 준비.
+3. 목적: 계정·타 프로젝트 에셋이 섞이지 않은 고객 직접 업로드본 제공. 기존 파일 감사에서 잔재 이미지 내용 확인이 빠졌던 부분을 보완.
+4. 변경: config/setup.php, src/Database/DB.php, docker-compose.yml, bootstrap/routes/SEO의 sitekey 참조, SEO fallback, ImageHelper 예시, license.php, colors/import, 관리자 CSS, dist, docs/handoff. 확정 이미지55개와 미사용 컴포넌트/SCSS/CSS4개는 Git HEAD와 미수정 원본임을 검증하고 경로·hash manifest 및 복사 백업 후 제거했다. root/resource vendor는 기존 version/lock 유지.
+5. 연관: 활성 partnerit-partners/후기/인증서/서비스 UI, 브로슈어/법적 JSON/PDF, PHP 검사, 기존 QA image/DB/volume. read-only 이미지 감사는 별도 agent 1개가 수행했고 parent가 참조·hash·패키지·실행을 통합 검증했다. 전체 raster244개 contact sheet, SVG52개 문자열 검색, 인증서/소개서 주요 페이지 확인. 모든 작은 목업 문자의 OCR과 DB 내용 검증은 하지 않았다.
+6. 주요 내용: 타 프로젝트/제작사 이미지55개 제거(초기 확정9개에서 투명 Quidel 로고 추가 확인으로 기존 타사그룹10개로 정정), 미사용 grid/gray-rldx 제거, 개발 DB 기본 계정 추측 접속 제거, 실제 설정 우선순위 유지/누락 시 실패, 개발 Compose만 기존 DB 환경값 주입. DKHOLD는 project_profile 한 곳에 유지하고 SITE_SITEKEY로 참조. 과거 도메인 등록 hash 제거, 라이선스 비활성 상태 유지. metadata fallback은 파트너잇 이미지/파비콘. 동일 Bootstrap3.4.1의 공식 Glyphicons 폰트5개+MIT라이선스를 보완하여 기존 누락 경로도 해소.
+7. 영향: API/고객 문구/가격/레이아웃/활성 기능 유지. 실제 고객 서버 접속·DB 쓰기/import/계정 생성/도메인 설정 없음. 기존 격리 QA DB는 읽기 검사에만 사용. 세 공개 고객사례 시안 업로드와 활성 기관 로고 보존. 제작사/고객 자격 증명은 미포함. 기존 로컬 .env·키·데이터·타 프로젝트 컨테이너 보존.
+8. 리스크/한계: 실제 고객 서버의 PHP 패치/SAPI/확장/ini/권한 및 최신 DB/업로드는 다음 단계. 공식 브라우저 도구가 kernel assets 초기화 os error3로 2회 실패(중간 reset), 전달된 UI action 없음·completion 기록 후 대체 드라이버/권한 변경 없음. 이번 새 PC/모바일 시각 QA를 완료했다고 주장하지 않는다. 신규 임시 컨테이너 첫 기동은 검사 전용 /qa 로그 디렉터리 누락으로 실패하여 tmpfs를 지정해 해결했다. HTTP probe의 console 상대 URL 오판은 문서 기준 URL로 고쳐 원래 경로 재검증. 제품 코드 오류와 구분했다.
+9. 실제 검증: npm run build 오류0/경고0; PHP8.4.27에서 패키지698 lint issues0/호환23 pass; DB 설정 계약6 pass(개발/운영 주입, 파일 fallback, 우선순위, 누락 안전 실패, 드라이버 기본값 없음). 새 www 자체를 격리 운영 모드로 실행: HTTP20/자산135 모두 통과, 정적 참조265에 기존/신규 누락0. 압축 내 파일2,967개, 원본/복사/ZIP hash 불일치0. 검사한 비밀·타사 문자열/이전 이미지hash/금지경로0, DKHOLD 예외는 config/project_profile.php 한 곳. diff --check 오류0. Apache 로그는 의도된 .env403만 확인. 별도 fixture/검사자료는 패키지 밖.
+10. 산출물: release/partnerit-www-clean-20261105.zip, 128,686,950 bytes, SHA-256 D31DA7AF65DD9041CBAAE1BB006F26FD0CC5539209F2CBF9A1CA79968918BF67. 내부 www만 포함, 원본167,736,054 bytes. 이전 전체 패키지/ZIP은 hash·소유권·절대경로를 확인하여 release/superseded에 보존 이동했고 사용금지 안내 추가. 정제/임시 Apache와 기존에 중지 상태였던 QA DB·production 컨테이너는 다시 중지, 신규 컨테이너만 제거했으며 volume은 보존. DB·.env·서버 적용/Git push는 미수행. 다음 단계는 고객이 이 새 www 내용을 /www에 올린 뒤 실제 DB/환경/서버 검수 준비.
+
+## 2026-11-05 — 정제 DB 설치본 준비 계획
+
+- 요구: 사용자가 파일 업로드와 별도로 DB 준비를 요청. 최신 코드와 호환되는 신규 서버용 SQL 파일을 제공한다.
+- 현재 문제: 기존 전달 SQL은 9/17 버전으로 소개서 최신 필드가 없으며, 개발 DB에는 예전 템플릿·개발 계정·테스트 문의가 남아 있을 수 있다.
+- 기대: 원본 개발 DB를 보존한 복사본에서 파트너잇용 데이터/스키마를 정리하고, 새 빈 MySQL에 실제 복원 검증한 설치 SQL과 적용 안내를 제공한다.
+- 보존/제약: 실제 원본 DB·기존 데이터·운영 서버·사용자 .env·SSH 키는 변경하지 않는다. 실제 서비스 최신 DB 접근 정보가 없으므로 결과를 운영 최신 백업이라고 표시하지 않는다. 문의·로그·다른 프로젝트 정보와 제작사 실계정은 전달본에 넣지 않는다.
+- 영향: Backend 기존 필수 테이블/소개서 컬럼/인증 관계 확인, Frontend 실제 등록된 고객사례와 이미지·SEO 데이터 연결 검증, Data 격리 복사본만 정제/마이그레이션, i18n 한국어/locale 스키마 유지, Test 복원/코드 읽기·폼 검증/계정 해시/브랜드·비밀·FK 검사, Docs 원본 범위/SQL/관리자 설정/적용 순서·이력.
+- 계획1 산출물: release 아래 최종 설치 SQL·비공개 백업·검증 보고·DB 안내. 새 서버에 직접 import하지 않는다.
+- 계획2 연관: database/migrations, config/setup.php/project_profile, src/Database/DB, brochure 서비스, board locale/category, nb_siteinfo/SEO/role와 로그인 프로세서.
+- 계획3 흐름: 원본 volume 미사용 확인 → 읽기 전용 원본을 작업 전용 volume에 복사 → 전체 앱 DB 비공개 dump → 격리 staging 정제 → 기존 러너로 누락 필드 적용 → DB명 독립적인 최종 dump → 별도 빈 DB 복원/HTTP 검증 → SQL 전달.
+- 계획4 DB 영향: 원본/신규 서버 영향 없음. 설치본은 nb_request의 최신 필드와 unique submission key, 필요한 테이블·sitekey·게시판/분류/locale 관계를 포함한다. 운영 DB 실제 복원은 다음 승인 단계다.
+- 계획5 기능: 파트너잇 문구/가격/사례 시안 유지, 외부 무료체험·소개서 흐름과 맞춘다. DKHOLD join 키를 유지하고 타사 SEO/사이트 행과 문의·로그·개발 계정은 별도 분류한다.
+- 계획6 위험: 잘못된 DB 원본/부실한 schema/개발 실계정 유출·사이트키 변경·이미지 미일치. 원본 조회와 작업 copy만 사용하고 데이터 분류/필수 컬럼/FK·파일 점검/복원 검증으로 차단한다. 시작 포트 충돌로 다른 프로젝트를 종료하지 않는다.
+- 계획7 검사: 원본 테이블/행수·콘텐츠/필수 컬럼 메타데이터, 정제 후 브랜드·민감 데이터·sitekey·계정 상태, mysqldump 경로/DEFINER/GTID/CREATE DATABASE/USE 제거 여부, 빈 DB 복원 후 행수/제약/HTTP/관리자/소개서 기능. 검사 fixture와 원본 백업은 최종 SQL과 구분한다.
+- 계획8 문서: 실제 데이터 출처·수정/제외 범위·최종 SQL hash·복원 결과·DB 접속/관리자 설정 절차 및 실제 서버 미반영 상태를 기록한다. Git에 DB/자격 증명을 올리지 않는다.
+
+### 정제 DB 설치본 완료 기록
+
+1. 날짜: 2026-11-05.
+2. 작업명: 신규 빈 DB용 정제 설치 SQL 및 비공개 DB 설정 준비.
+3. 목적: 기존 정제 www와 호환되는 DB를 사용자가 직접 반영하도록 제공.
+4. 변경/산출물: 제품 코드 변경 없음. 비공개 로컬 release/partnerit-db-install-20261105에 SQL 67,027 bytes, 안내/SHA 및 별도 server-private/.env.
+5. 연관: CMS board/manage/category/locale, siteinfo/SEO/roles/admin, 소개서 서비스·기존 마이그레이션, 운영 설정 파서.
+6. 내용: 원본 보존 사본에서 17테이블/사례13/locale13/분류7/SEO10/사이트1/관리자1 유지. 기존 관리자 ID·비밀번호 유지라는 사용자 답변 반영. 테스트 문의5건·백업 테이블 및 미사용 설정 제외, 내부 join 키 유지.
+7. 영향: Backend 기존 스키마/기능 호환, Frontend 기존 사례/이미지 연결, Data 격리 복사본만 변경, i18n locale 보존. 원본 DB·다른 프로젝트·실서버 변경 없음.
+8. 리스크: 로컬 개발 최종 snapshot이며 최신 운영 백업 아님. 실제 고객 서버 PHP 패치/권한·DB import/.env 반영 및 원격 QA는 별도. 비공개 설정/SQL/원본 backup/QA fixture는 Git·www ZIP에 미포함.
+9. 검사: MySQL8.0.45 빈 DB 복원, PHP8.4.27 실제 사례 CRUD/기존 관리자 로그인/소개서 신청·중복 방지·PDF, HTTP22통과. 정확한 행수/고아행0/이미지3/해시 보존/최신 schema 확인. 마이그레이션 재실행 Already applied. SQL 파괴문/서버 계정/접속 비밀값0, release/www2967개 ZIP hash 동일. 상세는 261105-db-installation-qa.md.
+10. 전달: SQL SHA-256 D6D6953526B0EF46D9A1F69AC350D42DCF604DB35BD50B5B7162260BA9C772A9. SQL은 MySQL 클라이언트에서 빈 대상 DB로 실행하고 비공개 설정만 /www/.env에 적용. 실제 고객 서버 import·Git push 미수행.
+
+## 2026-11-05 — 신규 서버 Apache 500 코드 측 재점검 계획
+
+- 요구: 사용자가 신규 서버 500에 대해 고객 설정과 코드 측 문제를 다시 확인 요청.
+- 현재: 고객이 source/SQL/.env 업로드를 완료했다고 알렸으며 실제 공개 PHP·정적 SVG 모두 Apache500. 앞선 SFTP 읽기에서 .env/루트 .htaccess 전달본 일치, SVG 파일 존재 확인.
+- 기대: 현재 소스와 실제 업로드·로컬 재현 근거로 수정 가능한 코드 문제와 서버 로그가 필요한 부분을 구분.
+- 보존: 원본/고객 DB·비밀번호·uploads·고객 문구/디자인·기존 수정·타 프로젝트·실서버 파일 보존. 오류를 감추거나 .env 보호를 제거하지 않음.
+- 제약: SFTP chroot에서 Apache/FPM 로그·vhost 설정을 읽을 수 없음. 고객 안내는 Nginx→Apache2.4.58→PHP-FPM8.4.27이며 웹 SAPI는 직접 확인 전.
+- 영향: Backend bootstrap/config/Composer/SAPI 검사, Frontend 자산 경로/라우팅 검사, Data DB 쓰기 없음, i18n 변경 없음, Test 전용 로컬 Apache 정책 차등 재현 및 필요 시 FPM 검증, Docs 실제 근거/남은 설정·오류 이력.
+- 계획1 파일: 진단 fixture와 결과는 비공개 release/server-qa-20261105; 제품 수정은 재현된 원인에 한정하여 별도 근거 후 판단.
+- 계획2 연관: .htaccess/.user.ini, config/setup.php/php-security.ini, index/inc bootstrap, vendor/platform check, uploads 하위 접근 규칙, 고객 제공 서버 안내.
+- 계획3 흐름: 원격 읽기 비교·HTTP → 지시어/권한별 로컬 재현 → PHP-FPM/부트스트랩 계약 점검 → 결과 통합. 원격 파일 수정 없음.
+- 계획4 DB: 기존 가져온 DB에 쓰기·DDL·초기화하지 않음. 필요 시 사용자 터널을 임의 종료하지 않고 SELECT만 확인.
+- 계획5 기능: 페이지·관리자·소개서·파일보호·WebP/라우팅·기존 HTTP 정책 유지.
+- 계획6 위험: 서버 설정을 추측해 과도한 AllowOverride/권한 완화 또는 .env 차단 해제하지 않음. 재현 결과와 실제 서버 확정 원인을 구분.
+- 계획7 검사: All/FileInfo 등 Apache override 정책별 상태/로그, mod_php 없는 구성의 guard, 실제 파일/소스 SHA/누락/ini·DB 설정 계약, 가능한 범위의 읽기 전용 HTTP.
+- 계획8 문서: 500 재점검 보고·server-spec·handoff·patch-notes에 코드 측 결과와 서버 담당 확인 필요 항목·미배포 상태 기록.
+
+### Apache500 재점검 완료 기록
+
+1. 날짜:2026-11-05.
+2. 작업명: 신규 서버500 코드·Apache/FPM 원인 조건 재점검.
+3. 목적: 서버 탓으로 단정하지 않고 코드 측 수정 후보와 실제 근거 확인.
+4. 산출물: 비공개 로컬 진단 fixture/JSON 및 docs/04-history/261105-apache500-review.md. 제품 코드 변경 없음.
+5. 연관: .htaccess/.user.ini/config/setup.php, bootstrap·Composer platform check, 고객 서버 Apache/Nginx/FPM 안내.
+6. 내용: remote 주요7파일 전달본 일치. Apache override FileInfo만 허용 시 Require 오류500, AuthConfig 추가 시 Options 오류500, 필요한 범위 허용 시200/보호403을 실제 재현. PHP-FPM8.4.27에서 backend Host localhost/127.0.0.1이면 .env 미로드500, 명시 APP_ENVproduction이면200 재현. FPM max_input_vars1000 vs mod_php5000 확인.
+7. 영향: Backend/Frontend 설정 계약만 검토, Data DB접속/쓰기없음, i18n변경없음. 원본 및 고객 파일·DB·계정·타 프로젝트 보존.
+8. 한계: 실제 고객 Apache error log·AllowOverride/Host/APP_ENV·웹 PHP/ini값은 접근 불가·미확인. 현재 서버 원인 확정/복구 완료 아님. PHP-FPM fixture는 설정/Composer검사이며 전체 앱·DB·UI QA 아님.
+9. 검사: Apache정책5조건 + 실제FPM6요청 기대결과일치, remotePHP/config7파일 hash일치. 종료시 원격 메인/console/SVG는 여전히500. 진단용 컨테이너/네트워크제거, SFTP종료.
+10. 전달: 코드보완 후보와 필요한 서버 설정을 보고. 코드/ZIP/.env/실서버 수정·DB작업·Git push 미수행.
+
+## 2026-11-05 — 500 호환 보완 서버 파일 요청 / 구현 계획
+
+- 요구: 사용자가 최종 서버 업로드 파일만 요청하여 앞선 점검에서 재현된 코드 측 보완을 구현·검증한 최소 업데이트를 제공한다. 직접 원격 업로드는 수행하지 않는다.
+- 현재 문제: root .htaccess가 AuthConfig/Options override를 요구하고, 프록시 Hostlocalhost에서 파일 환경을 읽지 않아 PHP500. FPM max_input_vars1000과 mod_php5000 불일치.
+- 기대: FileInfo만 허용된 Apache에서도 .env 보호/서비스 라우팅을 유지하고, 파일 APP_ENVproduction을 명시해 프록시Host에 독립적으로 운영 설정 로드. FPM폼 변수 한도5000 통일.
+- 보존: 고객 DB·계정·사이트 문구/레이아웃/가격·업로드·HTTP정책·기존 원본과 타 프로젝트. .env를 공개하거나 소스/Git에 자격 증명을 넣지 않는다.
+- 제약: 실제 서버 AllowOverride/로그/유효 ini는 미확인. mod_rewrite는 고객 안내상 활성, Apache 기본 rewrite용 FollowSymLinks/SymLinksIfOwnerMatch는 서버가 제공해야 한다. 배포 후 실제 결과는 별도 확인.
+- 영향: Backend config 환경 우선순위 명시(server>file>host), Frontend 기존페이지/정적로딩·보호경로만 영향, Data변경없음, i18n변경없음, Test 정책회귀/FPM/환경계약/PHP lint/운영페이지, Docs명세·인수인계·변경/검증기록.
+- 계획1 수정: .htaccess/config/setup.php/.user.ini/uploads/request/.htaccess, 운영 .env는 비공개 전달본만.
+- 계획2 연관: 환경설정 우선순위 문서·기존 dev/prod 계약, 앞선 Apache5/FPM6 재현 fixture와 clean www/DB 복원 검증.
+- 계획3 흐름: 기존파일백업→코드 최소수정→정책/.env보호/FPM/환경계약 검사→기존 www에 격리 overlay로 HTTP검사→5파일만 zip, 실제 remote 수정없음.
+- 계획4 DB: schema/data/migration/계정 변경없음, SQL재실행불필요. HTTP 쓰기 테스트는 별도 retained QA DB만.
+- 계획5 기능: .env 대소문자·하위 경로까지 RewriteRule차단, rewrite모듈 누락 시 안전실패. 업로드/request 차단도 FileInfo로 일치. 서버 APP_ENVdevelopment는 파일보다 우선하고 개발DB는 파일에서 가져오지 않음.
+- 계획6 위험: 보호규칙 누락·로컬에 운영DB반영·권한제한·rewrite옵션미허용. 보호반례/서버환경우선/개발설정오염 검사, 미확인server권한은 완료라고표시않음.
+- 계획7 검사: Apache정책5조건·모듈없을때.env비노출, 실제FPM8.4.27에서localhost+파일APP_ENV정상/vars5000, 기존설정계약+새우선순위/필수값검사, PHP lint/HTTP중요경로·zip내용/hash·비밀코드미포함.
+- 계획8 문서: 기존 검토는 과거 읽기결과로 보존, 새 구현QA 보고/patch-notes/requirements/server-spec/handoff에 새계약·배포경로·한계 기록.
+
+### 서버 호환 보완 파일 완료 기록
+
+1. 날짜:2026-11-05.
+2. 작업: 사용자 최종 서버 파일 요청에 따른 최소5파일 보완 ZIP.
+3. 목적: 제한 Apache policy와 프록시Host 오판정의 재현된 실패 조건 해소.
+4. 변경: root .htaccess/운영환경 setup/.user.ini/ignored uploads-request보호/별도 private.env. 문구/UI/DB/계정 변경 없음.
+5. 연관: 기존 Apache/FPM 재현, 환경 우선순위·.env 보호·소개서/관리자 런타임.
+6. 내용: Require/Options override 의존을 없애고 rewrite로 보호유지; serverAPP_ENV>fileAPP_ENV>Host; serverdevelopment는 파일DB사용안함; private.env에production명시; max_input_vars5000.
+7. 영향: Backend운영설정/Frontend라우팅만 보완, Data고객DB변경없음, i18n변경없음. 기존 정제 편집·원본·타 프로젝트·비밀번호 보존.
+8. 한계: 실제서버 원인은 로그미확인, 직접 배포/복구완료아님. rewrite와 서버Directory의기본FollowSymLinks옵션 필요. 실제FPM캐시/OPcache·startup보안설정은 운영검수. .env포함ZIP은Git/공개용아님.
+9. 검사: PHP8.4.27 lint0, 환경계약12, Apache보호48, 실제FPM설정6, MySQL8.0.45와전체runtimeHTTP22 통과. 전달환경파일 parser/5파일 ZIP byte검사 및 diff검토완료. 자세한기록 261105-server-compatibility-fix.md.
+10. 전달: partnerit-server-fix-20261105.zip 4753bytes, SHA256 9BFF63495B0263FDF1598E8954A514BE639136184A1299BDD76DFF59DCF7319E. www안5파일만기존/www에덮어쓰기, SQL없음. 원격쓰기·Gitpush없음.
+
+## 2026-11-05 — 고객사례 상세500 및 공개 경로 후속 점검 계획
+
+- 요구: 실제 서버 partners/11의500과 다른부분 재점검·필요한수정.
+- 문제: 일반페이지/목록/관리자로그인200이나 실제사례상세5경로500. 빈필수값 소개서검증도500. 존재하지않는사례는notfound화면200.
+- 기대: 실제 예외/확장·파일존재를확정하고 코드/서버모듈/업로드누락을구분. 정상200뿐아니라본문/제목과validation422확인.
+- 보존: 고객DB/계정/문구/디자인/업로드·기존수정·타프로젝트. DB쓰기없음. 원본ZIP에는summernote컴포넌트가포함돼있음을확인해초기임시폴더누락판단정정.
+- 제약: 사용자release/www는현재5파일업데이트내용이며전체소스가아님. 전체ZIP이정본. Apache/FPM로그는SFTP범위밖.
+- 영향: Backend detail/meta·입력검증·확장경로, Frontend사례본문/자산실제상태, DataSELECT만, i18n변경없음, Test서버읽기probe+공개GET/자산+로컬회귀, Docs이력·필수확장/배포한계.
+- 계획1 파일: 임시QA는qa/server-detail-20261105 전용, 소스는확정된문제의존파일만수정. 원격진단파일은고유이름/토큰hash인증/제한필드만반환후즉시삭제.
+- 계획2 연관: views/pages/partners/show 및components/detail/data/summernote, BrochureRequestService, composer확장요구, Core/ViewEngine, 실제서버파일/모듈.
+- 계획3 흐름: 기존경로응답→인증된일회성PHP확장/렌더예외진단→파일hash대조→로컬재현/보완→주요페이지·본문·검증체크→업로드파일/서버담당요청정리.
+- 계획4 DB: 실제DB쓰기/마이그레이션/관리자로그인시도없음. 토큰있는빈form요청은storage전validation실패만검사.
+- 계획5 기능: 정상페이지유지, 필수확장부재를바이트절단/무조건200으로가리지않음. 기능상필요서버확장은정확하게요청.
+- 계획6 위험: 임시진단노출/남김·잘못된폴더정본·상태코드만통과하는검사. 임의토큰인증,비밀미반환,삭제·404검증,원본ZIP비교,실제사례제목/본문검사.
+- 계획7 검사: 확장bool·문제파일SHA/예외종류·후속여타GET/자산, 임시파일삭제404, 필수값validation목표422, 고객사례상세목표제목/본문정상. 필요한서버설정권한은담당자전달.
+- 계획8 문서: 검증된원인과미해결외부설정을구분기록, private진단값/자격증명Git제외.
+
+### 실제 서버 상세500 후속 검수 완료
+
+- 사용자요청 partners/11 및나머지경로점검. 주요10페이지/자산124모두200, console로그인200/.env403. 실제사례13상세500/빈필수값소개서검증500.
+- 인증일회성웹진단에서실제PHP8.4.27/fpm-fcgi확인. mbstring/gd/zip/dom미로드, pdo_mysql/fileinfo/exif로드. 실제렌더예외 Call to undefined function mb_substr()와사례11존재확정. 관계파일6개원격SHA일치.
+- 로컬release/www는현재5파일업데이트내용임을확인해누락컴포넌트라는초기판단정정. 원본전체ZIP에는포함돼있고원격파일도존재함.
+- 기존파일겹침없음을확인한임시토큰인증probe만업로드하고곧바로삭제/SFTPnotfound확인. 후속URL은메인fallback200이며진단JSON없음확인. DB쓰기/자격증명노출/기존소스변경없음.
+- 제품패치로필수모듈누락을숨기지않고서버관리자의웹FPM확장설치·활성화/재시작요청이필요. 상세/소개서미해결. [실제검증·한계](261105-live-detail-extension-qa.md).
+
+## 2026-11-05 — mbstring 미로드 공개기능 코드 호환 보완 계획
+
+- 요구: 사용자가 서버모듈설치대신우리코드에서수정가능한지질문하여현재사례상세/소개서500을코드호환처리로수정·검증·업로드본제공.
+- 문제: 실제FPM8.4.27에mbstring이없어detail의mb_substr와폼검증/저장의mb_strlen/mb_substr가실패.
+- 기대: 공용TextHelper에UTF8문자수/prefix처리지원, 확장있으면native사용·없으면PCRE유니코드대체. 한글/이모지정상·잘못된UTF8입력은422.
+- 보존: 고객문구/화면/한도/CSRF·중복방지·DB/계정·현재서버파일. GD/DOM/ZIP기능을가짜대체로숨기지않고여전히모듈필요범위고지.
+- 제약: 문자인코딩은UTF8, 전체프로젝트mbstring요구를제거하는것이아니라확인된공개기능의호환경로보완. 원격배포없이3파일전달.
+- 영향: Backend BrochureRequestService검증/useragent저장, Frontend detailSEO설명만변경·본문디자인동일, Data스키마/운영쓰기없음, i18n한글/이모지codepoint보존, Testnative/무확장/HTTP실제본문·검증·로컬신청/PDF, Docs구현기록/명세/인수인계.
+- 계획1 파일: inc/lib/helper/TextHelper.php, views/pages/partners/show.php, src/Request/BrochureRequestService.php.
+- 계획2 연관: 기존헬퍼autoload/base, UTF8form/메타설명150자, useragent255자, 이전실제FPM예외증거/깨끗한전체ZIP.
+- 계획3 흐름: 외부입력/게시물→공용UTF8helper→유효성/렌더/기존SQL, mbstring미로드면PCRE대체→동일결과.
+- 계획4 DB: migration없음·실제고객DB쓰기없음. 테스트신청은별도retained로컬QA DB만생성·삭제.
+- 계획5 기능: 문자수100/100/30/190/2000, 필수/동의/CSRF/key조건그대로. invalidUTF8은null길이로오류. UserAgentinvalidUTF8은빈값으로보관하여DB인코딩실패방지.
+- 계획6 위험: UTF8바이트절단/이모지오계산·헬퍼미로드·DB fallback화면을200으로오인. 올바른codepoint처리/native비교, 실제13사례본문/제목확인, 무확장상태명시.
+- 계획7 검사: 한국어/영문/이모지/결합문자/개행/빈값/잘못된UTF8 및prefix경계, native·php-n비교; 실제mbstring.ini비활성컨테이너HTTP13상세와validation/가상신청·중복/PDF/기존페이지, PHP lint/3파일ZIP검사.
+- 계획8 문서: 검증결과·공개부분호환한계/나머지모듈필요·배포경로와원격미반영상태기록.
+
+### 공개 UTF8 호환 수정 완료
+
+사용자코드수정요청에따라TextHelper/고객사례show/BrochureRequestService3파일수정. 공용UTF8길이/prefix가native mb함수또는PCRE를사용하고malformed입력은422. DB/계정/화면/환경변경없음. 기본/fallback각1119, 모든mb함수65개비활성PHP8.4.27-FPM에서실제사례제목·본문13개와소개서검증/가상접수/중복/PDF등HTTP38통과. 공식이미지staticmb등록은유지되며함수미존재경로를검증한것임을구분했다. 변경PHP3lint/소스·QA·ZIP SHA/CRC/diff확인. 고객서버직접쓰기없고가상QA신청만정리.
+
+산출물partnerit-detail-brochure-fix-20261105.zip 4488bytes SHA256 86624316027BFD08633B85215B4508BBA0A27FCFA64F5990276831F9F00A5D85, www안3파일동일경로덮어쓰기. SQL/.env재실행없음. GD/DOM/ZIP/다른mb기존기능은여전히서버확장필요. [실행검증](261105-public-text-compatibility-fix.md).
+
+## 2026-11-05 — GD 없는 캡차 PNG 호환 수정 계획
+
+- 요구: 관리자캡차이미지가이상하다는사용자요청, 실제admin/default이미지URL500확인.
+- 문제: 두스크립트첫imagecreatetruecolor가GD필수, 앞선실제웹FPM에서GD미로드확인. 로그인비교는세션·입력둘다빈값이면통과할수있는조건도확인.
+- 기대: GD가능시기존렌더유지, 없으면동일5자리랜덤코드를순수PHP bitmap PNG로렌더. 계정/비밀번호/DB유지, 코드와세션일치필수.
+- 보존: 원격계정/운영DB/기존페이지/인증역할·실패잠금·로그인URL. SVG text/HTML로정답노출하거나캡차검증제거하지않음.
+- 제약: Raster PNG를PHP hash/pack과선택적gzcompress로생성, zlib함수없는경우stored DEFLATE대체. 관리자100x30/기본120x30 유지.
+- 영향: Backend공용captcha helper/세션코드검증, Frontend이미지형식/크기동일·캐시금지, Data운영쓰기없음, i18n숫자코드5자리유지, TestGD없는FPM/PNGdecode/세션·정상/빈/오입력, Docs구현검증·배포4파일기록.
+- 계획1 파일: new inc/lib/helper/CaptchaHelper.php, captcha/admin.php/default.php, console/lib/Auth/LoginProcessor.php.
+- 계획2 연관: PARTNERITSESSID 쿠키설정/captcha_secure/기존Auth쿼리/로그인JS, 앞선모듈누락자료.
+- 계획3 흐름: GET captcha→GD함수존재판정→기존GD또는PHP bitmapPNG→세션5자리저장→로그인시형식/hash_equals일치확인.
+- 계획4 DB: migration/운영쓰기없음, 로컬QA DB만사용.
+- 계획5 기능: 랜덤코드서버생성·사용자쿼리무시, PNG에텍스트메타데이터없음, 세션없는/빈입력거부, 정상계정로그인기존redirect유지.
+- 계획6 위험: 읽을수없는글자/PNG깨짐·세션불일치·캐시·정답노출·Auth회귀. 독립PNG decoder/픽셀/알려진test글자시각검토, no-store/세션/guard검사.
+- 계획7 검사: nativeGD와GD없는FPM의두이미지200PNG, gzcompress없는저장블록PNG확인, session동일·새코드5자리·빈/틀린코드거부/알려진로컬fixture정상로그인, PHP lint/4파일ZIP/diff.
+- 계획8 문서: 실제검사범위·서버미배포·다른GD기능한계·파일경로기록.
+
+### 캡차 PNG 호환 수정 완료
+
+CaptchaHelper신규/admin/default/LoginProcessor4PHP수정. GD있으면기존이미지, 없으면순수PHP raster PNG; zlib함수없으면stored DEFLATE. 5자리랜덤·PARTNERITSESSID유지, 세션·입력빈값검증통과조건은명시거부로보완. 계정/비밀번호/DB/UI유지. 알려진단위PNG8개독립decode/CRC/시각확인, helper11검증/4부적합인자거부, GD없는FPM·nativeGD의PNG/세션/오답·빈값거부/로컬정상로그인·목록HTTP25통과. PHP4lint/ZIP·diff완료. 실제서버에는미배포.
+
+partnerit-captcha-fix-20261105.zip 5340bytes SHA256 AF468439F8EF035D5B99C4774D96DDA48424C90A31DE9BAF5D11DF35035C05F2. www안4파일동일경로덮어쓰기, SQL/.env/계정변경없음. [검증](261105-captcha-png-compatibility.md).
+
+
+## 2026-11-05 관리자 코드 최종 QA
+
+사용자 요청에 따라 Chrome 검수를 중단하고 게시판·디자인 팝업·도입 문의·정보·계정/권한과 프론트 연결을 코드 및 격리 HTTP로 검증했다. 배너 제외. 게시판 트랜잭션/파일 수명·복제·이동·정렬, 팝업 기간값/종료일·실패 보존, 실제 문의 행의 mbstring 오류, 설정 부분 저장/푸터, 자기 삭제 방지/세션 최신 권한, 대표 5개 초과/100건 초과 연결을 수정했다.
+
+기존 덤프의 게시판 MyISAM을 확인하여 네 테이블용 CLI migration(261105-1504-board-transaction-engines.php)을 제공한다. DB 내부 원본 백업/행 보존/재실행 확인. 실서버 DB 변경이나 업로드는 수행하지 않았다. 최종 32파일 PHP25 lint·빌드0오류/0경고·실제 로컬 CRUD/권한/실패 케이스 통과. 상세: [261105-final-cms-qa](261105-final-cms-qa.md).
+
+
+## 2026-11-05 GitHub 최종 정리·게시
+
+사용자 GitHub 게시 요청에 따라 origin DevCrop/parterit의 기존 codex/final-qa-20261007 및 기본 main을 게시 대상으로 확인했다. fetch 결과 main은 기존 작업 HEAD의 조상이고 작업 브랜치에만 6커밋이 있어 강제 푸시 없이 fast-forward 가능하다. 기존 정제 배포 ZIP과 소스 비교로 구형 삭제 자산59개를 확인하고, 검수한 관리자·서버 호환·빌드·handoff/검수 문서를 포함한다. 비밀정보/덤프/개인키/테스트 fixture/개인 환경은 제외. uploads/request/.htaccess 보호 파일만 명시적으로 추적한다. 미사용 BannerController의 로컬 변경은 보존하되 이번 커밋·배포에서는 제외한다. 최종32파일 SHA와 기존 검증 증거를 재사용하며 소스 변경 없는 재테스트는 하지 않는다. 게시 결과는 원격 ref와 로컬 커밋 동일성을 확인한다. 실서버 업로드/DB migration은 수행하지 않는다.

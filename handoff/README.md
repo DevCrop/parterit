@@ -2,6 +2,8 @@
 
 정리일: **2026-11-05 / Asia/Seoul**. 소스 저장소는 `DevCrop/parterit`, 현재 작업 브랜치는 `codex/final-qa-20261007`이다. 이 문서는 현재 코드와 과거 실제 검사 결과를 구분해 다음 작업을 안내한다. 저장소 반영은 신규 서버 배포 완료를 의미하지 않는다.
 
+**11/5 후속 정제:** 현재 로컬에는 타 프로젝트 잔재 제거 변경이 추가되어 있으며 아직 Git에 게시하지 않았다. 파일 배포는 새 `partnerit-www-clean-20261105.zip`을 사용한다. 이전 `partnerit-www-php8427-20261105.zip`은 대체 대상이다. `www/`만 업로드하고 DB·.env는 다음 단계에서 별도로 적용한다. 소스/파일 해시는 패키지 밖 manifest에 기록한다.
+
 ## 먼저 확인할 상태
 
 | 구분 | 확인된 내용 |
@@ -62,6 +64,8 @@ docker compose exec web php scripts/check-php-compat.php
 
 개발 DB는 Compose의 `nineonelabs`를 사용하지만 빈 DB에 사이트 전체 스키마가 자동 복원되지는 않는다. 운영 DB를 QA fixture로 바꾸지 않는다. 종료는 해당 프로젝트의 `docker compose stop`을 사용한다. 기존 Makefile의 `stop/reset`은 전체 컨테이너 또는 DB volume에 영향을 줄 수 있으므로 일반 종료 명령으로 사용하지 않는다.
 
+이 개발 DB 이름·계정은 Compose에서 주입하며 서버 업로드 묶음에 넣지 않는다. PHP 런타임은 개발/운영 모두 명시된 DB명·사용자·비밀번호를 요구하고, DB 드라이버도 자체 기본 계정으로 추측 접속하지 않는다. 실제 운영 DB 준비는 이번 파일 정제와 별도다.
+
 로컬 Windows 전역 PHP는 11/5 확인 당시 **8.4.24**여서 현재 최소 요구 버전에 못 미친다. 이 PHP로 검사 통과를 주장하지 말고 검증된 8.4.27 Docker 또는 맞는 런타임을 사용한다.
 
 ## 신규 서버 접속 정보와 증거
@@ -120,6 +124,7 @@ ssh -i "<개인키 절대 경로>" -o IdentitiesOnly=yes -o ExitOnForwardFailure
 - 로컬 `handoff/`의 디자인 원본·가공 에셋은 일괄 게시하지 않는다. 이 README만 예외 허용해 비공개 자료와 대용량 자료의 혼입을 막았다.
 - 기존 전달물 `partnerit-php8427-final-20261026.zip`: 625,624 bytes, SHA-256 `B605FFE04B9407D784EC2D7571765257F534BB14E605942BC54D621DDBDEB3CE`. **PHP 전환 누적 업데이트용**이며 전체 사이트 신규 설치본이 아니다. Git에 ZIP 자체는 없다.
 - 위 ZIP은 보정된 레거시 `resource/vendor` 2파일도 포함한다. 원격 Git의 lock 설치만으로 해당 파일들이 새로 생성되지 않는다. 미사용 에디터는 현재 `.htaccess`에서 차단하며 Summernote CMS를 유지한다.
+- 새 전체 정제본은 미사용 에디터 파일을 싣지 않으며, 현재 사이트/관리자의 브라우저 vendor 7종과 Bootstrap 3.4.1 Glyphicons 폰트 5개·라이선스를 포함한다. 이 추가 폰트도 기존 vendor ignore 대상이므로 파일 전달본 또는 공식 같은 버전 자산으로 별도 복원한다.
 
 ## 검증 근거와 한계
 
@@ -127,3 +132,58 @@ ssh -i "<개인키 절대 경로>" -o IdentitiesOnly=yes -o ExitOnForwardFailure
 - [10/15 이전 버전 비교](../docs/04-history/php84-qa-20261015.md), [작업 이력](../docs/04-history/patch-notes.md), [요구 변경 이력](../docs/04-history/requirement-changes.md).
 - 11/5 `build.js`를 `write:false`로 재현해 오류/경고 0, 출력 JS/CSS/map 4개 모두 기존 로컬 산출물과 바이트 일치를 확인했다. map의 프로젝트 소스도 현재 소스와 일치한다. 재게시만 수행하며 새 UI 디자인은 추가하지 않는다.
 - 원격 PHP 패치·확장·웹 SAPI·시작 설정·SMTP·Imagick·쓰기 권한·신규 서버의 화면 및 CRUD는 아직 검증하지 않았다. 접속 성공과 배포 성공을 혼동하지 않는다.
+- 후속 정제본 검증: 패키지 PHP698 lint, 기존 호환23, DB 설정 우선순위·누락 시 안전 실패6, 격리 HTTP20·자산135 통과. 정적 의존성 누락0. 브라우저 연결 도구의 초기화 오류로 이번 새 화면 검수는 미실행이며 10/26 화면 검증 결과와 구분한다. 실제 고객 DB·서버 쓰기는 없음.
+
+## 11/5 정제 DB 전달본 (후속)
+
+신규 빈 DB용 `261105-1123-partnerit-landing-clean.sql`을 비공개 로컬 release/partnerit-db-install-20261105에 준비했다. 원본을 보존한 최종 로컬 개발 DB 사본이며 최신 운영 백업을 확보했다는 뜻은 아니다. 사례13/분류7/locale13 및 기존 관리자 ID·비밀번호를 유지했고 개발 테스트 문의·불필요한 백업/추적 설정은 제외했다.
+
+SQL은 SFTP /www에 올리지 않는다. SSH 터널을 연 DB 클라이언트에서 대상 DB가 비어 있는지 확인하고 import 전용 계정으로 실행한다. 별도 server-private/.env 파일만 /www/.env에 업로드하여 내부 호스트와 application 계정을 적용한다. 서버 환경변수의 기존 DB 값은 파일보다 우선한다. 비공개 파일은 Git·공개 자료에 넣지 않는다. 기존 www ZIP과 DB 설치본은 별도다.
+
+MySQL8.0.45/PHP8.4.27 빈 DB 실제 복원, 기존 로그인/사례CRUD/소개서AJAX·PDF 및 HTTP22를 검사했다. [상세 보고](../docs/04-history/261105-db-installation-qa.md). 고객 서버에 직접 업로드·SQL import·Git push는 하지 않았다. 실제 적용 후 PHP/ini/쓰기 권한·세션·파일/DB 동작과 도메인 연결을 최종 확인해야 한다.
+
+## 11/5 실제 업로드 후500 재점검
+
+사용자 업로드 뒤 원격 주요 PHP/설정7파일과 기존 .env/.htaccess를 읽어 전달본 일치를 확인했으나 메인·console·정적SVG는500이다. 실제 서버가 정상 운영된다고 보고하지 않는다. 코드·원격 파일·DB 변경 없이 [Apache/PHP-FPM 검증](../docs/04-history/261105-apache500-review.md)을 수행했다.
+
+서버 담당 확인 항목: 해당 DocumentRoot에서 Require/AuthConfig, rewrite·header/FileInfo, Options FollowSymLinks 허용과 오류 로그를 대조한다. 로컬에서는 필요한 override 범위에서 정적200/.env403 통과했다. FPM에 APP_ENV=production을 명시하고 프록시가 원래 Host를 보존하는지 확인한다. localhost Host+APP_ENV미지정은 실제 FPM8.4.27에서 .env 미로드500을 재현했다. FPM max_input_vars5000은 별도 코드 보완 후보이며 전체500과 구분한다. 서버 원인 확정 전 임의 보호 해제나 무차별 권한 변경을 하지 않는다.
+
+## 11/5 후속 서버 호환 수정본 적용
+
+최신 비공개 전달물은 partnerit-server-fix-20261105.zip이다. **압축의 www안5파일을 기존 원격/www에 덮어쓴다.** .htaccess/.user.ini/config/setup.php/uploads/request/.htaccess/.env만포함. 기존운영DB/파일보존, SQL재실행없음. 실제원격업로드는사용자가진행하며 이기록에서직접배포하지않았다.
+
+source환경선택은 serverAPP_ENV > fileAPP_ENV > Host로바뀌었다. 새.env의production표시로 프록시localhost에서도운영설정로드. 기존서버의explicitdevelopment는여전히우선하므로운영서버에잘못설정된서버환경변수는수정해야한다. 보호규칙은FileInfo용rewrite로유지, 기본mod_rewrite/Directoryrewrite옵션필요.
+
+[구현검증](../docs/04-history/261105-server-compatibility-fix.md): 환경12, Apache보호48, 실제FPM설정6, 전체앱HTTP22통과. .user.ini/OPcache반영과실제서버500은업로드후검수. 이ZIP은private.env를포함하므로Git/공개저장소에올리지않는다. uploads/request보호파일은ignored runtime자산이므로Git만으로공급되지않는점에유의한다.
+
+## 11/5 실제 서버 추가 검수 — 확장 활성화 대기
+
+서버는실제PHP8.4.27/FPM이나mbstring/GD/ZIP/DOM(XML)이미로드다. mb_substrundefined를직접확인하여실제고객사례13상세500의원인을확정했고, 소개서빈입력validation도500이다. 소스파일/데이터누락이아니다. 주요10페이지/자산124와관리자로그인페이지는정상.
+
+서버담당자에게웹FPM의네확장설치·활성화/재시작을요청하고사례본문·소개서422/가상접수/PDF·관리자이미지/본문을재검수해야한다. 현재해결완료아님. 진단용파일은보호된읽기probe한개만일시업로드후삭제/SFTPnotfound·진단응답없음검증완료. 고객DB쓰기/기존사이트코드교체없음. [검수기록](../docs/04-history/261105-live-detail-extension-qa.md).
+
+## 11/5 고객사례·소개서 코드 호환 수정본
+
+추가수정본partnerit-detail-brochure-fix-20261105.zip의www안PHP3파일을기존/www에동일경로덮어쓴다. TextHelper/show/BrochureRequestService만포함하고SQL/.env/스타일재적용은없다. 직접원격배포하지않았다.
+
+공개기능의문자처리를native mb함수또는PCRE UTF8으로처리한다. 기본/fallback각1119검사, 실제FPM에서mb함수미사용·본문13/HTTP38검증완료. GD/DOM/ZIP과다른기존mb함수사용처는서버확장필요범위로남는다. 업로드뒤실제partners/11과소개서validation422/신청·PDF를확인한다. [상세검증](../docs/04-history/261105-public-text-compatibility-fix.md).
+
+## 11/5 캡차 이미지 수정본
+
+partnerit-captcha-fix-20261105.zip의www안4파일만기존/www에동일경로덮어쓴다. captcha/admin.php/default.php, inc/lib/helper/CaptchaHelper.php, console/lib/Auth/LoginProcessor.php. 새helper와검증파일을함께올린다. 계정/비밀번호/SQL/.env변경없음. GD없는환경도5자리PNG를생성하며빈세션/빈입력은거부한다.
+
+로컬무GD FPM·nativeGD의이미지/세션·정상로그인/게시판목록HTTP25와PNG독립decode8개통과. 실제서버적용은사용자업로드후확인하며이번작업은직접배포하지않았다. 일반이미지/본문의나머지필수모듈은별도. [검증](../docs/04-history/261105-captcha-png-compatibility.md).
+
+
+## 11/5 관리자 최종 추가 수정본
+
+`partnerit-admin-final-20261105.zip`의 `www/` **안의 내용**을 기존 원격 `/www/`에 같은 상대 경로로 덮어쓴다. 배너·SQL 덤프·.env·개인키·QA fixture는 제외하며 기존 .env/업로드/계정을 유지한다. 누적 서버 호환/본문/캡차 수정도 포함한다. 검증자료와 설명서는 www 밖에 있으며 서버에 올리지 않는다.
+
+게시판 저장은 네 테이블의 InnoDB가 필요하다. 기존 덤프의 nb_board/nb_board_manage/nb_board_comment는 MyISAM이었다. 실제 고객 서버 엔진은 미조회이므로 서버 담당자가 `database/migrations/261105-1504-board-transaction-engines.php`를 DB import 권한으로 CLI 점검한 뒤 필요한 경우 --apply 해야 한다. 런타임 DB 계정은 그대로 둔다. migration은 DB 내부 백업/이력/재실행 검사를 제공한다. 미전환 상태는 새 코드가 업로드 전에 저장을 거부한다.
+
+게시판21, 권한20, 설정HTTP19, 공개/소개서HTTP38, 팝업/문의경계11, 팝업실패7, JS8, 프론트경계6, 분류·비밀번호·SEO11 및 migration 행 보존을 확인했다. 배너는 미사용 제외. 실제 시각 검수 없이 코드의 마크업/반응형/연결만 확인했다. [전체 검수기록](../docs/04-history/261105-final-cms-qa.md).
+
+
+## GitHub 인수인계 범위 (2026-11-05)
+
+게시 저장소는 DevCrop/parterit, 대상은 기존 codex/final-qa-20261007 및 기본 main이다. PHP8.4.27 호환·정제 소스·관리자 최종 수정·빌드·마이그레이션·검수 기록을 관리한다. 실제 서버 .env/SSH 키/SQL 데이터 덤프/테스트 fixture/배포 ZIP은 저장소에 올리지 않는다. Docker Compose의 user/password 값은 격리 개발 예시이며 실제 서버 계정이 아니다. 이미지/문서의 원본 및 비공개 업로드는 별도 전달물로 관리한다. 미사용 배너의 이전 로컬 수정은 이번 게시에서 제외한다. GitHub 게시와 서버 배포는 별개이며, 실제 배포에는 위 InnoDB 점검/마이그레이션이 선행된다.

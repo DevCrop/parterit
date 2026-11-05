@@ -65,6 +65,7 @@ export class AccountController {
 
   async insert(e) {
     e.preventDefault();
+    if (!this.form.reportValidity()) return;
     const formData = new FormData(this.form);
     formData.set("mode", "save");
 
@@ -77,6 +78,7 @@ export class AccountController {
 
   async update(e) {
     e.preventDefault();
+    if (!this.form.reportValidity()) return;
     const formData = new FormData(this.form);
     formData.set("mode", "update");
 
